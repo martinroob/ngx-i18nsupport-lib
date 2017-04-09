@@ -1,0 +1,56 @@
+{
+  "name": "ngx-i18nsupport-lib",
+  "version": "0.0.1",
+  "description": "A Typescript library to work with Angular generated i18n files (xliff, xmb)",
+  "main": "bundles/ngx-i18nsupport-lib.umd.js",
+  "module": "index.js",
+  "typings": "./ngx-i18nsupport-lib.d.ts",
+  "es2015": "./src",
+  "engines": {
+    "node": ">=6.9"
+  },
+  "scripts": {
+    "build": "tsc -p ./tsconfig.json && webpack",
+    "pretest": "npm run build",
+    "test": "./node_modules/.bin/jasmine-node dist",
+    "precover": "npm run build",
+    "cover": "./node_modules/.bin/istanbul cover --root dist --include-all-sources ./node_modules/jasmine-node/bin/jasmine-node -- dist",
+    "prepublish": "npm run build"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/martinroob/ngx-i18nsupport-lib.git"
+  },
+  "keywords": [
+    "i18n",
+    "tooling",
+    "angular",
+    "xliff",
+    "xmb"
+  ],
+  "author": "Martin Roob <martinroob65@gmail.com> (www.roobsoft.de)",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/martinroob/ngx-i18nsupport-lib/issues"
+  },
+  "homepage": "https://github.com/martinroob/ngx-i18nsupport-lib#readme",
+  "devDependencies": {
+    "@types/cheerio": "^0.17.31",
+    "@types/jasmine": "^2.5.43",
+    "@types/node": "^7.0.5",
+    "awesome-typescript-loader": "^3.1.2",
+    "clean-webpack-plugin": "^0.1.16",
+    "codelyzer": "^2.1.1",
+    "coveralls": "^2.11.16",
+    "cpx": "^1.5.0",
+    "istanbul": "^0.4.5",
+    "jasmine-node": "^1.14.5",
+    "tslint": "^5.0.0",
+    "tslint-loader": "^3.5.2",
+    "typescript": "^2.2.1",
+    "webpack": "^2.3.3"
+  },
+  "dependencies": {
+    "cheerio": "^0.22.0"
+  }
+}
