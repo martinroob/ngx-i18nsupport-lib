@@ -25,13 +25,13 @@ module.exports = {
     output: {
         path: helpers.root('bundles'),
         publicPath: '/',
-        filename: 'ngx-i18nsupport.umd.js',
-        library: 'ngx-i18nsupport',
+        filename: 'ngx-i18nsupport-lib.umd.js',
+        library: 'ngx-i18nsupport-lib',
         libraryTarget: 'umd'
     },
 
     // require those dependencies but don't bundle them
-    externals: [],
+    externals: [/^\@angular\//, /^rxjs\//, /^cheerio\//],
 
     module: {
         rules: [{
