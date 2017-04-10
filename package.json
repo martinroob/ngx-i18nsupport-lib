@@ -3,7 +3,7 @@
   "version": "0.0.1",
   "description": "A Typescript library to work with Angular generated i18n files (xliff, xmb)",
   "main": "bundles/ngx-i18nsupport-lib.umd.js",
-  "module": "index.js",
+  "module": "./dist/index.js",
   "typings": "./ngx-i18nsupport-lib.d.ts",
   "es2015": "./src",
   "engines": {
