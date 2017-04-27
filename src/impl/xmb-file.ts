@@ -111,7 +111,7 @@ class TransUnit implements ITransUnit {
      * (better than missing value)
      * In xmb there is nothing to do, because there is only a target, no source.
      */
-    public useSourceAsTarget(isDefaultLang: boolean) {
+    public useSourceAsTarget(isDefaultLang: boolean, copyContent: boolean) {
     }
 
     /**
@@ -293,8 +293,8 @@ export class XmbFile implements ITranslationMessagesFile {
      * (better than missing value)
      * In xmb there is nothing to do, because there is only a target, no source.
      */
-    public useSourceAsTarget(transUnit: ITransUnit, isDefaultLang: boolean) {
-        transUnit.useSourceAsTarget(isDefaultLang);
+    public useSourceAsTarget(transUnit: ITransUnit, isDefaultLang: boolean, copyContent: boolean) {
+        transUnit.useSourceAsTarget(isDefaultLang, copyContent);
     }
 
     /**
