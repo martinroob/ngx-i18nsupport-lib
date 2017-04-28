@@ -35,7 +35,6 @@
   },
   "homepage": "https://github.com/martinroob/ngx-i18nsupport-lib#readme",
   "devDependencies": {
-    "@types/cheerio": "^0.17.31",
     "@types/jasmine": "^2.5.43",
     "@types/node": "^7.0.5",
     "awesome-typescript-loader": "^3.1.2",
@@ -51,6 +50,7 @@
     "webpack": "^2.3.3"
   },
   "dependencies": {
+    "@types/cheerio": "^0.22.1",
     "cheerio": "^0.22.0"
   }
 }

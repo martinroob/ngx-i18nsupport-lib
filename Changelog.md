@@ -1,5 +1,5 @@
-<a name="0.0.4"></a>
-# [0.0.4](https://github.com/martinroob/ngx-i18nsupport-lib/compare/v0.0.4...v0.0.1) (2017-04-28)
+<a name="0.0.5"></a>
+# [0.0.5](https://github.com/martinroob/ngx-i18nsupport-lib/compare/v0.0.5...v0.0.1) (2017-04-28)
 
 ### Bug Fixes
 
