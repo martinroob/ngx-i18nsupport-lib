@@ -120,7 +120,9 @@ class TransUnit implements ITransUnit {
         let translationContainer: CheerioStatic = cheerio.load('<dummy>' + translation + '</dummy>', CheerioOptions);
         let translationParts: Cheerio = translationContainer('dummy');
         target.contents().remove();
-        translationParts.contents().each((index, element) => {target.append(cheerio(element));});
+        translationParts.contents().each((index, element) => {
+            target.append(cheerio(element));
+        });
         target.attr('state', 'final');
     }
 
@@ -135,11 +137,11 @@ class TransUnit implements ITransUnit {
             source.parent().append('<target/>');
             target = cheerio('target', source.parent());
         }
-	if (isDefaultLang || copyContent) {
+        if (isDefaultLang || copyContent) {
             target.html(source.html());
-	} else {
-	    target.html('');
-	}
+        } else {
+            target.html('');
+        }
         if (isDefaultLang) {
             target.attr('state', 'final');
         } else {

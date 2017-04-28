@@ -38,22 +38,10 @@ export interface ITranslationMessagesFile {
     sourceLanguage(): string;
 
     /**
-     * Edit the source language.
-     * @param language
-     */
-    setSourceLanguage(language: string);
-
-    /**
      * Get target language.
      * @return {string}
      */
     targetLanguage(): string;
-
-    /**
-     * Edit the target language.
-     * @param language
-     */
-    setTargetLanguage(language: string);
 
     /**
      * Loop over all Translation Units.
@@ -73,6 +61,18 @@ export interface ITranslationMessagesFile {
      */
 
     /**
+     * Edit the source language.
+     * @param language
+     */
+    setSourceLanguage(language: string);
+
+    /**
+     * Edit the target language.
+     * @param language
+     */
+    setTargetLanguage(language: string);
+
+    /**
      * Add a new trans-unit.
      * @param transUnit
      */
@@ -88,7 +88,7 @@ export interface ITranslationMessagesFile {
      * Copy source to target to use it as dummy translation.
      * (better than missing value)
      */
-    useSourceAsTarget(transUnit: ITransUnit, isDefaultLang: boolean);
+    useSourceAsTarget(transUnit: ITransUnit, isDefaultLang: boolean, copyContent: boolean);
 
     /**
      * Translate a given trans unit.

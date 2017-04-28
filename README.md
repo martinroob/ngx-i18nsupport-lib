@@ -4,7 +4,7 @@
 [![Code coverage][coverage-badge]][coverage-badge-url]
 [![npm][npm-badge]][npm-badge-url]
 
-ngx-i18nsupport.lib
+ngx-i18nsupport-lib
 =========
 
 A Typescript library to work with Angular generated i18n files (xliff, xmb)
@@ -22,7 +22,7 @@ A Typescript library to work with Angular generated i18n files (xliff, xmb)
 
 ## Installation
 
-  `npm install -g ngx-i18nsupport-lib`
+  `npm install ngx-i18nsupport-lib --save-dev`
   
 ## Usage
 

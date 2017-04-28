@@ -34,6 +34,12 @@
         <target/>
         <note priority="1" from="description">placeholder sample</note>
       </trans-unit>
+        <trans-unit id="84e8cd8ba480129d90f512cc3462bb43efcf389f" datatype="html">
+            <source>Montag</source>
+            <target/>
+            <note priority="1" from="description">ngx-translate</note>
+            <note priority="1" from="meaning">dateservice.monday</note>
+        </trans-unit>
       <trans-unit id="e4e521770b592e6fca431a4a131efcfd13f35634" datatype="html">
         <source>Dieser Text
           enthält einen Zeilenumbruch.</source>
@@ -44,6 +50,10 @@
         <source>Dieser Text enthält <x id="START_BOLD_TEXT" ctype="x-b"/>eingebettetes html<x id="CLOSE_BOLD_TEXT" ctype="x-b"/></source>
         <target/>
         <note priority="1" from="description">embedded html sample</note>
+      </trans-unit>
+      <trans-unit datatype="html">
+        <source>no id</source>
+        <target/>
       </trans-unit>
     </body>
   </file>

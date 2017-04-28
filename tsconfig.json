@@ -7,7 +7,7 @@
     "experimentalDecorators": true,
     "lib": ["es6", "dom"],
     "mapRoot": "./",
-    "module": "es2015",
+    "module": "CommonJS",
     "moduleResolution": "node",
     "outDir": "./dist",
     "lib": ["es2015", "dom"],
@@ -17,16 +17,13 @@
       "./node_modules/@types"
     ]
   },
-  "files": [
-    "index.ts",
-    "src/api/api.spec.ts"
-  ],
   "includes": [
     "./src/**/*"
   ],
   "exclude": [
     "node_modules",
-    "bundles"
+    "bundles",
+    "dist"
   ],
   "angularCompilerOptions": {
     "strictMetadataEmit": true,
