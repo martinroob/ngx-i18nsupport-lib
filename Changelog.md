@@ -1,3 +1,15 @@
+<a name="0.0.6"></a>
+# [0.0.6](https://github.com/martinroob/ngx-i18nsupport-lib/compare/v0.0.6...v0.0.5) (2017-05-01)
+
+### Bug Fixes
+
+* first stable version
+
+### Features
+
+* replaced cheerio by xmldom
+* added support for handling of source elements (references to angular template files)
+
 <a name="0.0.5"></a>
 # [0.0.5](https://github.com/martinroob/ngx-i18nsupport-lib/compare/v0.0.5...v0.0.1) (2017-04-28)
 
