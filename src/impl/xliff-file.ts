@@ -76,6 +76,36 @@ class TransUnit implements ITransUnit {
     }
 
     /**
+     * All the source elements in the trans unit.
+     * The source element is a reference to the original template.
+     * It contains the name of the template file and a line number with the position inside the template.
+     * It is just a help for translators to find the context for the translation.
+     * This is set when using Angular 4.0 or greater.
+     * Otherwise it just returns an empty array.
+     */
+    public sourceReferences(): {sourcefile: string, linenumber}[] {
+        let sourceElements = cheerio('context-group', this._transUnit);
+        let sourceRefs: { sourcefile: string, linenumber }[] = [];
+        sourceElements.map((index, elem) => {
+            if (elem.attribs['purpose'] === 'location') {
+                let contextElements = cheerio('context', elem);
+                let sourcefile = null;
+                let linenumber = 0;
+                contextElements.map((index2, contextElem) => {
+                    if (contextElem.attribs['context-type'] === 'sourcefile') {
+                        sourcefile = cheerio(contextElem).html();
+                    }
+                    if (contextElem.attribs['context-type'] === 'linenumber') {
+                        linenumber = Number.parseInt(cheerio(contextElem).html());
+                    }
+                });
+                sourceRefs.push({sourcefile: sourcefile, linenumber: linenumber});
+            }
+        });
+        return sourceRefs;
+    }
+
+    /**
      * The description set in the template as value of the i18n-attribute.
      * e.g. i18n="mydescription".
      * In xliff this is stored as a note element with attribute from="description".

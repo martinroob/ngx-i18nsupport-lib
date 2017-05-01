@@ -26,8 +26,20 @@ class TransUnit implements ITransUnit {
         return this._id;
     }
 
+    /**
+     * Get content to translate.
+     * Source parts are excluded here.
+     * @return {string}
+     */
     public sourceContent(): string {
-        return cheerio(this._msg).html();
+        let msgElem = cheerio(this._msg);
+        msgElem.children().remove('source');
+        let msgContent = cheerio.load(msgElem[0], {xmlMode: true}).html();
+        let reStartMsg: RegExp = /<msg[^>]*>/g;
+        msgContent = msgContent.replace(reStartMsg, '');
+        let reEndMsg: RegExp = /<\/msg>/g;
+        msgContent = msgContent.replace(reEndMsg, '');
+        return msgContent;
     }
 
     /**
@@ -35,7 +47,7 @@ class TransUnit implements ITransUnit {
      */
     public targetContent(): string {
         // in fact, target and source are just the same in xmb
-        return cheerio(this._msg).html();
+        return this.sourceContent();
     }
 
     /**
@@ -76,6 +88,48 @@ class TransUnit implements ITransUnit {
             }
         }
         return null; // not supported in xmb
+    }
+
+    /**
+     * All the source elements in the trans unit.
+     * The source element is a reference to the original template.
+     * It contains the name of the template file and a line number with the position inside the template.
+     * It is just a help for translators to find the context for the translation.
+     * This is set when using Angular 4.0 or greater.
+     * Otherwise it just returns an empty array.
+     */
+    public sourceReferences(): { sourcefile: string, linenumber }[] {
+        let sourceElements = cheerio('source', this._msg);
+        let sourceRefs: { sourcefile: string, linenumber }[] = [];
+        sourceElements.map((index, elem) => {
+            const sourceAndPos: string = cheerio(elem).html();
+            sourceRefs.push(this.parseSourceAndPos(sourceAndPos));
+        });
+        return sourceRefs;
+    }
+
+    /**
+     * Parses something like 'c:\xxx:7' and returns source and linenumber.
+     * @param sourceAndPossomething like 'c:\xxx:7', last colon is the separator
+     * @return {{sourcefile: string, linenumber: number}}
+     */
+    private parseSourceAndPos(sourceAndPos: string): { sourcefile: string, linenumber } {
+        let index = sourceAndPos.lastIndexOf(':');
+        if (index < 0) {
+            return {
+                sourcefile: sourceAndPos,
+                linenumber: 0
+            }
+        } else {
+            return {
+                sourcefile: sourceAndPos.substring(0, index),
+                linenumber: this.parseLineNumber(sourceAndPos.substring(index + 1))
+            }
+        }
+    }
+
+    private parseLineNumber(lineNumberString: string): number {
+        return Number.parseInt(lineNumberString);
     }
 
     /**
@@ -121,9 +175,26 @@ class TransUnit implements ITransUnit {
      */
     public translate(translation: string) {
         let target = cheerio(this._msg);
-        target.html(translation);
+        // reconvert source refs to html part in translation message
+        let sourceRefsHtml = this.sourceRefsToHtml();
+        if (isNullOrUndefined(translation)) {
+            translation = '';
+        }
+        console.log('Source ref ', sourceRefsHtml);
+        target.html(sourceRefsHtml + translation);
     }
 
+    /**
+     * convert the source refs to html.
+     * Result is something like <source>c:\x:93</source>
+     */
+    private sourceRefsToHtml(): string {
+        let result: string = '';
+        this.sourceReferences().forEach((sourceRef) => {
+            result = result + '<source>' + sourceRef.sourcefile + ':' + sourceRef.linenumber + '</source>';
+        });
+        return result;
+    }
 }
 
 export class XmbFile implements ITranslationMessagesFile {
@@ -154,13 +225,13 @@ export class XmbFile implements ITranslationMessagesFile {
      * (this is used to support state infos, that are based on comparing original with translated version)
      * @return {XmbFile}
      */
-    constructor(xmlString: string, path: string, encoding: string, optionalMaster?: {xmlContent: string, path: string, encoding: string}) {
+    constructor(xmlString: string, path: string, encoding: string, optionalMaster?: { xmlContent: string, path: string, encoding: string }) {
         this._warnings = [];
         this._numberOfTransUnitsWithMissingId = 0;
         this.initializeFromContent(xmlString, path, encoding, optionalMaster);
     }
 
-    private initializeFromContent(xmlString: string, path: string, encoding: string, optionalMaster?: {xmlContent: string, path: string, encoding: string}): XmbFile {
+    private initializeFromContent(xmlString: string, path: string, encoding: string, optionalMaster?: { xmlContent: string, path: string, encoding: string }): XmbFile {
         this._filename = path;
         this._encoding = encoding;
         this.xmbContent = cheerio.load(xmlString, CheerioOptions);
@@ -239,7 +310,7 @@ export class XmbFile implements ITranslationMessagesFile {
     private guessLanguageFromFilename(): string {
         if (this._filename) {
             let parts: string[] = this._filename.split('.');
-            if (parts.length > 2 && parts[parts.length -1].toLowerCase() === 'xmb') {
+            if (parts.length > 2 && parts[parts.length - 1].toLowerCase() === 'xmb') {
                 return parts[parts.length - 2];
             }
         }

@@ -43,7 +43,10 @@ describe('ngx-i18nsupport-lib xmb test spec', () => {
 
         let ID_MY_FIRST = '2047558209369508311'; // an ID from ngExtractedMaster1.xmb
         let ID_WITH_PLACEHOLDER = '9030312858648510700';
-        let ID_WITH_MEANING_AND_DESCRIPTION = '3274258156935474372';
+        let ID_WITH_MEANING_AND_DESCRIPTION = '3274258156935474372'; // ID with placeholders and source element
+        let ID_WITH_NO_SOURCEREFS = 'no_sourceref_test'; // an ID with no source elements
+        let ID_WITH_TWO_SOURCEREFS = '4371668001355139802'; // an ID with 2 source elements
+        let ID_WITH_LINEBREAK = '7149517499881679376';
 
         it('should read xmb file', () => {
             const file: ITranslationMessagesFile = readFile(MASTER1SRC);
@@ -62,7 +65,7 @@ describe('ngx-i18nsupport-lib xmb test spec', () => {
 
         it('should count units', () => {
             const file: ITranslationMessagesFile = readFile(MASTER1SRC);
-            expect(file.numberOfTransUnits()).toBe(6);
+            expect(file.numberOfTransUnits()).toBe(8);
             expect(file.numberOfTransUnitsWithMissingId()).toBe(1);
         });
 
@@ -96,6 +99,67 @@ describe('ngx-i18nsupport-lib xmb test spec', () => {
             expect(tu).toBeTruthy();
             expect(tu.meaning()).toBe('dateservice.monday');
             expect(tu.description()).toBe('ngx-translate');
+        });
+
+        it('should ignore source attribute in sourceContent', () => {
+            const file: ITranslationMessagesFile = readFile(MASTER1SRC);
+            const tu: ITransUnit = file.transUnitWithId(ID_WITH_PLACEHOLDER);
+            expect(tu).toBeTruthy();
+            expect(tu.sourceContent()).toBe('Eintrag <ph name="INTERPOLATION"><ex>INTERPOLATION</ex></ph> von <ph name="INTERPOLATION_1"><ex>INTERPOLATION_1</ex></ph> hinzugef&#xFC;gt.');
+        });
+
+        it('should return empty source references array if source not set', () => {
+            const file: ITranslationMessagesFile = readFile(MASTER1SRC);
+            const tu: ITransUnit = file.transUnitWithId(ID_WITH_NO_SOURCEREFS);
+            expect(tu).toBeTruthy();
+            expect(tu.sourceReferences().length).toBe(0);
+        });
+
+        it('should return source reference', () => {
+            const file: ITranslationMessagesFile = readFile(MASTER1SRC);
+            const tu: ITransUnit = file.transUnitWithId(ID_WITH_PLACEHOLDER);
+            expect(tu).toBeTruthy();
+            expect(tu.sourceReferences().length).toBe(1);
+            expect(tu.sourceReferences()[0].sourcefile).toBe('S:/experimente/sampleapp41/src/app/app.component.ts');
+            expect(tu.sourceReferences()[0].linenumber).toBe(6);
+        });
+
+        it('should return more than one source references', () => {
+            const file: ITranslationMessagesFile = readFile(MASTER1SRC);
+            const tu: ITransUnit = file.transUnitWithId(ID_WITH_TWO_SOURCEREFS);
+            expect(tu).toBeTruthy();
+            expect(tu.sourceReferences().length).toBe(2);
+            expect(tu.sourceReferences()[0].sourcefile).toBe('S:/experimente/sampleapp41/src/app/app.component.ts');
+            expect(tu.sourceReferences()[0].linenumber).toBe(2);
+            expect(tu.sourceReferences()[1].sourcefile).toBe('S:/experimente/sampleapp41/src/app/app.component.ts');
+            expect(tu.sourceReferences()[1].linenumber).toBe(3);
+        });
+
+        it('should return source reference with more than 1 linenumber', () => {
+            // if the text in template spreads over more than 1 line, there is a linenumber format like 7,8 used
+            // in this case, linenumber is the first line (here 7).
+            const file: ITranslationMessagesFile = readFile(MASTER1SRC);
+            const tu: ITransUnit = file.transUnitWithId(ID_WITH_LINEBREAK);
+            expect(tu).toBeTruthy();
+            expect(tu.sourceReferences().length).toBe(1);
+            expect(tu.sourceReferences()[0].sourcefile).toBe('S:/experimente/sampleapp41/src/app/app.component.ts');
+            expect(tu.sourceReferences()[0].linenumber).toBe(7);
+        });
+
+        it('should not change source reference when translating', () => {
+            const file: ITranslationMessagesFile = readFile(MASTER1SRC);
+            const tu: ITransUnit = file.transUnitWithId(ID_WITH_TWO_SOURCEREFS);
+            expect(tu).toBeTruthy();
+            expect(tu.sourceReferences().length).toBe(2);
+            tu.translate('a translated value');
+            const file2: ITranslationMessagesFile = TranslationMessagesFileFactory.fromUnknownFormatFileContent(file.editedContent(), null, null);
+            const tu2: ITransUnit = file2.transUnitWithId(ID_WITH_TWO_SOURCEREFS);
+            expect(tu2.targetContent()).toBe('a translated value');
+            expect(tu2.sourceReferences().length).toBe(2);
+            expect(tu2.sourceReferences()[0].sourcefile).toBe('S:/experimente/sampleapp41/src/app/app.component.ts');
+            expect(tu2.sourceReferences()[0].linenumber).toBe(2);
+            expect(tu2.sourceReferences()[1].sourcefile).toBe('S:/experimente/sampleapp41/src/app/app.component.ts');
+            expect(tu2.sourceReferences()[1].linenumber).toBe(3);
         });
 
     });

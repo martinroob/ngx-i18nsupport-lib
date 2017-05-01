@@ -9,10 +9,18 @@
       <trans-unit id="f540f05dc71be88e226a3920dbf1140b2658e5ea" datatype="html">
         <source>Create a new project</source>
         <target state="final">Legen Sie ein neues Projekt an</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">S:/experimente/sampleapp41/src/app/app.component.ts</context>
+          <context context-type="linenumber">1</context>
+        </context-group>
       </trans-unit>
       <trans-unit id="84972a39ee3484b97abdfe3863284af16564f9b2" datatype="html">
         <source>Open a new project</source>
         <target state="final">Öffnen Sie ein neues Projekt</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">S:/experimente/sampleapp41/src/app/app.component.ts</context>
+          <context context-type="linenumber">2</context>
+        </context-group>
       </trans-unit>
       <trans-unit id="c660f51d0a809bdffb6939f4c4459858abc2288b" datatype="html">
         <source>Project name</source>

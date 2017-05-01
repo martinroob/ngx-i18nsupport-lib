@@ -21,10 +21,13 @@
         <!ELEMENT ex (#PCDATA)>
         ]>
 <messagebundle>
-    <msg id="2047558209369508311">My first I18N Application</msg>
-    <msg id="7499557905529977371" desc="Beschreibung der Anwendung">This app is for demonstration purposed only.</msg>
+    <msg id="2047558209369508311"><source>S:/experimente/sampleapp41/src/app/app.component.ts:1</source>My first I18N Application</msg>
+    <msg id="4371668001355139802"><source>S:/experimente/sampleapp41/src/app/app.component.ts:2</source><source>S:/experimente/sampleapp41/src/app/app.component.ts:3</source>App works!</msg>
+    <msg id="7499557905529977371" desc="Beschreibung der Anwendung"><source>S:/experimente/sampleapp41/src/app/app.component.ts:4</source>This app is for demonstration purposed only.</msg>
     <msg id="3274258156935474372" desc="ngx-translate" meaning="dateservice.monday">Monday</msg>
-    <msg id="9030312858648510700" desc="placeholder sample">Entry <ph name="INTERPOLATION"><ex>INTERPOLATION</ex></ph> of <ph name="INTERPOLATION_1"><ex>INTERPOLATION_1</ex></ph> added.</msg>
+    <msg id="9030312858648510700" desc="placeholder sample"><source>S:/experimente/sampleapp41/src/app/app.component.ts:6</source>Entry <ph name="INTERPOLATION"><ex>INTERPOLATION</ex></ph> of <ph name="INTERPOLATION_1"><ex>INTERPOLATION_1</ex></ph> added.</msg>
+    <msg id="7149517499881679376" desc="linebreak sample"><source>S:/experimente/sampleapp41/src/app/app.component.ts:7,8</source>This text
+        contains a line break.</msg>
     <msg id="7149517499881679376" desc="linebreak sample">This text
         contains a line break.</msg>
 </messagebundle>

@@ -9,6 +9,9 @@ export interface ITransUnit {
 
     readonly id: string;
 
+    /**
+     * The original text value, that is to be translated.
+     */
     sourceContent(): string;
 
     /**
@@ -27,6 +30,16 @@ export interface ITransUnit {
      * (new, final, ...)
      */
     targetState(): string;
+
+    /**
+     * All the source elements in the trans unit.
+     * The source element is a reference to the original template.
+     * It contains the name of the template file and a line number with the position inside the template.
+     * It is just a help for translators to find the context for the translation.
+     * This is set when using Angular 4.0 or greater.
+     * Otherwise it just returns an empty array.
+     */
+    sourceReferences(): {sourcefile: string, linenumber}[];
 
     /**
      * The description set in the template as value of the i18n-attribute.
