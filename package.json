@@ -50,7 +50,7 @@
     "webpack": "^2.3.3"
   },
   "dependencies": {
-    "@types/cheerio": "^0.22.1",
-    "cheerio": "^0.22.0"
+    "@types/xmldom": "^0.1.29",
+    "xmldom": "^0.1.27"
   }
 }

@@ -56,9 +56,9 @@ export interface ITransUnit {
 
     /**
      * the real xml element used for trans unit.
-     * @return {CheerioElement}
+     * @return {Element}
      */
-    asXmlElement(): CheerioElement;
+    asXmlElement(): Element;
 
     /**
      * Copy source to target to use it as dummy translation.

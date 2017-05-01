@@ -38,7 +38,7 @@ describe('ngx-i18nsupport-lib xliff 1.2 test spec', () => {
             expect(file.fileType()).toBe('XLIFF 1.2');
             const tu: ITransUnit = file.transUnitWithId(ID_TRANSLATED_SCHLIESSEN);
             expect(tu).toBeTruthy();
-            expect(tu.sourceContent()).toBe('Schlie&#xDF;en');
+            expect(tu.sourceContent()).toBe('Schließen');
         });
 
         it('should emit warnings', () => {
