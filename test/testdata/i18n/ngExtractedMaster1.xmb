@@ -28,6 +28,8 @@
     <msg id="9030312858648510700" desc="placeholder sample"><source>S:/experimente/sampleapp41/src/app/app.component.ts:6</source>Eintrag <ph name="INTERPOLATION"><ex>INTERPOLATION</ex></ph> von <ph name="INTERPOLATION_1"><ex>INTERPOLATION_1</ex></ph> hinzugefügt.</msg>
     <msg id="7149517499881679376" desc="linebreak sample"><source>S:/experimente/sampleapp41/src/app/app.component.ts:7,8</source>Dieser Text
         enthält einen Zeilenumbruch.</msg>
+    <msg id="7609655310648429098" desc="ngx-translate" meaning="embeddedhtml.boldstrong"><source>S:/experimente/sampleapp41/src/app/ngx-translate-test-data/ngx-translate-test-data.component.ts:16</source>Diese Nachricht ist <ph name="START_BOLD_TEXT"><ex>&lt;b&gt;</ex></ph><ph name="START_TAG_STRONG"><ex>&lt;strong&gt;</ex></ph>SEHR WICHTIG<ph name="CLOSE_TAG_STRONG"><ex>&lt;/strong&gt;</ex></ph><ph name="CLOSE_BOLD_TEXT"><ex>&lt;/b&gt;</ex></ph></msg>
+    <msg id="7610784844464920497" desc="ngx-translate" meaning="embeddedhtml.strange"><source>S:/experimente/sampleapp41/src/app/ngx-translate-test-data/ngx-translate-test-data.component.ts:17</source>Diese Nachricht ist <ph name="START_TAG_STRANGE"><ex>&lt;strange&gt;</ex></ph><ph name="INTERPOLATION"><ex>INTERPOLATION</ex></ph><ph name="CLOSE_TAG_STRANGE"><ex>&lt;/strange&gt;</ex></ph></msg>
     <msg id="no_sourceref_test">no source ref</msg>
     <msg>no id</msg>
 </messagebundle>

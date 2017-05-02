@@ -43,18 +43,30 @@ export class XliffTransUnit implements ITransUnit {
         let normalized = directHtml;
         let re0: RegExp = /<x id="INTERPOLATION"><\/x>/g;
         normalized = normalized.replace(re0, '{{0}}');
+        let re0b: RegExp = /<x id="INTERPOLATION"\/>/g;
+        normalized = normalized.replace(re0b, '{{0}}');
         let reN: RegExp = /<x id="INTERPOLATION_(\d*)"><\/x>/g;
         normalized = normalized.replace(reN, '{{$1}}');
+        let reNb: RegExp = /<x id="INTERPOLATION_(\d*)"\/>/g;
+        normalized = normalized.replace(reNb, '{{$1}}');
 
         let reStartBold: RegExp = /<x id="START_BOLD_TEXT" ctype="x-b"><\/x>/g;
         normalized = normalized.replace(reStartBold, '<b>');
+        let reStartBoldb: RegExp = /<x id="START_BOLD_TEXT" ctype="x-b"\/>/g;
+        normalized = normalized.replace(reStartBoldb, '<b>');
         let reCloseBold: RegExp = /<x id="CLOSE_BOLD_TEXT" ctype="x-b"><\/x>/g;
         normalized = normalized.replace(reCloseBold, '</b>');
+        let reCloseBoldb: RegExp = /<x id="CLOSE_BOLD_TEXT" ctype="x-b"\/>/g;
+        normalized = normalized.replace(reCloseBoldb, '</b>');
 
         let reStartAnyTag: RegExp = /<x id="START_TAG_(\w*)" ctype="x-(\w*)"><\/x>/g;
         normalized = normalized.replace(reStartAnyTag, '<$2>');
+        let reStartAnyTagb: RegExp = /<x id="START_TAG_(\w*)" ctype="x-(\w*)"\/>/g;
+        normalized = normalized.replace(reStartAnyTagb, '<$2>');
         let reCloseAnyTag: RegExp = /<x id="CLOSE_TAG_(\w*)" ctype="x-(\w*)"><\/x>/g;
         normalized = normalized.replace(reCloseAnyTag, '</$2>');
+        let reCloseAnyTagb: RegExp = /<x id="CLOSE_TAG_(\w*)" ctype="x-(\w*)"\/>/g;
+        normalized = normalized.replace(reCloseAnyTagb, '</$2>');
 
         return normalized;
     }

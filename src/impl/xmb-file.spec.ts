@@ -47,6 +47,8 @@ describe('ngx-i18nsupport-lib xmb test spec', () => {
         let ID_WITH_NO_SOURCEREFS = 'no_sourceref_test'; // an ID with no source elements
         let ID_WITH_TWO_SOURCEREFS = '4371668001355139802'; // an ID with 2 source elements
         let ID_WITH_LINEBREAK = '7149517499881679376';
+        let ID_WITH_TAGS = '7609655310648429098';
+        let ID_WITH_TAG_STRANGE = '7610784844464920497';
 
         it('should read xmb file', () => {
             const file: ITranslationMessagesFile = readFile(MASTER1SRC);
@@ -65,7 +67,7 @@ describe('ngx-i18nsupport-lib xmb test spec', () => {
 
         it('should count units', () => {
             const file: ITranslationMessagesFile = readFile(MASTER1SRC);
-            expect(file.numberOfTransUnits()).toBe(8);
+            expect(file.numberOfTransUnits()).toBe(10);
             expect(file.numberOfTransUnitsWithMissingId()).toBe(1);
         });
 
@@ -160,6 +162,24 @@ describe('ngx-i18nsupport-lib xmb test spec', () => {
             expect(tu2.sourceReferences()[0].linenumber).toBe(2);
             expect(tu2.sourceReferences()[1].sourcefile).toBe('S:/experimente/sampleapp41/src/app/app.component.ts');
             expect(tu2.sourceReferences()[1].linenumber).toBe(3);
+        });
+
+        it('should normalize placeholders to {{0}} etc', () => {
+            const file: ITranslationMessagesFile = readFile(MASTER1SRC);
+            const tu: ITransUnit = file.transUnitWithId(ID_WITH_PLACEHOLDER);
+            expect(tu.targetContentNormalized()).toBe('Eintrag {{0}} von {{1}} hinzugefügt.');
+        });
+
+        it('should normalize embedded html tags', () => {
+            const file: ITranslationMessagesFile = readFile(MASTER1SRC);
+            const tu: ITransUnit = file.transUnitWithId(ID_WITH_TAGS);
+            expect(tu.targetContentNormalized()).toBe('Diese Nachricht ist <b><strong>SEHR WICHTIG</strong></b>');
+        });
+
+        it('should normalize embedded html tags', () => {
+            const file: ITranslationMessagesFile = readFile(MASTER1SRC);
+            const tu: ITransUnit = file.transUnitWithId(ID_WITH_TAG_STRANGE);
+            expect(tu.targetContentNormalized()).toBe('Diese Nachricht ist <strange>{{0}}</strange>');
         });
 
     });

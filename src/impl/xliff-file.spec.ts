@@ -27,10 +27,13 @@ describe('ngx-i18nsupport-lib xliff 1.2 test spec', () => {
 
         let ID_TRANSLATED_SCHLIESSEN = '1ead0ad1063d0c9e005fe56c9529aef4c1ef9d21'; // an ID from ngExtractedMaster1.xlf
         let ID_WITH_PLACEHOLDER = 'af0819ea4a5db68737ebcabde2f5e432b66352e8';
+        let ID_WITH_PLACEHOLDER_2 = 'af0819ea4a5db68737ebcabde2f5e432b66352e8xxx'; // same with </x> tags
         let ID_WITH_MEANING_AND_DESCRIPTION = '84e8cd8ba480129d90f512cc3462bb43efcf389f';
         let ID_WITH_NO_SOURCEREFS = 'no_sourceref_test'; // an ID with no source elements
         let ID_WITH_ONE_SOURCEREF = '57e605bfa130afb4de4ee40e496e854a9e8a28a7';
         let ID_WITH_TWO_SOURCEREFS = '78eab955529ba0f1817c84991d9175f55bfdf937'; // an ID with 2 source elements
+        let ID_WITH_TAGS = '7e8dd1fd1c57afafc38550ce80b5bcc1ced49f85';
+        let ID_WITH_TAGS_2 = '7e8dd1fd1c57afafc38550ce80b5bcc1ced49f85xxx'; // same with </x> tags
 
         it('should read xlf file', () => {
             const file: ITranslationMessagesFile = readFile(MASTER1SRC);
@@ -49,7 +52,7 @@ describe('ngx-i18nsupport-lib xliff 1.2 test spec', () => {
 
         it('should count units', () => {
             const file: ITranslationMessagesFile = readFile(MASTER1SRC);
-            expect(file.numberOfTransUnits()).toBe(12);
+            expect(file.numberOfTransUnits()).toBe(14);
             expect(file.numberOfTransUnitsWithMissingId()).toBe(1);
         });
 
@@ -118,11 +121,28 @@ describe('ngx-i18nsupport-lib xliff 1.2 test spec', () => {
             tu.translate('a translated value');
             const file2: ITranslationMessagesFile = TranslationMessagesFileFactory.fromUnknownFormatFileContent(file.editedContent(), null, null);
             const tu2: ITransUnit = file2.transUnitWithId(ID_WITH_TWO_SOURCEREFS);
+            expect(tu2.targetContent()).toBe('a translated value');
             expect(tu2.sourceReferences().length).toBe(2);
             expect(tu2.sourceReferences()[0].sourcefile).toBe('S:/experimente/sampleapp41/src/app/app.component.ts');
             expect(tu2.sourceReferences()[0].linenumber).toBe(20);
             expect(tu2.sourceReferences()[1].sourcefile).toBe('S:/experimente/sampleapp41/src/app/app.component.ts');
             expect(tu2.sourceReferences()[1].linenumber).toBe(21);
+        });
+
+        it('should normalize placeholders to {{0}} etc', () => {
+            const file: ITranslationMessagesFile = readFile(MASTER1SRC);
+            const tu: ITransUnit = file.transUnitWithId(ID_WITH_PLACEHOLDER);
+            expect(tu.targetContentNormalized()).toBe('Eintrag {{0}} von {{1}} hinzugefügt.');
+            const tu2: ITransUnit = file.transUnitWithId(ID_WITH_PLACEHOLDER_2);
+            expect(tu2.targetContentNormalized()).toBe('Eintrag {{0}} von {{1}} hinzugefügt.');
+        });
+
+        it('should normalize embedded html tags', () => {
+            const file: ITranslationMessagesFile = readFile(MASTER1SRC);
+            const tu: ITransUnit = file.transUnitWithId(ID_WITH_TAGS);
+            expect(tu.targetContentNormalized()).toBe('Dieser Text enthält <b>eingebettetes html</b>');
+            const tu2: ITransUnit = file.transUnitWithId(ID_WITH_TAGS_2);
+            expect(tu2.targetContentNormalized()).toBe('Dieser Text enthält <b>eingebettetes html</b>');
         });
 
     });

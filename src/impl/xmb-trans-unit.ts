@@ -55,8 +55,12 @@ export class XmbTransUnit implements ITransUnit {
 
         let reStartAnyTag: RegExp = /<ph name="START_\w*"><ex>&amp;lt;(\w*)&amp;gt;<\/ex><\/ph>/g;
         normalized = normalized.replace(reStartAnyTag, '<$1>');
+        let reStartAnyTag2: RegExp = /<ph name="START_\w*"><ex>&lt;(\w*)><\/ex><\/ph>/g;
+        normalized = normalized.replace(reStartAnyTag2, '<$1>');
         let reCloseAnyTag: RegExp = /<ph name="CLOSE_\w*"><ex>&amp;lt;\/(\w*)&amp;gt;<\/ex><\/ph>/g;
         normalized = normalized.replace(reCloseAnyTag, '</$1>');
+        let reCloseAnyTag2: RegExp = /<ph name="CLOSE_\w*"><ex>&lt;\/(\w*)><\/ex><\/ph>/g;
+        normalized = normalized.replace(reCloseAnyTag2, '</$1>');
 
         return normalized;
     }

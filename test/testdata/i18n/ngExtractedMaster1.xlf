@@ -43,8 +43,13 @@
       </trans-unit>
       <trans-unit id="af0819ea4a5db68737ebcabde2f5e432b66352e8" datatype="html">
         <source>Eintrag <x id="INTERPOLATION"/> von <x id="INTERPOLATION_1"/> hinzugefügt.</source>
-        <target/>
+        <target>Eintrag <x id="INTERPOLATION"/> von <x id="INTERPOLATION_1"/> hinzugefügt.</target>
         <note priority="1" from="description">placeholder sample</note>
+      </trans-unit>
+      <trans-unit id="af0819ea4a5db68737ebcabde2f5e432b66352e8xxx" datatype="html">
+        <source>Eintrag <x id="INTERPOLATION"></x> von <x id="INTERPOLATION_1"></x> hinzugefügt.</source>
+        <target>Eintrag <x id="INTERPOLATION"></x> von <x id="INTERPOLATION_1"></x> hinzugefügt.</target>
+        <note priority="1" from="description">placeholder sample with closing tags</note>
       </trans-unit>
         <trans-unit id="84e8cd8ba480129d90f512cc3462bb43efcf389f" datatype="html">
             <source>Montag</source>
@@ -60,8 +65,13 @@
       </trans-unit>
       <trans-unit id="7e8dd1fd1c57afafc38550ce80b5bcc1ced49f85" datatype="html">
         <source>Dieser Text enthält <x id="START_BOLD_TEXT" ctype="x-b"/>eingebettetes html<x id="CLOSE_BOLD_TEXT" ctype="x-b"/></source>
-        <target/>
+        <target>Dieser Text enthält <x id="START_BOLD_TEXT" ctype="x-b"/>eingebettetes html<x id="CLOSE_BOLD_TEXT" ctype="x-b"/></target>
         <note priority="1" from="description">embedded html sample</note>
+      </trans-unit>
+      <trans-unit id="7e8dd1fd1c57afafc38550ce80b5bcc1ced49f85xxx" datatype="html">
+        <source>Dieser Text enthält <x id="START_BOLD_TEXT" ctype="x-b"></x>eingebettetes html<x id="CLOSE_BOLD_TEXT" ctype="x-b"></x></source>
+        <target>Dieser Text enthält <x id="START_BOLD_TEXT" ctype="x-b"></x>eingebettetes html<x id="CLOSE_BOLD_TEXT" ctype="x-b"></x></target>
+        <note priority="1" from="description">embedded html sample with closing tags</note>
       </trans-unit>
       <trans-unit id="no_sourceref_test" datatype="html">
         <source>no_sourceref_test</source>
