@@ -26,7 +26,47 @@ A Typescript library to work with Angular generated i18n files (xliff, xmb)
   
 ## Usage
 
-TODO decribe the API here.
+### TranslationMessagesFileFactory
+This class is the entry point of the library.
+You can use `TranslationMessagesFileFactory` to load Angular generated message files.
+The format of the files can be XLIFF or XMB.
+
+It returns a format independent abstraction of the file content, which is described in the interfade `ITranslationMessagesFile`
+
+Example
+```
+// Usage of fromFileContent to read a file with a known format
+let filename = ...;
+let encoding = 'UTF-8';
+let content = fs.readFileSync(filename, encoding);
+let file: ITranslationMessagesFile
+  = TranslationMessagesFileFactory.fromFileContent('xlf', content, filename, encoding);
+console.log(Utils.format('Translation from %s to %s', 
+    file.sourceLanguage(),
+    file.targetLanguage()));
+file.forEachTransUnit((tu: ITransUnit) => {
+  console.log(tu.sourceContent());
+});
+```
+
+You can also use `fromUnknownFormatFileContent` to read a file of any supported format.
+The library will detect the correct file format:
+
+```
+...
+let file: ITranslationMessagesFile
+  = TranslationMessagesFileFactory.fromUnknownFormatFileContent(content, filename, encoding);
+
+```
+### ITranslationMessagesFile
+A messages file.
+
+For API details have a look at the interface.
+
+### ITransUnit
+A single translation contained in the messages file.
+
+For API details have a look at the interface.
 
 ## Tests
 

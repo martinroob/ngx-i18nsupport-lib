@@ -1,3 +1,10 @@
+<a name="0.0.7"></a>
+# [0.0.7](https://github.com/martinroob/ngx-i18nsupport-lib/compare/v0.0.7...v0.0.6) (2017-05-02)
+
+### Bug Fixes
+
+* normalizedContent did not work correctly. This was caused by differences in writing empty elements between xmldom and cheerio.
+
 <a name="0.0.6"></a>
 # [0.0.6](https://github.com/martinroob/ngx-i18nsupport-lib/compare/v0.0.6...v0.0.5) (2017-05-01)
 
