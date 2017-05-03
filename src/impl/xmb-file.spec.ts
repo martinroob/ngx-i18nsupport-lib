@@ -182,5 +182,15 @@ describe('ngx-i18nsupport-lib xmb test spec', () => {
             expect(tu.targetContentNormalized()).toBe('Diese Nachricht ist <strange>{{0}}</strange>');
         });
 
+        it('should remove a transunit by id', () => {
+            const file: ITranslationMessagesFile = readFile(MASTER1SRC);
+            const tu: ITransUnit = file.transUnitWithId(ID_WITH_TWO_SOURCEREFS);
+            expect(tu).toBeTruthy();
+            file.removeTransUnitWithId(ID_WITH_TWO_SOURCEREFS);
+            const file2: ITranslationMessagesFile = TranslationMessagesFileFactory.fromUnknownFormatFileContent(file.editedContent(), null, null);
+            const tu2: ITransUnit = file2.transUnitWithId(ID_WITH_TWO_SOURCEREFS);
+            expect(tu2).toBeFalsy(); // should not exist any more
+        });
+
     });
 });

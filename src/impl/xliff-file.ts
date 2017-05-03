@@ -186,9 +186,12 @@ export class XliffFile implements ITranslationMessagesFile {
      * @param id
      */
     public removeTransUnitWithId(id: string) {
-        this.xliffContent.getElementById(id).remove();
-        this.initializeTransUnits();
-        this.transUnits = this.transUnits.filter((tu) => tu.id !== id);
+        let tuNode: Node = this.xliffContent.getElementById(id);
+        if (tuNode) {
+            tuNode.parentNode.removeChild(tuNode);
+            this.initializeTransUnits();
+            this.transUnits = this.transUnits.filter((tu) => tu.id !== id);
+        }
     }
 
     /**

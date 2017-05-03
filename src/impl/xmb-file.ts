@@ -209,9 +209,12 @@ export class XmbFile implements ITranslationMessagesFile {
      * @param id
      */
     public removeTransUnitWithId(id: string) {
-        this.xmbContent.getElementById(id).remove();
-        this.initializeTransUnits();
-        this.transUnits = this.transUnits.filter((tu) => tu.id !== id);
+        let tuNode: Node = this.xmbContent.getElementById(id);
+        if (tuNode) {
+            tuNode.parentNode.removeChild(tuNode);
+            this.initializeTransUnits();
+            this.transUnits = this.transUnits.filter((tu) => tu.id !== id);
+        }
     }
 
     /**

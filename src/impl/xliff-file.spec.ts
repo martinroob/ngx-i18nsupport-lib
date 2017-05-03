@@ -145,5 +145,15 @@ describe('ngx-i18nsupport-lib xliff 1.2 test spec', () => {
             expect(tu2.targetContentNormalized()).toBe('Dieser Text enthält <b>eingebettetes html</b>');
         });
 
+        it('should remove a transunit by id', () => {
+            const file: ITranslationMessagesFile = readFile(MASTER1SRC);
+            const tu: ITransUnit = file.transUnitWithId(ID_WITH_TWO_SOURCEREFS);
+            expect(tu).toBeTruthy();
+            file.removeTransUnitWithId(ID_WITH_TWO_SOURCEREFS);
+            const file2: ITranslationMessagesFile = TranslationMessagesFileFactory.fromUnknownFormatFileContent(file.editedContent(), null, null);
+            const tu2: ITransUnit = file2.transUnitWithId(ID_WITH_TWO_SOURCEREFS);
+            expect(tu2).toBeFalsy(); // should not exist any more
+        });
+
     });
 });

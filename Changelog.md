@@ -1,3 +1,10 @@
+<a name="0.0.8"></a>
+# [0.0.8](https://github.com/martinroob/ngx-i18nsupport-lib/compare/v0.0.8...v0.0.7) (2017-05-03)
+
+### Bug Fixes
+
+* `removeTransUnitWithId` did not work
+
 <a name="0.0.7"></a>
 # [0.0.7](https://github.com/martinroob/ngx-i18nsupport-lib/compare/v0.0.7...v0.0.6) (2017-05-02)
 
