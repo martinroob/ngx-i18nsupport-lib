@@ -5,6 +5,7 @@ import {ITranslationMessagesFile} from './i-translation-messages-file';
 import {XliffFile} from '../impl/xliff-file';
 import {XmbFile} from '../impl/xmb-file';
 import {format} from 'util';
+import {Xliff2File} from '../impl/xliff2-file';
 
 /**
  * Helper class to read translation files depending on format.
@@ -14,7 +15,7 @@ export class TranslationMessagesFileFactory {
 
     /**
      * Read file function, result depends on format, either XliffFile or XmbFile.
-     * @param format currently 'xlf' or 'xmb' are supported
+     * @param format currently 'xlf' or 'xlf2' or 'xmb' are supported
      * @param xmlContent the file content
      * @param path the path of the file (only used to remember it)
      * @param encoding utf-8, ... used to parse XML.
@@ -31,6 +32,9 @@ export class TranslationMessagesFileFactory {
                                   optionalMaster?: {xmlContent: string, path: string, encoding: string}): ITranslationMessagesFile {
         if (i18nFormat === 'xlf') {
             return new XliffFile(xmlContent, path, encoding);
+        }
+        if (i18nFormat === 'xlf2') {
+            return new Xliff2File(xmlContent, path, encoding);
         }
         if (i18nFormat === 'xmb') {
             return new XmbFile(xmlContent, path, encoding, optionalMaster);
@@ -56,7 +60,7 @@ export class TranslationMessagesFileFactory {
                                   path: string,
                                   encoding: string,
                                   optionalMaster?: {xmlContent: string, path: string, encoding: string}): ITranslationMessagesFile {
-        let formatCandidates = ['xlf', 'xmb'];
+        let formatCandidates = ['xlf', 'xlf2', 'xmb'];
         if (path && path.endsWith('xmb')) {
             formatCandidates = ['xmb', 'xlf'];
         }
@@ -72,7 +76,7 @@ export class TranslationMessagesFileFactory {
                 // seams to be the wrong format
             }
         }
-        throw new Error(format('could not identify file format, it is neiter XLIFF nor XMB'));
+        throw new Error(format('could not identify file format, it is neiter XLIFF (1.2 or 2.0) nor XMB'));
     }
 
 }

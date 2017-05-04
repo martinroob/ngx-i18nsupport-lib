@@ -3,14 +3,16 @@ import {isNullOrUndefined, format} from 'util';
 import {ITranslationMessagesFile} from '../api/i-translation-messages-file';
 import {ITransUnit} from '../api/i-trans-unit';
 import {DOMUtilities} from './dom-utilities';
-import {XliffTransUnit} from './xliff-trans-unit';
+import {Xliff2TransUnit} from './xliff2-trans-unit';
 /**
- * Created by martin on 23.02.2017.
- * Ab xliff file read from a source file.
+ * Created by martin on 04.05.2017.
+ * An XLIFF 2.0 file read from a source file.
+ * Format definition is: http://docs.oasis-open.org/xliff/xliff-core/v2.0/os/xliff-core-v2.0-os.html
+ *
  * Defines some relevant get and set method for reading and modifying such a file.
  */
 
-export class XliffFile implements ITranslationMessagesFile {
+export class Xliff2File implements ITranslationMessagesFile {
 
     private _filename: string;
 
@@ -25,7 +27,7 @@ export class XliffFile implements ITranslationMessagesFile {
     private _numberOfTransUnitsWithMissingId: number;
 
     /**
-     * Create an xlf-File from source.
+     * Create an XLIFF 2.0-File from source.
      * @param xmlString source read from file.
      * @param path Path to file
      * @param encoding optional encoding of the xml.
@@ -38,7 +40,7 @@ export class XliffFile implements ITranslationMessagesFile {
         this.initializeFromContent(xmlString, path, encoding);
     }
 
-    private initializeFromContent(xmlString: string, path: string, encoding: string): XliffFile {
+    private initializeFromContent(xmlString: string, path: string, encoding: string): Xliff2File {
         this._filename = path;
         this._encoding = encoding;
         this.xliffContent = new DOMParser().parseFromString(xmlString, 'text/xml');
@@ -47,7 +49,7 @@ export class XliffFile implements ITranslationMessagesFile {
             throw new Error(format('File "%s" seems to be no xliff file (should contain an xliff element)', path));
         } else {
             const version = xliffList.item(0).getAttribute('version');
-            const expectedVersion = '1.2';
+            const expectedVersion = '2.0';
             if (version !== expectedVersion) {
                 throw new Error(format('File "%s" seems to be no xliff 2 file, version should be %s, found %s', path, expectedVersion, version));
             }
@@ -57,10 +59,10 @@ export class XliffFile implements ITranslationMessagesFile {
 
     /**
      * File type.
-     * Here 'XLIFF 1.2'
+     * Here 'XLIFF 2.0'
      */
     public fileType(): string {
-        return 'XLIFF 1.2';
+        return 'XLIFF 2.0';
     }
 
     public forEachTransUnit(callback: ((transunit: ITransUnit) => void)) {
@@ -96,7 +98,7 @@ export class XliffFile implements ITranslationMessagesFile {
     private initializeTransUnits() {
         if (isNullOrUndefined(this.transUnits)) {
             this.transUnits = [];
-            let transUnitsInFile = this.xliffContent.getElementsByTagName('trans-unit');
+            let transUnitsInFile = this.xliffContent.getElementsByTagName('unit');
             for (let i = 0; i < transUnitsInFile.length; i++) {
                 let transunit = transUnitsInFile.item(i);
                 let id = transunit.getAttribute('id');
@@ -104,7 +106,7 @@ export class XliffFile implements ITranslationMessagesFile {
                     this._warnings.push(format('oops, trans-unit without "id" found in master, please check file %s', this.filename));
                     this._numberOfTransUnitsWithMissingId++;
                 }
-                this.transUnits.push(new XliffTransUnit(transunit, id));
+                this.transUnits.push(new Xliff2TransUnit(transunit, id));
             }
         }
     }
@@ -114,9 +116,9 @@ export class XliffFile implements ITranslationMessagesFile {
      * @return {string}
      */
     public sourceLanguage(): string {
-        const fileElem = DOMUtilities.getFirstElementByTagName(this.xliffContent, 'file');
-        if (fileElem) {
-            return fileElem.getAttribute('source-language');
+        const xliffElem = DOMUtilities.getFirstElementByTagName(this.xliffContent, 'xliff');
+        if (xliffElem) {
+            return xliffElem.getAttribute('srcLang');
         } else {
             return null;
         }
@@ -127,9 +129,9 @@ export class XliffFile implements ITranslationMessagesFile {
      * @param language
      */
     public setSourceLanguage(language: string) {
-        const fileElem = DOMUtilities.getFirstElementByTagName(this.xliffContent, 'file');
-        if (fileElem) {
-            fileElem.setAttribute('source-language', language);
+        const xliffElem = DOMUtilities.getFirstElementByTagName(this.xliffContent, 'xliff');
+        if (xliffElem) {
+            xliffElem.setAttribute('srcLang', language);
         }
     }
 
@@ -138,9 +140,9 @@ export class XliffFile implements ITranslationMessagesFile {
      * @return {string}
      */
     public targetLanguage(): string {
-        const fileElem = DOMUtilities.getFirstElementByTagName(this.xliffContent, 'file');
-        if (fileElem) {
-            return fileElem.getAttribute('target-language');
+        const xliffElem = DOMUtilities.getFirstElementByTagName(this.xliffContent, 'xliff');
+        if (xliffElem) {
+            return xliffElem.getAttribute('trgLang');
         } else {
             return null;
         }
@@ -151,9 +153,9 @@ export class XliffFile implements ITranslationMessagesFile {
      * @param language
      */
     public setTargetLanguage(language: string) {
-        const fileElem = DOMUtilities.getFirstElementByTagName(this.xliffContent, 'file');
-        if (fileElem) {
-            fileElem.setAttribute('target-language', language);
+        const xliffElem = DOMUtilities.getFirstElementByTagName(this.xliffContent, 'xliff');
+        if (xliffElem) {
+            xliffElem.setAttribute('trgLang', language);
         }
     }
 
@@ -180,11 +182,13 @@ export class XliffFile implements ITranslationMessagesFile {
      * @param transUnit
      */
     public addNewTransUnit(transUnit: ITransUnit) {
-        let bodyElement = DOMUtilities.getFirstElementByTagName(this.xliffContent, 'body');
-        if (bodyElement) {
-            bodyElement.appendChild(<Node>transUnit.asXmlElement());
+        let fileElement = DOMUtilities.getFirstElementByTagName(this.xliffContent, 'file');
+        if (fileElement) {
+            fileElement.appendChild(<Node>transUnit.asXmlElement());
             this.initializeTransUnits();
             this.transUnits.push(transUnit);
+        } else {
+            throw new Error(format('File "%s" seems to be no xliff 2.0 file (should contain a file element)', this._filename));
         }
     }
 
