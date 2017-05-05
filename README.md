@@ -7,7 +7,7 @@
 ngx-i18nsupport-lib
 =========
 
-A Typescript library to work with Angular generated i18n files (xliff, xmb)
+A Typescript library to work with Angular generated i18n files (XLIFF Version 1.2 and 2.0, XMB)
 
 ## Table of Contents
 
@@ -29,7 +29,7 @@ A Typescript library to work with Angular generated i18n files (xliff, xmb)
 ### TranslationMessagesFileFactory
 This class is the entry point of the library.
 You can use `TranslationMessagesFileFactory` to load Angular generated message files.
-The format of the files can be XLIFF or XMB.
+The format of the files can be XLIFF 1.2, XLIFF 2.0 or XMB.
 
 It returns a format independent abstraction of the file content, which is described in the interfade `ITranslationMessagesFile`
 
