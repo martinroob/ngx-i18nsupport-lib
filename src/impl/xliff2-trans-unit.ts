@@ -67,7 +67,18 @@ export class Xliff2TransUnit implements ITransUnit {
                     // placeholder are like <ph id="0" equiv="INTERPOLATION" disp="{{number()}}"/>
                     // They contain the id and also a name (number in the example)
                     // TODO make some use of the name (but it is not available in XLIFF 1.2)
-                    let index = Number.parseInt(elementNode.getAttribute('id'));
+                    let equiv = elementNode.getAttribute('equiv');
+                    let indexString = '';
+                    if (!equiv || !equiv.startsWith('INTERPOLATION')) {
+                        indexString = elementNode.getAttribute('id')
+                    } else {
+                        if (equiv === 'INTERPOLATION') {
+                            indexString = '0';
+                        } else {
+                            indexString = equiv.substring('INTERPOLATION_'.length);
+                        }
+                    }
+                    let index = Number.parseInt(indexString);
                     message.addPlaceholder(index);
                     return;
                 } else if (tagName === 'pc') {

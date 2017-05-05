@@ -27,6 +27,7 @@ describe('ngx-i18nsupport-lib xliff 1.2 test spec', () => {
 
         let ID_TRANSLATED_SCHLIESSEN = '1ead0ad1063d0c9e005fe56c9529aef4c1ef9d21'; // an ID from ngExtractedMaster1.xlf
         let ID_WITH_PLACEHOLDER = 'af0819ea4a5db68737ebcabde2f5e432b66352e8';
+        let ID_WITH_REPEATED_PLACEHOLDER = 'af0819ea4a5db68737ebcabde2f5e432b663repl';
         let ID_WITH_PLACEHOLDER_2 = 'af0819ea4a5db68737ebcabde2f5e432b66352e8xxx'; // same with </x> tags
         let ID_WITH_MEANING_AND_DESCRIPTION = '84e8cd8ba480129d90f512cc3462bb43efcf389f';
         let ID_WITH_NO_SOURCEREFS = 'no_sourceref_test'; // an ID with no source elements
@@ -53,7 +54,7 @@ describe('ngx-i18nsupport-lib xliff 1.2 test spec', () => {
 
         it('should count units', () => {
             const file: ITranslationMessagesFile = readFile(MASTER1SRC);
-            expect(file.numberOfTransUnits()).toBe(14);
+            expect(file.numberOfTransUnits()).toBe(15);
             expect(file.numberOfTransUnitsWithMissingId()).toBe(1);
         });
 
@@ -136,6 +137,12 @@ describe('ngx-i18nsupport-lib xliff 1.2 test spec', () => {
             expect(tu.targetContentNormalized()).toBe('Eintrag {{0}} von {{1}} hinzugefügt.');
             const tu2: ITransUnit = file.transUnitWithId(ID_WITH_PLACEHOLDER_2);
             expect(tu2.targetContentNormalized()).toBe('Eintrag {{0}} von {{1}} hinzugefügt.');
+        });
+
+        it('should normalize repeated placeholders to {{0}} {{1}} etc', () => {
+            const file: ITranslationMessagesFile = readFile(MASTER1SRC);
+            const tu: ITransUnit = file.transUnitWithId(ID_WITH_REPEATED_PLACEHOLDER);
+            expect(tu.targetContentNormalized()).toBe('{{0}}: Eine Nachricht mit 2 Platzhaltern: {{0}} {{1}}');
         });
 
         it('should normalize embedded html tags', () => {

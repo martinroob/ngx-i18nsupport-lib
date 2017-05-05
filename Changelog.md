@@ -1,3 +1,10 @@
+<a name="0.1.3"></a>
+# [0.1.3](https://github.com/martinroob/ngx-i18nsupport-lib/compare/v0.1.3...v0.1.2) (2017-05-05)
+
+### Bug Fixes
+
+* **XLIFF 2.0:** fixed "placeholders in targetNormalized are wrong numbered". ([#6](https://github.com/martinroob/ngx-i18nsupport-lib/issues/6)).
+
 <a name="0.1.2"></a>
 # [0.1.2](https://github.com/martinroob/ngx-i18nsupport-lib/compare/v0.1.2...v0.1.0) (2017-05-05)
 

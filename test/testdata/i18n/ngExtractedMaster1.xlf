@@ -51,6 +51,11 @@
         <target>Eintrag <x id="INTERPOLATION"></x> von <x id="INTERPOLATION_1"></x> hinzugefügt.</target>
         <note priority="1" from="description">placeholder sample with closing tags</note>
       </trans-unit>
+      <trans-unit id="af0819ea4a5db68737ebcabde2f5e432b663repl" datatype="html">
+        <source><x id="INTERPOLATION"/>: Eine Nachricht mit 2 Platzhaltern: <x id="INTERPOLATION"/> <x id="INTERPOLATION_1"/></source>
+        <target><x id="INTERPOLATION"/>: Eine Nachricht mit 2 Platzhaltern: <x id="INTERPOLATION"/> <x id="INTERPOLATION_1"/></target>
+        <note priority="1" from="description">placeholder sample</note>
+      </trans-unit>
         <trans-unit id="84e8cd8ba480129d90f512cc3462bb43efcf389f" datatype="html">
             <source>Montag</source>
             <target/>
