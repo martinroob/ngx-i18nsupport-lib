@@ -24,6 +24,15 @@ describe('ngx-i18nsupport-lib API test spec', () => {
     }
 
     /**
+     * Helper function to read XLIFF 2.0 from File
+     * @type {string}
+     */
+    function readXliff2(path: string): ITranslationMessagesFile {
+        const content = fs.readFileSync(path, ENCODING);
+        return TranslationMessagesFileFactory.fromFileContent('xlf2', content, path, ENCODING);
+    }
+
+    /**
      * Helper function to read Xmb from File
      * @type {string}
      */
@@ -64,6 +73,7 @@ describe('ngx-i18nsupport-lib API test spec', () => {
 
     describe('api tests', () => {
         let MASTER1SRC_XLIFF = SRCDIR + 'ngExtractedMaster1.xlf';
+        let MASTER1SRC_XLIFF2 = SRCDIR + 'ngExtractedMaster1.xlf2';
         let TRANSLATED_FILE_SRC_XLIFF = SRCDIR + 'translatedFile.xlf';
         let MASTER1SRC_XMB = SRCDIR + 'ngExtractedMaster1.xmb';
         let MASTER_DE_XMB = SRCDIR + 'ngExtractedMaster1.de.xmb';
@@ -73,6 +83,12 @@ describe('ngx-i18nsupport-lib API test spec', () => {
             const file: ITranslationMessagesFile = readXliff(MASTER1SRC_XLIFF);
             expect(file).toBeTruthy();
             expect(file.fileType()).toBe('XLIFF 1.2');
+        });
+
+        it('should read XLIFF 2.0 file', () => {
+            const file: ITranslationMessagesFile = readXliff2(MASTER1SRC_XLIFF2);
+            expect(file).toBeTruthy();
+            expect(file.fileType()).toBe('XLIFF 2.0');
         });
 
         it('should read xmb file', () => {
@@ -99,6 +115,9 @@ describe('ngx-i18nsupport-lib API test spec', () => {
             const file3: ITranslationMessagesFile = readFile(MASTER_DE_XMB, MASTER_EN_XMB);
             expect(file3).toBeTruthy();
             expect(file3.fileType()).toBe('XMB');
+            const file4: ITranslationMessagesFile = readFile(MASTER1SRC_XLIFF2);
+            expect(file4).toBeTruthy();
+            expect(file4.fileType()).toBe('XLIFF 2.0');
         });
 
     });

@@ -3,6 +3,7 @@ import {isNullOrUndefined, format} from 'util';
 import {ITranslationMessagesFile} from '../api/i-translation-messages-file';
 import {ITransUnit} from '../api/i-trans-unit';
 import {DOMUtilities} from './dom-utilities';
+import {ParsedMessage} from './parsed-message';
 /**
  * Created by martin on 04.05.2017.
  * A Translation Unit in an XLIFF 2.0 file.
@@ -36,38 +37,68 @@ export class Xliff2TransUnit implements ITransUnit {
      * and all embedded html is replaced by direct html markup.
      */
     targetContentNormalized(): string {
-        let directHtml = this.targetContent();
-        if (!directHtml) {
-            return directHtml;
+        let parsedMessage: ParsedMessage = this.parseTargetContent();
+        return parsedMessage.asDisplayString();
+
+    }
+
+    private parseTargetContent(): ParsedMessage {
+        return this.parseAsMessage(DOMUtilities.getFirstElementByTagName(this._transUnit, 'target'));
+    }
+
+    private parseAsMessage(messageElem: Element): ParsedMessage {
+        let message: ParsedMessage = new ParsedMessage();
+        if (messageElem) {
+            this.addPartsOfNodeToMessage(messageElem, message, false);
         }
-        let normalized = directHtml;
-        // placeholder are like <ph id="0" equiv="INTERPOLATION" disp="{{number()}}"/>
-        // They contain the id and also a name (number in the example)
-        // TODO make some use of the name (but it is not available in XLIFF 1.2)
-        // TODO replace strange regexp handling by xml processing
-        let reN: RegExp = /<ph id="(\d*) equiv="INTERPOLATION[^\/>]*\/>/g;
-        normalized = normalized.replace(reN, '{{$1}}');
+        return message;
+    }
 
-        // TODO pc handling here
-/*        let reStartBold: RegExp = /<x id="START_BOLD_TEXT" ctype="x-b"><\/x>/g;
-        normalized = normalized.replace(reStartBold, '<b>');
-        let reStartBoldb: RegExp = /<x id="START_BOLD_TEXT" ctype="x-b"\/>/g;
-        normalized = normalized.replace(reStartBoldb, '<b>');
-        let reCloseBold: RegExp = /<x id="CLOSE_BOLD_TEXT" ctype="x-b"><\/x>/g;
-        normalized = normalized.replace(reCloseBold, '</b>');
-        let reCloseBoldb: RegExp = /<x id="CLOSE_BOLD_TEXT" ctype="x-b"\/>/g;
-        normalized = normalized.replace(reCloseBoldb, '</b>');
+    private addPartsOfNodeToMessage(node: Node, message: ParsedMessage, includeSelf: boolean) {
+        if (includeSelf) {
+            if (node.nodeType === node.TEXT_NODE) {
+                message.addText(node.textContent);
+                return;
+            }
+            if (node.nodeType === node.ELEMENT_NODE) {
+                let elementNode: Element = <Element> node;
+                let tagName = elementNode.tagName;
+                if (tagName === 'ph') {
+                    // placeholder are like <ph id="0" equiv="INTERPOLATION" disp="{{number()}}"/>
+                    // They contain the id and also a name (number in the example)
+                    // TODO make some use of the name (but it is not available in XLIFF 1.2)
+                    let index = Number.parseInt(elementNode.getAttribute('id'));
+                    message.addPlaceholder(index);
+                    return;
+                } else if (tagName === 'pc') {
+                    // pc example: <pc id="0" equivStart="START_BOLD_TEXT" equivEnd="CLOSE_BOLD_TEXT" type="fmt" dispStart="&lt;b&gt;" dispEnd="&lt;/b&gt;">IMPORTANT</pc>
+                    let embeddedTagName = this.tagNameFromPCElement(elementNode);
+                    if (embeddedTagName) {
+                        message.addOpenTag(embeddedTagName);
+                        this.addPartsOfNodeToMessage(elementNode, message, false);
+                        message.addCloseTag(embeddedTagName);
+                    } else {
+                        this.addPartsOfNodeToMessage(elementNode, message, false);
+                    }
+                    return;
+                }
+            }
+        }
+        const children = node.childNodes;
+        for (let i = 0; i < children.length; i++) {
+            this.addPartsOfNodeToMessage(children.item(i), message, true);
+        }
+    }
 
-        let reStartAnyTag: RegExp = /<x id="START_TAG_(\w*)" ctype="x-(\w*)"><\/x>/g;
-        normalized = normalized.replace(reStartAnyTag, '<$2>');
-        let reStartAnyTagb: RegExp = /<x id="START_TAG_(\w*)" ctype="x-(\w*)"\/>/g;
-        normalized = normalized.replace(reStartAnyTagb, '<$2>');
-        let reCloseAnyTag: RegExp = /<x id="CLOSE_TAG_(\w*)" ctype="x-(\w*)"><\/x>/g;
-        normalized = normalized.replace(reCloseAnyTag, '</$2>');
-        let reCloseAnyTagb: RegExp = /<x id="CLOSE_TAG_(\w*)" ctype="x-(\w*)"\/>/g;
-        normalized = normalized.replace(reCloseAnyTagb, '</$2>');
-*/
-        return normalized;
+    private tagNameFromPCElement(pcNode: Element): string {
+        let dispStart = pcNode.getAttribute('dispStart');
+        if (dispStart.startsWith('<')) {
+            dispStart = dispStart.substring(1);
+        }
+        if (dispStart.endsWith('>')) {
+            dispStart = dispStart.substring(0, dispStart.length - 1);
+        }
+        return dispStart;
     }
 
     /**
@@ -94,14 +125,14 @@ export class Xliff2TransUnit implements ITransUnit {
      */
     public sourceReferences(): {sourcefile: string, linenumber}[] {
         // TODO in the moment there is no source ref written in XLIFF 2.0
-        // so this code is just a guess
+        // so this code is just a guess, expect source as <file>:<line> in <note category="location">...
         let noteElements = this._transUnit.getElementsByTagName('note');
         let sourceRefs: { sourcefile: string, linenumber }[] = [];
         for (let i = 0; i < noteElements.length; i++) {
             const noteElem = noteElements.item(i);
             if (noteElem.getAttribute('category') === 'location') {
                 let source = DOMUtilities.getPCDATA(noteElem);
-                let sourcefile = source; // todo parse it
+                let sourcefile = source; // TODO parse it, wait for concrete syntax here
                 let linenumber = 0;
                 sourceRefs.push({sourcefile: sourcefile, linenumber: linenumber});
             }
@@ -163,7 +194,10 @@ export class Xliff2TransUnit implements ITransUnit {
             target = source.parentElement.appendChild(this._transUnit.ownerDocument.createElement('target'));
         }
         DOMUtilities.replaceContentWithPCDATA(target, translation);
-        target.setAttribute('state', 'final');
+        let segment = DOMUtilities.getFirstElementByTagName(this._transUnit, 'segment');
+        if (segment) {
+            segment.setAttribute('state', 'final');
+        }
     }
 
     /**
@@ -181,10 +215,13 @@ export class Xliff2TransUnit implements ITransUnit {
         } else {
             DOMUtilities.replaceContentWithPCDATA(target, '');
         }
-        if (isDefaultLang) {
-            target.setAttribute('state', 'final');
-        } else {
-            target.setAttribute('state', 'new');
+        let segment = DOMUtilities.getFirstElementByTagName(this._transUnit, 'segment');
+        if (segment) {
+            if (isDefaultLang) {
+                segment.setAttribute('state', 'final');
+            } else {
+                segment.setAttribute('state', 'new');
+            }
         }
     }
 
