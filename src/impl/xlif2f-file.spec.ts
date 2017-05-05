@@ -27,6 +27,7 @@ describe('ngx-i18nsupport-lib XLIFF 2.0 test spec', () => {
 
         let ID_APP_RUNS = '4371668001355139802'; // an ID from ngExtractedMaster1.xlf
         let ID_WITH_PLACEHOLDER = '9030312858648510700';
+        let ID_WITH_REPEATED_PLACEHOLDER = '7049669989298349710';
         let ID_WITH_MEANING_AND_DESCRIPTION = '6830980354990918030';
         let ID_WITH_NO_SOURCEREFS = '4371668001355139802'; // an ID with no source elements
         let ID_WITH_ONE_SOURCEREF = 'TODO';
@@ -137,6 +138,12 @@ describe('ngx-i18nsupport-lib XLIFF 2.0 test spec', () => {
             expect(tu.targetContentNormalized()).toBe('Entry {{0}} of total {{1}} added.');
         });
 
+        it('should normalize repeated placeholders to {{0}} {{1}} etc', () => {
+            const file: ITranslationMessagesFile = readFile(TRANSLATED_FILE_SRC);
+            const tu: ITransUnit = file.transUnitWithId(ID_WITH_REPEATED_PLACEHOLDER);
+            expect(tu.targetContentNormalized()).toBe('{{0}}: A message with 2 placeholders: {{0}} {{1}}');
+        });
+
         it('should normalize embedded html tags', () => {
             const file: ITranslationMessagesFile = readFile(TRANSLATED_FILE_SRC);
             const tu: ITransUnit = file.transUnitWithId(ID_WITH_TAGS);
@@ -146,7 +153,7 @@ describe('ngx-i18nsupport-lib XLIFF 2.0 test spec', () => {
         it('should normalize unknown embedded html tags', () => {
             const file: ITranslationMessagesFile = readFile(TRANSLATED_FILE_SRC);
             const tu: ITransUnit = file.transUnitWithId(ID_WITH_STRANGE_TAG);
-            expect(tu.targetContentNormalized()).toBe('This message is <strange>{{1}}</strange>');
+            expect(tu.targetContentNormalized()).toBe('This message is <strange>{{0}}</strange>');
         });
 
         it('should remove a transunit by id', () => {
