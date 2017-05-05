@@ -159,5 +159,64 @@ describe('ngx-i18nsupport-lib XLIFF 2.0 test spec', () => {
             expect(tu2).toBeFalsy(); // should not exist any more
         });
 
+        it ('should translate source without or with target', () => {
+            const file: ITranslationMessagesFile = readFile(MASTER1SRC);
+            const tu: ITransUnit = file.transUnitWithId(ID_APP_RUNS);
+            expect(tu).toBeTruthy();
+            expect(tu.targetContent()).toBeFalsy();
+            let isDefaultLang: boolean = false;
+            let copyContent: boolean = true;
+            // first translate
+            tu.translate('Anwendung läuft');
+            const file2: ITranslationMessagesFile = TranslationMessagesFileFactory.fromUnknownFormatFileContent(file.editedContent(), null, null);
+            const tu2: ITransUnit = file2.transUnitWithId(ID_APP_RUNS);
+            expect(tu2.targetContentNormalized()).toBe('Anwendung läuft');
+            expect(tu2.targetState()).toBe('final');
+            // translate again
+            tu2.translate('Anwendung funktioniert');
+            const file3: ITranslationMessagesFile = TranslationMessagesFileFactory.fromUnknownFormatFileContent(file2.editedContent(), null, null);
+            const tu3: ITransUnit = file3.transUnitWithId(ID_APP_RUNS);
+            expect(tu3.targetContentNormalized()).toBe('Anwendung funktioniert');
+            expect(tu3.targetState()).toBe('final');
+        });
+
+        it ('should copy source to target for default lang', () => {
+            const file: ITranslationMessagesFile = readFile(MASTER1SRC);
+            const tu: ITransUnit = file.transUnitWithId(ID_WITH_PLACEHOLDER);
+            expect(tu).toBeTruthy();
+            expect(tu.targetContent()).toBeFalsy();
+            let isDefaultLang: boolean = true;
+            let copyContent: boolean = false;
+            tu.useSourceAsTarget(isDefaultLang, copyContent);
+            const file2: ITranslationMessagesFile = TranslationMessagesFileFactory.fromUnknownFormatFileContent(file.editedContent(), null, null);
+            const tu2: ITransUnit = file2.transUnitWithId(ID_WITH_PLACEHOLDER);
+            expect(tu2.targetContentNormalized()).toBe('Eintrag {{0}} von {{1}} hinzugefügt.');
+        });
+
+        it ('should copy source to target for non default lang if wanted', () => {
+            const file: ITranslationMessagesFile = readFile(MASTER1SRC);
+            const tu: ITransUnit = file.transUnitWithId(ID_WITH_PLACEHOLDER);
+            expect(tu).toBeTruthy();
+            expect(tu.targetContent()).toBeFalsy();
+            let isDefaultLang: boolean = false;
+            let copyContent: boolean = true;
+            tu.useSourceAsTarget(isDefaultLang, copyContent);
+            const file2: ITranslationMessagesFile = TranslationMessagesFileFactory.fromUnknownFormatFileContent(file.editedContent(), null, null);
+            const tu2: ITransUnit = file2.transUnitWithId(ID_WITH_PLACEHOLDER);
+            expect(tu2.targetContentNormalized()).toBe('Eintrag {{0}} von {{1}} hinzugefügt.');
+        });
+
+        it ('should not copy source to target for non default lang if not wanted', () => {
+            const file: ITranslationMessagesFile = readFile(MASTER1SRC);
+            const tu: ITransUnit = file.transUnitWithId(ID_WITH_PLACEHOLDER);
+            expect(tu).toBeTruthy();
+            expect(tu.targetContent()).toBeFalsy();
+            let isDefaultLang: boolean = false;
+            let copyContent: boolean = false;
+            tu.useSourceAsTarget(isDefaultLang, copyContent);
+            const file2: ITranslationMessagesFile = TranslationMessagesFileFactory.fromUnknownFormatFileContent(file.editedContent(), null, null);
+            const tu2: ITransUnit = file2.transUnitWithId(ID_WITH_PLACEHOLDER);
+            expect(tu2.targetContent()).toBeFalsy();
+        });
     });
 });

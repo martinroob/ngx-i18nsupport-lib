@@ -191,7 +191,7 @@ export class Xliff2TransUnit implements ITransUnit {
         let target = DOMUtilities.getFirstElementByTagName(this._transUnit, 'target');
         if (!target) {
             let source = DOMUtilities.getFirstElementByTagName(this._transUnit, 'source');
-            target = source.parentElement.appendChild(this._transUnit.ownerDocument.createElement('target'));
+            target = source.parentNode.appendChild(this._transUnit.ownerDocument.createElement('target'));
         }
         DOMUtilities.replaceContentWithPCDATA(target, translation);
         let segment = DOMUtilities.getFirstElementByTagName(this._transUnit, 'segment');
@@ -208,7 +208,7 @@ export class Xliff2TransUnit implements ITransUnit {
         let source = DOMUtilities.getFirstElementByTagName(this._transUnit, 'source');
         let target = DOMUtilities.getFirstElementByTagName(this._transUnit, 'target');
         if (!target) {
-            target = source.parentElement.appendChild(this._transUnit.ownerDocument.createElement('target'));
+            target = source.parentNode.appendChild(this._transUnit.ownerDocument.createElement('target'));
         }
         if (isDefaultLang || copyContent) {
             DOMUtilities.replaceContentWithPCDATA(target, DOMUtilities.getPCDATA(source));

@@ -1,3 +1,10 @@
+<a name="0.1.1"></a>
+# [0.1.1](https://github.com/martinroob/ngx-i18nsupport-lib/compare/v0.1.1...v0.1.0) (2017-05-05)
+
+### Bug Fixes
+
+* **XLIFF 2.0:** fixed "useSourceAsTarget in XLIFF 2.0 does not work". ([#4](https://github.com/martinroob/ngx-i18nsupport-lib/issues/4)).
+
 <a name="0.1.0"></a>
 # [0.1.0](https://github.com/martinroob/ngx-i18nsupport-lib/compare/v0.1.0...v0.0.8) (2017-05-05)
 
@@ -5,7 +12,7 @@ Started issue tracking and git workflow with this release. All work is now alway
 
 ### Features
 
-* **XLIFF 2.0:** added support for working with XLIFF 2.0 formar. ([#1](https://github.com/martinroob/ngx-i18nsupport-lib/issues/1)).
+* **XLIFF 2.0:** added support for working with XLIFF 2.0 format. ([#1](https://github.com/martinroob/ngx-i18nsupport-lib/issues/1)).
 
 <a name="0.0.8"></a>
 # [0.0.8](https://github.com/martinroob/ngx-i18nsupport-lib/compare/v0.0.8...v0.0.7) (2017-05-03)
