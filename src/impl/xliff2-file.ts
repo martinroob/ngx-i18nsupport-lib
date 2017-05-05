@@ -103,7 +103,7 @@ export class Xliff2File implements ITranslationMessagesFile {
                 let transunit = transUnitsInFile.item(i);
                 let id = transunit.getAttribute('id');
                 if (!id) {
-                    this._warnings.push(format('oops, trans-unit without "id" found in master, please check file %s', this.filename));
+                    this._warnings.push(format('oops, trans-unit without "id" found in master, please check file %s', this._filename));
                     this._numberOfTransUnitsWithMissingId++;
                 }
                 this.transUnits.push(new Xliff2TransUnit(transunit, id));

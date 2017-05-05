@@ -1,9 +1,11 @@
-<a name="0.1.1"></a>
-# [0.1.1](https://github.com/martinroob/ngx-i18nsupport-lib/compare/v0.1.1...v0.1.0) (2017-05-05)
+<a name="0.1.2"></a>
+# [0.1.2](https://github.com/martinroob/ngx-i18nsupport-lib/compare/v0.1.2...v0.1.0) (2017-05-05)
 
 ### Bug Fixes
 
 * **XLIFF 2.0:** fixed "useSourceAsTarget in XLIFF 2.0 does not work". ([#4](https://github.com/martinroob/ngx-i18nsupport-lib/issues/4)).
+
+* **all formats** wrong error message when trans unit contains no ID
 
 <a name="0.1.0"></a>
 # [0.1.0](https://github.com/martinroob/ngx-i18nsupport-lib/compare/v0.1.0...v0.0.8) (2017-05-05)

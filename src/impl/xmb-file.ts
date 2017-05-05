@@ -65,7 +65,7 @@ export class XmbFile implements ITranslationMessagesFile {
                 let msg = transUnitsInFile.item(i);
                 let id = msg.getAttribute('id');
                 if (!id) {
-                    this._warnings.push(format('oops, msg without "id" found in master, please check file %s', this.filename));
+                    this._warnings.push(format('oops, msg without "id" found in master, please check file %s', this._filename));
                     this._numberOfTransUnitsWithMissingId++;
                 }
                 let masterUnit: ITransUnit = null;
