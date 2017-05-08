@@ -12,7 +12,7 @@ export interface ITranslationMessagesFile {
 
     /**
      * File type.
-     * Currently 'XLIFF 1.2' or 'XMB'
+     * Currently 'XLIFF 1.2', 'XLIFF 2.0' or 'XMB'
      */
     fileType(): string;
 
@@ -52,7 +52,7 @@ export interface ITranslationMessagesFile {
     /**
      * Get trans-unit with given id.
      * @param id
-     * @return {Cheerio}
+     * @return {ITransUnit}
      */
     transUnitWithId(id: string): ITransUnit;
 
@@ -89,14 +89,6 @@ export interface ITranslationMessagesFile {
      * (better than missing value)
      */
     useSourceAsTarget(transUnit: ITransUnit, isDefaultLang: boolean, copyContent: boolean);
-
-    /**
-     * Translate a given trans unit.
-     * (very simple, just for tests)
-     * @param transUnit
-     * @param translation the translated string
-     */
-    translate(transUnit: ITransUnit, translation: string);
 
     /**
      * The filename where the data is read from.

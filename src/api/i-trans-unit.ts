@@ -27,9 +27,16 @@ export interface ITransUnit {
 
     /**
      * State of the translation.
-     * (new, final, ...)
+     * (on of new, translated, final)
+     * Return values are defined as Constants STATE_...
      */
     targetState(): string;
+
+    /**
+     * Modify the target state.
+     * @param newState one of the 3 allowed target states STATE_...
+     */
+    setTargetState(newState: string);
 
     /**
      * All the source elements in the trans unit.

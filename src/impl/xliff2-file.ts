@@ -1,3 +1,4 @@
+import * as Constants from '../api/constants';
 import {DOMParser, XMLSerializer} from "xmldom";
 import {isNullOrUndefined, format} from 'util';
 import {ITranslationMessagesFile} from '../api/i-translation-messages-file';
@@ -62,7 +63,7 @@ export class Xliff2File implements ITranslationMessagesFile {
      * Here 'XLIFF 2.0'
      */
     public fileType(): string {
-        return 'XLIFF 2.0';
+        return Constants.FILETYPE_XLIFF20;
     }
 
     public forEachTransUnit(callback: ((transunit: ITransUnit) => void)) {

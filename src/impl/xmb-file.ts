@@ -1,3 +1,4 @@
+import * as Constants from '../api/constants';
 import {DOMParser, XMLSerializer} from "xmldom";
 import {ITranslationMessagesFile} from '../api/i-translation-messages-file';
 import {isNullOrUndefined, format} from 'util';
@@ -82,7 +83,7 @@ export class XmbFile implements ITranslationMessagesFile {
      * Here 'XMB'
      */
     public fileType(): string {
-        return 'XMB';
+        return Constants.FILETYPE_XMB;
     }
 
     public forEachTransUnit(callback: ((transunit: ITransUnit) => void)) {
