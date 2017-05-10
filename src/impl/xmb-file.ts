@@ -1,8 +1,6 @@
-import * as Constants from '../api/constants';
 import {DOMParser} from "xmldom";
-import {ITranslationMessagesFile} from '../api/i-translation-messages-file';
+import {ITranslationMessagesFile, ITransUnit, FILETYPE_XMB} from '../api';
 import {format} from 'util';
-import {ITransUnit} from '../api/i-trans-unit';
 import {DOMUtilities} from './dom-utilities';
 import {XmbTransUnit} from './xmb-trans-unit';
 import {AbstractTranslationMessagesFile} from './abstract-translation-messages-file';
@@ -70,7 +68,7 @@ export class XmbFile extends AbstractTranslationMessagesFile implements ITransla
      * Here 'XMB'
      */
     public fileType(): string {
-        return Constants.FILETYPE_XMB;
+        return FILETYPE_XMB;
     }
 
     /**

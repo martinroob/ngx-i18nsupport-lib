@@ -1,5 +1,4 @@
-import {TranslationMessagesFileFactory, ITranslationMessagesFile, ITransUnit} from '../api';
-import * as Constants from '../api/constants';
+import {TranslationMessagesFileFactory, ITranslationMessagesFile, ITransUnit, STATE_TRANSLATED} from '../api';
 import * as fs from "fs";
 
 /**
@@ -177,13 +176,13 @@ describe('ngx-i18nsupport-lib XLIFF 2.0 test spec', () => {
             const file2: ITranslationMessagesFile = TranslationMessagesFileFactory.fromUnknownFormatFileContent(file.editedContent(), null, null);
             const tu2: ITransUnit = file2.transUnitWithId(ID_APP_RUNS);
             expect(tu2.targetContentNormalized().asDisplayString()).toBe('Anwendung läuft');
-            expect(tu2.targetState()).toBe(Constants.STATE_TRANSLATED);
+            expect(tu2.targetState()).toBe(STATE_TRANSLATED);
             // translate again
             tu2.translate('Anwendung funktioniert');
             const file3: ITranslationMessagesFile = TranslationMessagesFileFactory.fromUnknownFormatFileContent(file2.editedContent(), null, null);
             const tu3: ITransUnit = file3.transUnitWithId(ID_APP_RUNS);
             expect(tu3.targetContentNormalized().asDisplayString()).toBe('Anwendung funktioniert');
-            expect(tu3.targetState()).toBe(Constants.STATE_TRANSLATED);
+            expect(tu3.targetState()).toBe(STATE_TRANSLATED);
         });
 
         it ('should copy source to target for default lang', () => {

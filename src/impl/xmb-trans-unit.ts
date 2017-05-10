@@ -1,8 +1,5 @@
-import {DOMParser, XMLSerializer} from "xmldom";
 import {isNullOrUndefined, format} from 'util';
-import {ITranslationMessagesFile} from '../api/i-translation-messages-file';
-import {ITransUnit} from '../api/i-trans-unit';
-import * as Constants from '../api/constants';
+import {ITranslationMessagesFile, ITransUnit} from '../api';
 import {DOMUtilities} from './dom-utilities';
 import {INormalizedMessage} from '../api/i-normalized-message';
 import {AbstractTransUnit} from './abstract-trans-unit';

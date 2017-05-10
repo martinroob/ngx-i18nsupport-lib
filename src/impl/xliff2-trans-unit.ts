@@ -1,8 +1,6 @@
 import {DOMParser, XMLSerializer} from "xmldom";
 import {isNullOrUndefined, format, isString} from 'util';
-import {ITranslationMessagesFile} from '../api/i-translation-messages-file';
-import {ITransUnit} from '../api/i-trans-unit';
-import * as Constants from '../api/constants';
+import {ITranslationMessagesFile, ITransUnit, STATE_NEW, STATE_TRANSLATED, STATE_FINAL} from '../api';
 import {DOMUtilities} from './dom-utilities';
 import {ParsedMessage} from './parsed-message';
 import {INormalizedMessage} from '../api/i-normalized-message';
@@ -151,11 +149,11 @@ export class Xliff2TransUnit extends AbstractTransUnit  implements ITransUnit {
      */
     protected mapStateToNativeState(state: string): string {
         switch( state) {
-            case Constants.STATE_NEW:
+            case STATE_NEW:
                 return 'initial';
-            case Constants.STATE_TRANSLATED:
+            case STATE_TRANSLATED:
                 return 'translated';
-            case Constants.STATE_FINAL:
+            case STATE_FINAL:
                 return 'final';
             default:
                 throw new Error('unknown state ' +  state);
@@ -170,13 +168,13 @@ export class Xliff2TransUnit extends AbstractTransUnit  implements ITransUnit {
     protected mapNativeStateToState(nativeState: string): string {
         switch( nativeState) {
             case 'initial':
-                return Constants.STATE_NEW;
+                return STATE_NEW;
             case 'translated':
-                return Constants.STATE_TRANSLATED;
+                return STATE_TRANSLATED;
             case 'reviewed': // same as translated
-                return Constants.STATE_TRANSLATED;
+                return STATE_TRANSLATED;
             case 'final':
-                return Constants.STATE_FINAL;
+                return STATE_FINAL;
             default:
                 return null;
         }
@@ -259,7 +257,7 @@ export class Xliff2TransUnit extends AbstractTransUnit  implements ITransUnit {
         } else {
             // TODO
         }
-        this.setTargetState(Constants.STATE_TRANSLATED);
+        this.setTargetState(STATE_TRANSLATED);
     }
 
     /**

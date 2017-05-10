@@ -1,5 +1,4 @@
-import {ITranslationMessagesFile, ITransUnit} from '../api';
-import * as Constants from '../api/constants';
+import {ITranslationMessagesFile, ITransUnit, STATE_NEW, STATE_TRANSLATED} from '../api';
 import {isNullOrUndefined} from 'util';
 import {XMLSerializer} from 'xmldom';
 /**
@@ -59,10 +58,10 @@ export abstract class AbstractTranslationMessagesFile implements ITranslationMes
                 this._numberOfTransUnitsWithMissingId++;
             }
             const state = tu.targetState();
-            if (state === Constants.STATE_NEW) {
+            if (state === STATE_NEW) {
                 this._numberOfUntranslatedTransUnits++;
             }
-            if (state === Constants.STATE_TRANSLATED) {
+            if (state === STATE_TRANSLATED) {
                 this._numberOfReviewedTransUnits++;
             }
         });

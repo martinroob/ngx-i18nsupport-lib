@@ -1,7 +1,6 @@
 import {DOMParser} from "xmldom";
 import {format} from 'util';
-import {ITranslationMessagesFile, ITransUnit} from '../api';
-import * as Constants from '../api/constants';
+import {ITranslationMessagesFile, ITransUnit, FILETYPE_XLIFF12} from '../api';
 import {DOMUtilities} from './dom-utilities';
 import {XliffTransUnit} from './xliff-trans-unit';
 import {AbstractTranslationMessagesFile} from './abstract-translation-messages-file';
@@ -50,7 +49,7 @@ export class XliffFile extends AbstractTranslationMessagesFile implements ITrans
      * Here 'XLIFF 1.2'
      */
     public fileType(): string {
-        return Constants.FILETYPE_XLIFF12;
+        return FILETYPE_XLIFF12;
     }
 
     protected initializeTransUnits() {
