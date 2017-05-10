@@ -167,19 +167,19 @@ describe('ngx-i18nsupport-lib xmb test spec', () => {
         it('should normalize placeholders to {{0}} etc', () => {
             const file: ITranslationMessagesFile = readFile(MASTER1SRC);
             const tu: ITransUnit = file.transUnitWithId(ID_WITH_PLACEHOLDER);
-            expect(tu.targetContentNormalized()).toBe('Eintrag {{0}} von {{1}} hinzugefügt.');
+            expect(tu.targetContentNormalized().asDisplayString()).toBe('Eintrag {{0}} von {{1}} hinzugefügt.');
         });
 
         it('should normalize embedded html tags', () => {
             const file: ITranslationMessagesFile = readFile(MASTER1SRC);
             const tu: ITransUnit = file.transUnitWithId(ID_WITH_TAGS);
-            expect(tu.targetContentNormalized()).toBe('Diese Nachricht ist <b><strong>SEHR WICHTIG</strong></b>');
+            expect(tu.targetContentNormalized().asDisplayString()).toBe('Diese Nachricht ist <b><strong>SEHR WICHTIG</strong></b>');
         });
 
         it('should normalize embedded html tags', () => {
             const file: ITranslationMessagesFile = readFile(MASTER1SRC);
             const tu: ITransUnit = file.transUnitWithId(ID_WITH_TAG_STRANGE);
-            expect(tu.targetContentNormalized()).toBe('Diese Nachricht ist <strange>{{0}}</strange>');
+            expect(tu.targetContentNormalized().asDisplayString()).toBe('Diese Nachricht ist <strange>{{0}}</strange>');
         });
 
         it('should remove a transunit by id', () => {

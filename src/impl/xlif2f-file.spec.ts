@@ -1,4 +1,5 @@
 import {TranslationMessagesFileFactory, ITranslationMessagesFile, ITransUnit} from '../api';
+import * as Constants from '../api/constants';
 import * as fs from "fs";
 
 /**
@@ -135,25 +136,25 @@ describe('ngx-i18nsupport-lib XLIFF 2.0 test spec', () => {
         it('should normalize placeholders to {{0}} etc', () => {
             const file: ITranslationMessagesFile = readFile(TRANSLATED_FILE_SRC);
             const tu: ITransUnit = file.transUnitWithId(ID_WITH_PLACEHOLDER);
-            expect(tu.targetContentNormalized()).toBe('Entry {{0}} of total {{1}} added.');
+            expect(tu.targetContentNormalized().asDisplayString()).toBe('Entry {{0}} of total {{1}} added.');
         });
 
         it('should normalize repeated placeholders to {{0}} {{1}} etc', () => {
             const file: ITranslationMessagesFile = readFile(TRANSLATED_FILE_SRC);
             const tu: ITransUnit = file.transUnitWithId(ID_WITH_REPEATED_PLACEHOLDER);
-            expect(tu.targetContentNormalized()).toBe('{{0}}: A message with 2 placeholders: {{0}} {{1}}');
+            expect(tu.targetContentNormalized().asDisplayString()).toBe('{{0}}: A message with 2 placeholders: {{0}} {{1}}');
         });
 
         it('should normalize embedded html tags', () => {
             const file: ITranslationMessagesFile = readFile(TRANSLATED_FILE_SRC);
             const tu: ITransUnit = file.transUnitWithId(ID_WITH_TAGS);
-            expect(tu.targetContentNormalized()).toBe('This message is <b><strong>VERY IMPORTANT</strong></b>');
+            expect(tu.targetContentNormalized().asDisplayString()).toBe('This message is <b><strong>VERY IMPORTANT</strong></b>');
         });
 
         it('should normalize unknown embedded html tags', () => {
             const file: ITranslationMessagesFile = readFile(TRANSLATED_FILE_SRC);
             const tu: ITransUnit = file.transUnitWithId(ID_WITH_STRANGE_TAG);
-            expect(tu.targetContentNormalized()).toBe('This message is <strange>{{0}}</strange>');
+            expect(tu.targetContentNormalized().asDisplayString()).toBe('This message is <strange>{{0}}</strange>');
         });
 
         it('should remove a transunit by id', () => {
@@ -171,20 +172,18 @@ describe('ngx-i18nsupport-lib XLIFF 2.0 test spec', () => {
             const tu: ITransUnit = file.transUnitWithId(ID_APP_RUNS);
             expect(tu).toBeTruthy();
             expect(tu.targetContent()).toBeFalsy();
-            let isDefaultLang: boolean = false;
-            let copyContent: boolean = true;
             // first translate
             tu.translate('Anwendung läuft');
             const file2: ITranslationMessagesFile = TranslationMessagesFileFactory.fromUnknownFormatFileContent(file.editedContent(), null, null);
             const tu2: ITransUnit = file2.transUnitWithId(ID_APP_RUNS);
-            expect(tu2.targetContentNormalized()).toBe('Anwendung läuft');
-            expect(tu2.targetState()).toBe('final');
+            expect(tu2.targetContentNormalized().asDisplayString()).toBe('Anwendung läuft');
+            expect(tu2.targetState()).toBe(Constants.STATE_TRANSLATED);
             // translate again
             tu2.translate('Anwendung funktioniert');
             const file3: ITranslationMessagesFile = TranslationMessagesFileFactory.fromUnknownFormatFileContent(file2.editedContent(), null, null);
             const tu3: ITransUnit = file3.transUnitWithId(ID_APP_RUNS);
-            expect(tu3.targetContentNormalized()).toBe('Anwendung funktioniert');
-            expect(tu3.targetState()).toBe('final');
+            expect(tu3.targetContentNormalized().asDisplayString()).toBe('Anwendung funktioniert');
+            expect(tu3.targetState()).toBe(Constants.STATE_TRANSLATED);
         });
 
         it ('should copy source to target for default lang', () => {
@@ -197,7 +196,7 @@ describe('ngx-i18nsupport-lib XLIFF 2.0 test spec', () => {
             tu.useSourceAsTarget(isDefaultLang, copyContent);
             const file2: ITranslationMessagesFile = TranslationMessagesFileFactory.fromUnknownFormatFileContent(file.editedContent(), null, null);
             const tu2: ITransUnit = file2.transUnitWithId(ID_WITH_PLACEHOLDER);
-            expect(tu2.targetContentNormalized()).toBe('Eintrag {{0}} von {{1}} hinzugefügt.');
+            expect(tu2.targetContentNormalized().asDisplayString()).toBe('Eintrag {{0}} von {{1}} hinzugefügt.');
         });
 
         it ('should copy source to target for non default lang if wanted', () => {
@@ -210,7 +209,7 @@ describe('ngx-i18nsupport-lib XLIFF 2.0 test spec', () => {
             tu.useSourceAsTarget(isDefaultLang, copyContent);
             const file2: ITranslationMessagesFile = TranslationMessagesFileFactory.fromUnknownFormatFileContent(file.editedContent(), null, null);
             const tu2: ITransUnit = file2.transUnitWithId(ID_WITH_PLACEHOLDER);
-            expect(tu2.targetContentNormalized()).toBe('Eintrag {{0}} von {{1}} hinzugefügt.');
+            expect(tu2.targetContentNormalized().asDisplayString()).toBe('Eintrag {{0}} von {{1}} hinzugefügt.');
         });
 
         it ('should not copy source to target for non default lang if not wanted', () => {

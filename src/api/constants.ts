@@ -42,3 +42,21 @@ export const STATE_TRANSLATED: string = 'translated';
  * @type {string}
  */
 export const STATE_FINAL: string = 'final';
+
+/**
+ * Normalizaton message formats.
+ * @type {string}
+ */
+
+/**
+ * Default format, contains placeholders, html markup.
+ * @type {string}
+ */
+export const NORMALIZATION_FORMAT_DEFAULT = 'default';
+
+/**
+ * Format for usage in ngxtranslate messages.
+ * Placeholder are in the form {{n}}, no html markup.
+ * @type {string}
+ */
+export const NORMALIZATION_FORMAT_NGXTRANSLATE = 'ngxtranslate';

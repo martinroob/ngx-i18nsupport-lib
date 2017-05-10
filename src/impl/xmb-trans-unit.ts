@@ -1,21 +1,23 @@
 import {DOMParser, XMLSerializer} from "xmldom";
-import {ITranslationMessagesFile} from '../api/i-translation-messages-file';
 import {isNullOrUndefined, format} from 'util';
+import {ITranslationMessagesFile} from '../api/i-translation-messages-file';
 import {ITransUnit} from '../api/i-trans-unit';
+import * as Constants from '../api/constants';
 import {DOMUtilities} from './dom-utilities';
+import {INormalizedMessage} from '../api/i-normalized-message';
+import {AbstractTransUnit} from './abstract-trans-unit';
 /**
  * Created by martin on 01.05.2017.
  * A Translation Unit in an XMB file.
  */
 
-export class XmbTransUnit implements ITransUnit {
+export class XmbTransUnit extends AbstractTransUnit implements ITransUnit {
 
-    constructor(private _msg: Element, private _id: string, private _sourceTransUnitFromMaster: ITransUnit) {
+    private _sourceTransUnitFromMaster: ITransUnit;
 
-    }
-
-    public get id(): string {
-        return this._id;
+    constructor(_element: Element, _id: string, _translationMessagesFile: ITranslationMessagesFile, _sourceTransUnitFromMaster: ITransUnit) {
+        super(_element, _id, _translationMessagesFile);
+        this._sourceTransUnitFromMaster = _sourceTransUnitFromMaster;
     }
 
     /**
@@ -24,10 +26,18 @@ export class XmbTransUnit implements ITransUnit {
      * @return {string}
      */
     public sourceContent(): string {
-        let msgContent = DOMUtilities.getPCDATA(this._msg);
+        let msgContent = DOMUtilities.getPCDATA(this._element);
         let reSourceElem: RegExp = /<source>.*<\/source>/g;
         msgContent = msgContent.replace(reSourceElem, '');
         return msgContent;
+    }
+
+    /**
+     * The original text value, that is to be translated, as normalized message.
+     */
+    public sourceContentNormalized(): INormalizedMessage {
+        // TODO
+        return null;
     }
 
     /**
@@ -42,10 +52,11 @@ export class XmbTransUnit implements ITransUnit {
      * the translated value, but all placeholders are replaced with {{n}} (starting at 0)
      * and all embedded html is replaced by direct html markup.
      */
-    targetContentNormalized(): string {
+    targetContentNormalized(): INormalizedMessage {
+        // TODO
         let directHtml = this.targetContent();
         if (!directHtml) {
-            return directHtml;
+            return null;
         }
         let normalized = directHtml;
         let re0: RegExp = /<ph name="INTERPOLATION"><ex>INTERPOLATION<\/ex><\/ph>/g;
@@ -62,7 +73,8 @@ export class XmbTransUnit implements ITransUnit {
         let reCloseAnyTag2: RegExp = /<ph name="CLOSE_\w*"><ex>&lt;\/(\w*)><\/ex><\/ph>/g;
         normalized = normalized.replace(reCloseAnyTag2, '</$1>');
 
-        return normalized;
+        //return normalized;
+        return null;
     }
 
     /**
@@ -70,7 +82,7 @@ export class XmbTransUnit implements ITransUnit {
      * (not supported in xmb)
      * If we have a master, we assumed it is translated if the content is not the same as the masters one.
      */
-    public targetState(): string {
+    public nativeTargetState(): string {
         if (this._sourceTransUnitFromMaster) {
             let sourceContent = this._sourceTransUnitFromMaster.sourceContent();
             if (!sourceContent || sourceContent === this.targetContent()) {
@@ -83,6 +95,35 @@ export class XmbTransUnit implements ITransUnit {
     }
 
     /**
+     * Map an abstract state (new, translated, final) to a concrete state used in the xml.
+     * Returns the state to be used in the xml.
+     * @param state one of Constants.STATE...
+     * @returns a native state (depends on concrete format)
+     * @throws error, if state is invalid.
+     */
+    protected mapStateToNativeState(state: string): string {
+        return state;
+    }
+
+    /**
+     * Map a native state (found in the document) to an abstract state (new, translated, final).
+     * Returns the abstract state.
+     * @param nativeState
+     */
+    protected mapNativeStateToState(nativeState: string): string {
+        return nativeState;
+    }
+
+    /**
+     * set state in xml.
+     * (not supported in xmb)
+     * @param nativeState
+     */
+    protected setNativeTargetState(nativeState: string) {
+        // TODO some logic to store it anywhere
+    }
+
+    /**
      * All the source elements in the trans unit.
      * The source element is a reference to the original template.
      * It contains the name of the template file and a line number with the position inside the template.
@@ -91,7 +132,7 @@ export class XmbTransUnit implements ITransUnit {
      * Otherwise it just returns an empty array.
      */
     public sourceReferences(): { sourcefile: string, linenumber }[] {
-        let sourceElements = this._msg.getElementsByTagName('source');
+        let sourceElements = this._element.getElementsByTagName('source');
         let sourceRefs: { sourcefile: string, linenumber }[] = [];
         for (let i = 0; i < sourceElements.length; i++) {
             let elem = sourceElements.item(i);
@@ -131,7 +172,7 @@ export class XmbTransUnit implements ITransUnit {
      * In xmb this is stored in the attribute "desc".
      */
     public description(): string {
-        return this._msg.getAttribute('desc');
+        return this._element.getAttribute('desc');
     }
 
     /**
@@ -141,16 +182,7 @@ export class XmbTransUnit implements ITransUnit {
      * In xmb this is stored in the attribute "meaning".
      */
     public meaning(): string {
-        return this._msg.getAttribute('meaning');
-    }
-
-    /**
-     * the real xml element used for trans unit.
-     * Here it is a <msg> element.
-     * @return {Element}
-     */
-    public asXmlElement(): Element {
-        return this._msg;
+        return this._element.getAttribute('meaning');
     }
 
     /**
@@ -162,12 +194,15 @@ export class XmbTransUnit implements ITransUnit {
     }
 
     /**
-     * Translate trans unit.
-     * (very simple, just for tests)
-     * @param translation the translated string
+     * Translate the trans unit.
+     * @param translation the translated string or (preferred) a normalized message.
+     * The pure string can contain any markup and will not be checked.
+     * So it can damage the document.
+     * A normalized message prevents this.
      */
-    public translate(translation: string) {
-        let target = this._msg;
+    public translate(translation: string | INormalizedMessage) {
+        // TODO support normalized message
+        let target = this._element;
         // reconvert source refs to html part in translation message
         let sourceRefsHtml = this.sourceRefsToHtml();
         if (isNullOrUndefined(translation)) {

@@ -4,4 +4,5 @@
 export {TranslationMessagesFileFactory} from './translation-messages-file-factory';
 export {ITranslationMessagesFile} from './i-translation-messages-file';
 export {ITransUnit} from './i-trans-unit';
+export {INormalizedMessage, ValidationErrors} from './i-normalized-message';
 export * from 'constants';

@@ -1,33 +1,40 @@
 import {DOMParser, XMLSerializer} from "xmldom";
-import {isNullOrUndefined, format} from 'util';
+import {isNullOrUndefined, format, isString} from 'util';
 import {ITranslationMessagesFile} from '../api/i-translation-messages-file';
 import {ITransUnit} from '../api/i-trans-unit';
+import * as Constants from '../api/constants';
 import {DOMUtilities} from './dom-utilities';
+import {INormalizedMessage} from '../api/i-normalized-message';
+import {AbstractTransUnit} from './abstract-trans-unit';
 /**
  * Created by martin on 01.05.2017.
  * A Translation Unit in an XLIFF 1.2 file.
  */
 
-export class XliffTransUnit implements ITransUnit {
+export class XliffTransUnit extends AbstractTransUnit implements ITransUnit {
 
-    constructor(private _transUnit: Element, private _id: string) {
-
-    }
-
-    public get id(): string {
-        return this._id;
+    constructor(_element: Element, _id: string,_translationMessagesFile: ITranslationMessagesFile) {
+        super(_element, _id, _translationMessagesFile);
     }
 
     public sourceContent(): string {
-        const sourceElement = DOMUtilities.getFirstElementByTagName(this._transUnit, 'source');
+        const sourceElement = DOMUtilities.getFirstElementByTagName(this._element, 'source');
         return DOMUtilities.getPCDATA(sourceElement);
+    }
+
+    /**
+     * The original text value, that is to be translated, as normalized message.
+     */
+    public sourceContentNormalized(): INormalizedMessage {
+        // TODO
+        return null;
     }
 
     /**
      * the translated value (containing all markup, depends on the concrete format used).
      */
     public targetContent(): string {
-        let targetElement = DOMUtilities.getFirstElementByTagName(this._transUnit, 'target');
+        let targetElement = DOMUtilities.getFirstElementByTagName(this._element, 'target');
         return DOMUtilities.getPCDATA(targetElement);
     }
 
@@ -35,10 +42,11 @@ export class XliffTransUnit implements ITransUnit {
      * the translated value, but all placeholders are replaced with {{n}} (starting at 0)
      * and all embedded html is replaced by direct html markup.
      */
-    targetContentNormalized(): string {
+    targetContentNormalized(): INormalizedMessage {
+        // TODO
         let directHtml = this.targetContent();
         if (!directHtml) {
-            return directHtml;
+            return null;
         }
         let normalized = directHtml;
         let re0: RegExp = /<x id="INTERPOLATION"><\/x>/g;
@@ -68,19 +76,82 @@ export class XliffTransUnit implements ITransUnit {
         let reCloseAnyTagb: RegExp = /<x id="CLOSE_TAG_(\w*)" ctype="x-(\w*)"\/>/g;
         normalized = normalized.replace(reCloseAnyTagb, '</$2>');
 
-        return normalized;
+        //return normalized;
+        return null;
     }
 
     /**
-     * State of the translation.
-     * (new, final, ...)
+     * State of the translation as stored in the xml.
      */
-    public targetState(): string {
-        let targetElement = DOMUtilities.getFirstElementByTagName(this._transUnit, 'target');
+    public nativeTargetState(): string {
+        let targetElement = DOMUtilities.getFirstElementByTagName(this._element, 'target');
         if (targetElement) {
             return targetElement.getAttribute('state');
         } else {
             return null;
+        }
+    }
+
+    /**
+     * set state in xml.
+     * @param nativeState
+     */
+    protected setNativeTargetState(nativeState: string) {
+        let targetElement = DOMUtilities.getFirstElementByTagName(this._element, 'target');
+        if (targetElement) {
+            targetElement.setAttribute('state', nativeState);
+        }
+    }
+
+    /**
+     * Map an abstract state (new, translated, final) to a concrete state used in the xml.
+     * Returns the state to be used in the xml.
+     * @param state one of Constants.STATE...
+     * @returns a native state (depends on concrete format)
+     * @throws error, if state is invalid.
+     */
+    protected mapStateToNativeState(state: string): string {
+        switch( state) {
+            case Constants.STATE_NEW:
+                return 'new';
+            case Constants.STATE_TRANSLATED:
+                return 'translated';
+            case Constants.STATE_FINAL:
+                return 'final';
+            default:
+                throw new Error('unknown state ' +  state);
+        }
+    }
+
+    /**
+     * Map a native state (found in the document) to an abstract state (new, translated, final).
+     * Returns the abstract state.
+     * @param nativeState
+     */
+    protected mapNativeStateToState(nativeState: string): string {
+        switch( nativeState) {
+            case 'new':
+                return Constants.STATE_NEW;
+            case 'needs-translation':
+                return Constants.STATE_NEW;
+            case 'translated':
+                return Constants.STATE_TRANSLATED;
+            case 'needs-adaptation':
+                return Constants.STATE_TRANSLATED;
+            case 'needs-l10n':
+                return Constants.STATE_TRANSLATED;
+            case 'needs-review-adaptation':
+                return Constants.STATE_TRANSLATED;
+            case 'needs-review-l10n':
+                return Constants.STATE_TRANSLATED;
+            case 'needs-review-translation':
+                return Constants.STATE_TRANSLATED;
+            case 'final':
+                return Constants.STATE_FINAL;
+            case 'signed-off':
+                return Constants.STATE_FINAL;
+            default:
+                return null;
         }
     }
 
@@ -93,7 +164,7 @@ export class XliffTransUnit implements ITransUnit {
      * Otherwise it just returns an empty array.
      */
     public sourceReferences(): {sourcefile: string, linenumber}[] {
-        let sourceElements = this._transUnit.getElementsByTagName('context-group');
+        let sourceElements = this._element.getElementsByTagName('context-group');
         let sourceRefs: { sourcefile: string, linenumber }[] = [];
         for (let i = 0; i < sourceElements.length; i++) {
             const elem = sourceElements.item(i);
@@ -122,7 +193,7 @@ export class XliffTransUnit implements ITransUnit {
      * In xliff this is stored as a note element with attribute from="description".
      */
     public description(): string {
-        let noteElements = this._transUnit.getElementsByTagName('note');
+        let noteElements = this._element.getElementsByTagName('note');
         for (let i = 0; i < noteElements.length; i++) {
             const noteElem = noteElements.item(i);
             if (noteElem.getAttribute('from') === 'description') {
@@ -139,7 +210,7 @@ export class XliffTransUnit implements ITransUnit {
      * In xliff this is stored as a note element with attribute from="meaning".
      */
     public meaning(): string {
-        let noteElements = this._transUnit.getElementsByTagName('note');
+        let noteElements = this._element.getElementsByTagName('note');
         for (let i = 0; i < noteElements.length; i++) {
             const noteElem = noteElements.item(i);
             if (noteElem.getAttribute('from') === 'meaning') {
@@ -150,27 +221,25 @@ export class XliffTransUnit implements ITransUnit {
     }
 
     /**
-     * the real xml element used for trans unit.
-     * Here it is a <trans-unit> element defined in XLIFF Spec.
-     * @return {Element}
+     * Translate the trans unit.
+     * @param translation the translated string or (preferred) a normalized message.
+     * The pure string can contain any markup and will not be checked.
+     * So it can damage the document.
+     * A normalized message prevents this.
      */
-    public asXmlElement(): Element {
-        return this._transUnit;
-    }
-
-    /**
-     * Translate trans unit.
-     * (very simple, just for tests)
-     * @param translation the translated string
-     */
-    public translate(translation: string) {
-        let target = DOMUtilities.getFirstElementByTagName(this._transUnit, 'target');
+    public translate(translation: string | INormalizedMessage) {
+        // TODO support normalized message
+        let target = DOMUtilities.getFirstElementByTagName(this._element, 'target');
         if (!target) {
-            let source = DOMUtilities.getFirstElementByTagName(this._transUnit, 'source');
-            target = source.parentElement.appendChild(this._transUnit.ownerDocument.createElement('target'));
+            let source = DOMUtilities.getFirstElementByTagName(this._element, 'source');
+            target = source.parentElement.appendChild(this._element.ownerDocument.createElement('target'));
         }
-        DOMUtilities.replaceContentWithPCDATA(target, translation);
-        target.setAttribute('state', 'final');
+        if (isString(translation)) {
+            DOMUtilities.replaceContentWithPCDATA(target, <string> translation);
+        } else {
+            // TODO
+        }
+        this.setTargetState(Constants.STATE_TRANSLATED);
     }
 
     /**
@@ -178,10 +247,10 @@ export class XliffTransUnit implements ITransUnit {
      * (better than missing value)
      */
     public useSourceAsTarget(isDefaultLang: boolean, copyContent: boolean) {
-        let source = DOMUtilities.getFirstElementByTagName(this._transUnit, 'source');
-        let target = DOMUtilities.getFirstElementByTagName(this._transUnit, 'target');
+        let source = DOMUtilities.getFirstElementByTagName(this._element, 'source');
+        let target = DOMUtilities.getFirstElementByTagName(this._element, 'target');
         if (!target) {
-            target = source.parentElement.appendChild(this._transUnit.ownerDocument.createElement('target'));
+            target = source.parentElement.appendChild(this._element.ownerDocument.createElement('target'));
         }
         if (isDefaultLang || copyContent) {
             DOMUtilities.replaceContentWithPCDATA(target, DOMUtilities.getPCDATA(source));
