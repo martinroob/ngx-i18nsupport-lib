@@ -82,6 +82,10 @@
         <source>no_sourceref_test</source>
         <target/>
       </trans-unit>
+      <trans-unit id="unittomerge" datatype="html">
+        <source>Test for merging units</source>
+        <target/>
+      </trans-unit>
       <trans-unit datatype="html">
         <source>no id</source>
         <target/>

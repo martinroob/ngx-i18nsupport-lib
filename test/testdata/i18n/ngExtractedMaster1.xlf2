@@ -207,6 +207,11 @@
         <source>Explizit gesetzte ID</source>
       </segment>
     </unit>
+    <unit id="unittomerge">
+      <segment>
+        <source>Test for merging units</source>
+      </segment>
+    </unit>
     <unit>
       <segment>
         <source>unit without id</source>

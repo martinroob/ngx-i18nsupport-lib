@@ -32,4 +32,5 @@
     <msg id="7610784844464920497" desc="ngx-translate" meaning="embeddedhtml.strange"><source>S:/experimente/sampleapp41/src/app/ngx-translate-test-data/ngx-translate-test-data.component.ts:17</source>Diese Nachricht ist <ph name="START_TAG_STRANGE"><ex>&lt;strange&gt;</ex></ph><ph name="INTERPOLATION"><ex>INTERPOLATION</ex></ph><ph name="CLOSE_TAG_STRANGE"><ex>&lt;/strange&gt;</ex></ph></msg>
     <msg id="no_sourceref_test">no source ref</msg>
     <msg>no id</msg>
+    <msg id="unittomerge">Test for merging units</msg>
 </messagebundle>
