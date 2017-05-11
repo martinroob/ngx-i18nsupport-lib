@@ -5,6 +5,7 @@ import {DOMUtilities} from './dom-utilities';
 import {ParsedMessage} from './parsed-message';
 import {INormalizedMessage} from '../api/i-normalized-message';
 import {AbstractTransUnit} from './abstract-trans-unit';
+import {Xliff2MessageParser} from './xliff2-message-parser';
 /**
  * Created by martin on 04.05.2017.
  * A Translation Unit in an XLIFF 2.0 file.
@@ -18,23 +19,23 @@ export class Xliff2TransUnit extends AbstractTransUnit  implements ITransUnit {
 
     public sourceContent(): string {
         const sourceElement = DOMUtilities.getFirstElementByTagName(this._element, 'source');
-        return DOMUtilities.getPCDATA(sourceElement);
+        return DOMUtilities.getXMLContent(sourceElement);
     }
 
     /**
      * The original text value, that is to be translated, as normalized message.
      */
     public sourceContentNormalized(): INormalizedMessage {
-        // TODO
-        return null;
+        const sourceElement = DOMUtilities.getFirstElementByTagName(this._element, 'source');
+        return new Xliff2MessageParser().parseElement(sourceElement);
     }
 
     /**
      * the translated value (containing all markup, depends on the concrete format used).
      */
     public targetContent(): string {
-        let targetElement = DOMUtilities.getFirstElementByTagName(this._element, 'target');
-        return DOMUtilities.getPCDATA(targetElement);
+        const targetElement = DOMUtilities.getFirstElementByTagName(this._element, 'target');
+        return DOMUtilities.getXMLContent(targetElement);
     }
 
     /**
@@ -42,79 +43,8 @@ export class Xliff2TransUnit extends AbstractTransUnit  implements ITransUnit {
      * and all embedded html is replaced by direct html markup.
      */
     targetContentNormalized(): INormalizedMessage {
-        let parsedMessage: ParsedMessage = this.parseTargetContent();
-        return parsedMessage;
-
-    }
-
-    private parseTargetContent(): ParsedMessage {
-        return this.parseAsMessage(DOMUtilities.getFirstElementByTagName(this._element, 'target'));
-    }
-
-    private parseAsMessage(messageElem: Element): ParsedMessage {
-        let message: ParsedMessage = new ParsedMessage();
-        if (messageElem) {
-            this.addPartsOfNodeToMessage(messageElem, message, false);
-        }
-        return message;
-    }
-
-    private addPartsOfNodeToMessage(node: Node, message: ParsedMessage, includeSelf: boolean) {
-        if (includeSelf) {
-            if (node.nodeType === node.TEXT_NODE) {
-                message.addText(node.textContent);
-                return;
-            }
-            if (node.nodeType === node.ELEMENT_NODE) {
-                let elementNode: Element = <Element> node;
-                let tagName = elementNode.tagName;
-                if (tagName === 'ph') {
-                    // placeholder are like <ph id="0" equiv="INTERPOLATION" disp="{{number()}}"/>
-                    // They contain the id and also a name (number in the example)
-                    // TODO make some use of the name (but it is not available in XLIFF 1.2)
-                    let equiv = elementNode.getAttribute('equiv');
-                    let indexString = '';
-                    if (!equiv || !equiv.startsWith('INTERPOLATION')) {
-                        indexString = elementNode.getAttribute('id')
-                    } else {
-                        if (equiv === 'INTERPOLATION') {
-                            indexString = '0';
-                        } else {
-                            indexString = equiv.substring('INTERPOLATION_'.length);
-                        }
-                    }
-                    let index = Number.parseInt(indexString);
-                    message.addPlaceholder(index);
-                    return;
-                } else if (tagName === 'pc') {
-                    // pc example: <pc id="0" equivStart="START_BOLD_TEXT" equivEnd="CLOSE_BOLD_TEXT" type="fmt" dispStart="&lt;b&gt;" dispEnd="&lt;/b&gt;">IMPORTANT</pc>
-                    let embeddedTagName = this.tagNameFromPCElement(elementNode);
-                    if (embeddedTagName) {
-                        message.addOpenTag(embeddedTagName);
-                        this.addPartsOfNodeToMessage(elementNode, message, false);
-                        message.addCloseTag(embeddedTagName);
-                    } else {
-                        this.addPartsOfNodeToMessage(elementNode, message, false);
-                    }
-                    return;
-                }
-            }
-        }
-        const children = node.childNodes;
-        for (let i = 0; i < children.length; i++) {
-            this.addPartsOfNodeToMessage(children.item(i), message, true);
-        }
-    }
-
-    private tagNameFromPCElement(pcNode: Element): string {
-        let dispStart = pcNode.getAttribute('dispStart');
-        if (dispStart.startsWith('<')) {
-            dispStart = dispStart.substring(1);
-        }
-        if (dispStart.endsWith('>')) {
-            dispStart = dispStart.substring(0, dispStart.length - 1);
-        }
-        return dispStart;
+        const targetElement = DOMUtilities.getFirstElementByTagName(this._element, 'target');
+        return new Xliff2MessageParser().parseElement(targetElement);
     }
 
     /**
@@ -176,7 +106,7 @@ export class Xliff2TransUnit extends AbstractTransUnit  implements ITransUnit {
             case 'final':
                 return STATE_FINAL;
             default:
-                return null;
+                return STATE_NEW;
         }
     }
 
@@ -253,7 +183,7 @@ export class Xliff2TransUnit extends AbstractTransUnit  implements ITransUnit {
             target = source.parentNode.appendChild(this._element.ownerDocument.createElement('target'));
         }
         if (isString(translation)) {
-            DOMUtilities.replaceContentWithPCDATA(target, <string> translation);
+            DOMUtilities.replaceContentWithXMLContent(target, <string> translation);
         } else {
             // TODO
         }
@@ -271,9 +201,9 @@ export class Xliff2TransUnit extends AbstractTransUnit  implements ITransUnit {
             target = source.parentNode.appendChild(this._element.ownerDocument.createElement('target'));
         }
         if (isDefaultLang || copyContent) {
-            DOMUtilities.replaceContentWithPCDATA(target, DOMUtilities.getPCDATA(source));
+            DOMUtilities.replaceContentWithXMLContent(target, DOMUtilities.getXMLContent(source));
         } else {
-            DOMUtilities.replaceContentWithPCDATA(target, '');
+            DOMUtilities.replaceContentWithXMLContent(target, '');
         }
         let segment = DOMUtilities.getFirstElementByTagName(this._element, 'segment');
         if (segment) {

@@ -1,4 +1,4 @@
-import {TranslationMessagesFileFactory, ITranslationMessagesFile, ITransUnit} from '../api';
+import {TranslationMessagesFileFactory, ITranslationMessagesFile, ITransUnit, STATE_NEW, STATE_TRANSLATED, STATE_FINAL} from '../api';
 import * as fs from "fs";
 
 /**
@@ -49,6 +49,7 @@ describe('ngx-i18nsupport-lib xmb test spec', () => {
         let ID_WITH_LINEBREAK = '7149517499881679376';
         let ID_WITH_TAGS = '7609655310648429098';
         let ID_WITH_TAG_STRANGE = '7610784844464920497';
+        let ID_TO_MERGE = 'unittomerge';
 
         it('should read xmb file', () => {
             const file: ITranslationMessagesFile = readFile(MASTER1SRC);
@@ -67,8 +68,10 @@ describe('ngx-i18nsupport-lib xmb test spec', () => {
 
         it('should count units', () => {
             const file: ITranslationMessagesFile = readFile(MASTER1SRC);
-            expect(file.numberOfTransUnits()).toBe(10);
+            expect(file.numberOfTransUnits()).toBe(11);
             expect(file.numberOfTransUnitsWithMissingId()).toBe(1);
+            expect(file.numberOfUntranslatedTransUnits()).toBe(file.numberOfTransUnits());
+            expect(file.numberOfReviewedTransUnits()).toBe(0);
         });
 
         it('should return source language', () => {
@@ -148,6 +151,18 @@ describe('ngx-i18nsupport-lib xmb test spec', () => {
             expect(tu.sourceReferences()[0].linenumber).toBe(7);
         });
 
+        it ('should run through 3 different states while translating', () => {
+            const file: ITranslationMessagesFile = readXmbWithMaster(MASTER_EN_XMB, MASTER_DE_XMB);
+            const tu: ITransUnit = file.transUnitWithId(ID_MY_FIRST);
+            expect(tu).toBeTruthy();
+            expect(tu.targetState()).toBe(STATE_FINAL);
+            tu.translate('a translation');
+            // TODO state handling xmb to be improved
+            // expect(tu.targetState()).toBe(STATE_TRANSLATED);
+            // tu.setTargetState(STATE_FINAL);
+            // expect(tu.targetState()).toBe(STATE_FINAL);
+        });
+
         it('should not change source reference when translating', () => {
             const file: ITranslationMessagesFile = readFile(MASTER1SRC);
             const tu: ITransUnit = file.transUnitWithId(ID_WITH_TWO_SOURCEREFS);
@@ -190,6 +205,19 @@ describe('ngx-i18nsupport-lib xmb test spec', () => {
             const file2: ITranslationMessagesFile = TranslationMessagesFileFactory.fromUnknownFormatFileContent(file.editedContent(), null, null);
             const tu2: ITransUnit = file2.transUnitWithId(ID_WITH_TWO_SOURCEREFS);
             expect(tu2).toBeFalsy(); // should not exist any more
+        });
+
+        it ('should copy a transunit from file a to file b', () => {
+            const file: ITranslationMessagesFile = readFile(MASTER1SRC);
+            const tu: ITransUnit = file.transUnitWithId(ID_TO_MERGE);
+            expect(tu).toBeTruthy();
+            const targetFile: ITranslationMessagesFile = readFile(MASTER_DE_XMB);
+            expect(targetFile.transUnitWithId(ID_TO_MERGE)).toBeFalsy();
+            targetFile.addNewTransUnit(tu);
+            expect(targetFile.transUnitWithId(ID_TO_MERGE)).toBeTruthy();
+            let changedTargetFile = TranslationMessagesFileFactory.fromUnknownFormatFileContent(targetFile.editedContent(), null, null);
+            let targetTu = changedTargetFile.transUnitWithId(ID_TO_MERGE);
+            expect(targetTu.sourceContent()).toBe('Test for merging units');
         });
 
     });

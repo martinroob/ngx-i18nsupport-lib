@@ -58,7 +58,7 @@ export abstract class AbstractTransUnit implements ITransUnit {
      */
     public targetState(): string {
         const nativeState = this.nativeTargetState();
-        return nativeState ? this.mapNativeStateToState(nativeState) : null;
+        return this.mapNativeStateToState(nativeState);
     }
 
     /**

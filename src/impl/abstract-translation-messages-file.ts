@@ -58,7 +58,7 @@ export abstract class AbstractTranslationMessagesFile implements ITranslationMes
                 this._numberOfTransUnitsWithMissingId++;
             }
             const state = tu.targetState();
-            if (state === STATE_NEW) {
+            if (isNullOrUndefined(state) || state === STATE_NEW) {
                 this._numberOfUntranslatedTransUnits++;
             }
             if (state === STATE_TRANSLATED) {

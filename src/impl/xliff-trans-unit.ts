@@ -4,6 +4,7 @@ import {ITranslationMessagesFile, ITransUnit, STATE_NEW, STATE_TRANSLATED, STATE
 import {DOMUtilities} from './dom-utilities';
 import {INormalizedMessage} from '../api/i-normalized-message';
 import {AbstractTransUnit} from './abstract-trans-unit';
+import {XliffMessageParser} from './xliff-message-parser';
 /**
  * Created by martin on 01.05.2017.
  * A Translation Unit in an XLIFF 1.2 file.
@@ -17,23 +18,23 @@ export class XliffTransUnit extends AbstractTransUnit implements ITransUnit {
 
     public sourceContent(): string {
         const sourceElement = DOMUtilities.getFirstElementByTagName(this._element, 'source');
-        return DOMUtilities.getPCDATA(sourceElement);
+        return DOMUtilities.getXMLContent(sourceElement);
     }
 
     /**
      * The original text value, that is to be translated, as normalized message.
      */
     public sourceContentNormalized(): INormalizedMessage {
-        // TODO
-        return null;
+        const sourceElement = DOMUtilities.getFirstElementByTagName(this._element, 'source');
+        return new XliffMessageParser().parseElement(sourceElement);
     }
 
     /**
      * the translated value (containing all markup, depends on the concrete format used).
      */
     public targetContent(): string {
-        let targetElement = DOMUtilities.getFirstElementByTagName(this._element, 'target');
-        return DOMUtilities.getPCDATA(targetElement);
+        const targetElement = DOMUtilities.getFirstElementByTagName(this._element, 'target');
+        return DOMUtilities.getXMLContent(targetElement);
     }
 
     /**
@@ -41,41 +42,8 @@ export class XliffTransUnit extends AbstractTransUnit implements ITransUnit {
      * and all embedded html is replaced by direct html markup.
      */
     targetContentNormalized(): INormalizedMessage {
-        // TODO
-        let directHtml = this.targetContent();
-        if (!directHtml) {
-            return null;
-        }
-        let normalized = directHtml;
-        let re0: RegExp = /<x id="INTERPOLATION"><\/x>/g;
-        normalized = normalized.replace(re0, '{{0}}');
-        let re0b: RegExp = /<x id="INTERPOLATION"\/>/g;
-        normalized = normalized.replace(re0b, '{{0}}');
-        let reN: RegExp = /<x id="INTERPOLATION_(\d*)"><\/x>/g;
-        normalized = normalized.replace(reN, '{{$1}}');
-        let reNb: RegExp = /<x id="INTERPOLATION_(\d*)"\/>/g;
-        normalized = normalized.replace(reNb, '{{$1}}');
-
-        let reStartBold: RegExp = /<x id="START_BOLD_TEXT" ctype="x-b"><\/x>/g;
-        normalized = normalized.replace(reStartBold, '<b>');
-        let reStartBoldb: RegExp = /<x id="START_BOLD_TEXT" ctype="x-b"\/>/g;
-        normalized = normalized.replace(reStartBoldb, '<b>');
-        let reCloseBold: RegExp = /<x id="CLOSE_BOLD_TEXT" ctype="x-b"><\/x>/g;
-        normalized = normalized.replace(reCloseBold, '</b>');
-        let reCloseBoldb: RegExp = /<x id="CLOSE_BOLD_TEXT" ctype="x-b"\/>/g;
-        normalized = normalized.replace(reCloseBoldb, '</b>');
-
-        let reStartAnyTag: RegExp = /<x id="START_TAG_(\w*)" ctype="x-(\w*)"><\/x>/g;
-        normalized = normalized.replace(reStartAnyTag, '<$2>');
-        let reStartAnyTagb: RegExp = /<x id="START_TAG_(\w*)" ctype="x-(\w*)"\/>/g;
-        normalized = normalized.replace(reStartAnyTagb, '<$2>');
-        let reCloseAnyTag: RegExp = /<x id="CLOSE_TAG_(\w*)" ctype="x-(\w*)"><\/x>/g;
-        normalized = normalized.replace(reCloseAnyTag, '</$2>');
-        let reCloseAnyTagb: RegExp = /<x id="CLOSE_TAG_(\w*)" ctype="x-(\w*)"\/>/g;
-        normalized = normalized.replace(reCloseAnyTagb, '</$2>');
-
-        //return normalized;
-        return null;
+        const targetElement = DOMUtilities.getFirstElementByTagName(this._element, 'target');
+        return new XliffMessageParser().parseElement(targetElement);
     }
 
     /**
@@ -149,7 +117,7 @@ export class XliffTransUnit extends AbstractTransUnit implements ITransUnit {
             case 'signed-off':
                 return STATE_FINAL;
             default:
-                return null;
+                return STATE_NEW;
         }
     }
 
@@ -233,7 +201,7 @@ export class XliffTransUnit extends AbstractTransUnit implements ITransUnit {
             target = source.parentElement.appendChild(this._element.ownerDocument.createElement('target'));
         }
         if (isString(translation)) {
-            DOMUtilities.replaceContentWithPCDATA(target, <string> translation);
+            DOMUtilities.replaceContentWithXMLContent(target, <string> translation);
         } else {
             // TODO
         }
@@ -251,9 +219,9 @@ export class XliffTransUnit extends AbstractTransUnit implements ITransUnit {
             target = source.parentElement.appendChild(this._element.ownerDocument.createElement('target'));
         }
         if (isDefaultLang || copyContent) {
-            DOMUtilities.replaceContentWithPCDATA(target, DOMUtilities.getPCDATA(source));
+            DOMUtilities.replaceContentWithXMLContent(target, DOMUtilities.getXMLContent(source));
         } else {
-            DOMUtilities.replaceContentWithPCDATA(target, '');
+            DOMUtilities.replaceContentWithXMLContent(target, '');
         }
         if (isDefaultLang) {
             target.setAttribute('state', 'final');

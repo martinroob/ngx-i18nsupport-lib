@@ -3,6 +3,7 @@ import {ITranslationMessagesFile, ITransUnit} from '../api';
 import {DOMUtilities} from './dom-utilities';
 import {INormalizedMessage} from '../api/i-normalized-message';
 import {AbstractTransUnit} from './abstract-trans-unit';
+import {XmbMessageParser} from './xmb-message-parser';
 /**
  * Created by martin on 01.05.2017.
  * A Translation Unit in an XMB file.
@@ -23,7 +24,7 @@ export class XmbTransUnit extends AbstractTransUnit implements ITransUnit {
      * @return {string}
      */
     public sourceContent(): string {
-        let msgContent = DOMUtilities.getPCDATA(this._element);
+        let msgContent = DOMUtilities.getXMLContent(this._element);
         let reSourceElem: RegExp = /<source>.*<\/source>/g;
         msgContent = msgContent.replace(reSourceElem, '');
         return msgContent;
@@ -33,8 +34,7 @@ export class XmbTransUnit extends AbstractTransUnit implements ITransUnit {
      * The original text value, that is to be translated, as normalized message.
      */
     public sourceContentNormalized(): INormalizedMessage {
-        // TODO
-        return null;
+        return new XmbMessageParser().parseElement(this._element);
     }
 
     /**
@@ -50,28 +50,7 @@ export class XmbTransUnit extends AbstractTransUnit implements ITransUnit {
      * and all embedded html is replaced by direct html markup.
      */
     targetContentNormalized(): INormalizedMessage {
-        // TODO
-        let directHtml = this.targetContent();
-        if (!directHtml) {
-            return null;
-        }
-        let normalized = directHtml;
-        let re0: RegExp = /<ph name="INTERPOLATION"><ex>INTERPOLATION<\/ex><\/ph>/g;
-        normalized = normalized.replace(re0, '{{0}}');
-        let reN: RegExp = /<ph name="INTERPOLATION_1"><ex>INTERPOLATION_(\d*)<\/ex><\/ph>/g;
-        normalized = normalized.replace(reN, '{{$1}}');
-
-        let reStartAnyTag: RegExp = /<ph name="START_\w*"><ex>&amp;lt;(\w*)&amp;gt;<\/ex><\/ph>/g;
-        normalized = normalized.replace(reStartAnyTag, '<$1>');
-        let reStartAnyTag2: RegExp = /<ph name="START_\w*"><ex>&lt;(\w*)><\/ex><\/ph>/g;
-        normalized = normalized.replace(reStartAnyTag2, '<$1>');
-        let reCloseAnyTag: RegExp = /<ph name="CLOSE_\w*"><ex>&amp;lt;\/(\w*)&amp;gt;<\/ex><\/ph>/g;
-        normalized = normalized.replace(reCloseAnyTag, '</$1>');
-        let reCloseAnyTag2: RegExp = /<ph name="CLOSE_\w*"><ex>&lt;\/(\w*)><\/ex><\/ph>/g;
-        normalized = normalized.replace(reCloseAnyTag2, '</$1>');
-
-        //return normalized;
-        return null;
+        return new XmbMessageParser().parseElement(this._element);
     }
 
     /**
@@ -205,7 +184,7 @@ export class XmbTransUnit extends AbstractTransUnit implements ITransUnit {
         if (isNullOrUndefined(translation)) {
             translation = '';
         }
-        DOMUtilities.replaceContentWithPCDATA(target, sourceRefsHtml + translation);
+        DOMUtilities.replaceContentWithXMLContent(target, sourceRefsHtml + translation);
     }
 
     /**
