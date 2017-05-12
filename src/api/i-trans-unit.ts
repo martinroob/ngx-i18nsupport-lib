@@ -87,4 +87,11 @@ export interface ITransUnit {
      * A normalized message prevents this.
      */
     translate(translation: string | INormalizedMessage);
+
+    /**
+     * Create a normalized message.
+     * @param normalizedString
+     * @param format
+     */
+    createNormalizedMessage(normalizedString: string, format?: string): INormalizedMessage;
 }

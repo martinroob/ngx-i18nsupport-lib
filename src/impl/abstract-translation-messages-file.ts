@@ -31,6 +31,8 @@ export abstract class AbstractTranslationMessagesFile implements ITranslationMes
         this._warnings = [];
     }
 
+    abstract i18nFormat(): string;
+
     abstract fileType(): string;
 
     /**

@@ -4,8 +4,8 @@ import {DOMUtilities} from './dom-utilities';
 import {INormalizedMessage} from '../api/i-normalized-message';
 import {AbstractTransUnit} from './abstract-trans-unit';
 import {XmbMessageParser} from './xmb-message-parser';
-import {FORMAT_XMB} from '../api/constants';
-import {MessageParserFactory} from './message-parser-factory';
+import {ParsedMessage} from './parsed-message';
+import {AbstractMessageParser} from './abstract-message-parser';
 /**
  * Created by martin on 01.05.2017.
  * A Translation Unit in an XMB file.
@@ -33,10 +33,17 @@ export class XmbTransUnit extends AbstractTransUnit implements ITransUnit {
     }
 
     /**
+     * Return a parser used for normalized messages.
+     */
+    protected messageParser(): AbstractMessageParser {
+        return new XmbMessageParser();
+    }
+
+    /**
      * The original text value, that is to be translated, as normalized message.
      */
-    public createSourceContentNormalized(): INormalizedMessage {
-        return MessageParserFactory.parserForFormat(FORMAT_XMB).parseElement(this._element);
+    public createSourceContentNormalized(): ParsedMessage {
+        return this.messageParser().parseElement(this._element);
     }
 
     /**

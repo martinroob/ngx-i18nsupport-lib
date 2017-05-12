@@ -1,5 +1,5 @@
 import {DOMParser} from "xmldom";
-import {ITranslationMessagesFile, ITransUnit, FILETYPE_XMB} from '../api';
+import {ITranslationMessagesFile, ITransUnit, FORMAT_XMB, FILETYPE_XMB} from '../api';
 import {format} from 'util';
 import {DOMUtilities} from './dom-utilities';
 import {XmbTransUnit} from './xmb-trans-unit';
@@ -61,6 +61,15 @@ export class XmbFile extends AbstractTranslationMessagesFile implements ITransla
             }
             this.transUnits.push(new XmbTransUnit(msg, id, this, masterUnit));
         }
+    }
+
+    /**
+     * File format as it is used in config files.
+     * Currently 'xlf', 'xmb', 'xmb2'
+     * Returns one of the constants FORMAT_..
+     */
+    public i18nFormat(): string {
+        return FORMAT_XMB;
     }
 
     /**

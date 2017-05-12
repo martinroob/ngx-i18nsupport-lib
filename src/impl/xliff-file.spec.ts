@@ -268,7 +268,7 @@ describe('ngx-i18nsupport-lib xliff 1.2 test spec', () => {
             expect(tu).toBeTruthy();
             const translationString = 'Anwendung läuft';
             // first translate
-            let translation: INormalizedMessage = tu.sourceContentNormalized().translate(translationString);
+            let translation: INormalizedMessage = tu.createNormalizedMessage(translationString);
             tu.translate(translation);
             expect(tu.targetContent()).toBe(translationString);
             const file2: ITranslationMessagesFile = TranslationMessagesFileFactory.fromUnknownFormatFileContent(file.editedContent(), null, null);

@@ -18,16 +18,6 @@ export interface INormalizedMessage {
     asDisplayString(format?: string): string;
 
     /**
-     * Translate the message.
-     * @param normalizedForm the translated message string.
-     * @param format optional way to determine the exact syntax.
-     * Only needed for the strange case, that the normalizedForm uses a different syntax as the receiver.
-     * Allowed formats are defined as constants NORMALIZATION_FORMAT...
-     * @return a new normalized message, that contains the translated message.
-     */
-    translate(normalizedForm: string, format?: string): INormalizedMessage;
-
-    /**
      * Validate the message.
      * @return null, if ok, error object otherwise.
      */

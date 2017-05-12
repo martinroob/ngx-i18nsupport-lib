@@ -1,8 +1,7 @@
+import {AbstractMessageParser} from './abstract-message-parser';
 import {ParsedMessage} from './parsed-message';
 import {DOMUtilities} from './dom-utilities';
 import {FORMAT_XMB} from '../api/constants';
-import './i-message-parser';
-import {AbstractMessageParser} from './abstract-message-parser';
 /**
  * Created by roobm on 10.05.2017.
  * A message parser for XMB

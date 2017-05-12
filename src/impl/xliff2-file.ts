@@ -1,6 +1,6 @@
 import {DOMParser} from "xmldom";
 import {format} from 'util';
-import {ITranslationMessagesFile, ITransUnit, FILETYPE_XLIFF20} from '../api';
+import {ITranslationMessagesFile, ITransUnit, FORMAT_XLIFF20, FILETYPE_XLIFF20} from '../api';
 import {DOMUtilities} from './dom-utilities';
 import {Xliff2TransUnit} from './xliff2-trans-unit';
 import {AbstractTranslationMessagesFile} from './abstract-translation-messages-file';
@@ -44,6 +44,15 @@ export class Xliff2File extends AbstractTranslationMessagesFile implements ITran
             }
         }
         return this;
+    }
+
+    /**
+     * File format as it is used in config files.
+     * Currently 'xlf', 'xmb', 'xmb2'
+     * Returns one of the constants FORMAT_..
+     */
+    public i18nFormat(): string {
+        return FORMAT_XLIFF20;
     }
 
     /**

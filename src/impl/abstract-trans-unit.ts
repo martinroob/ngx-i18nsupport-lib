@@ -1,6 +1,8 @@
 import {ITranslationMessagesFile, ITransUnit, INormalizedMessage, STATE_TRANSLATED} from '../api';
 import {AbstractTranslationMessagesFile} from './abstract-translation-messages-file';
 import {isNullOrUndefined, isString} from 'util';
+import {ParsedMessage} from './parsed-message';
+import {AbstractMessageParser} from './abstract-message-parser';
 /**
  * Created by roobm on 10.05.2017.
  * Abstract superclass for all implementations of ITransUnit.
@@ -8,7 +10,7 @@ import {isNullOrUndefined, isString} from 'util';
 
 export abstract class AbstractTransUnit implements ITransUnit {
 
-    private _sourceContentNormalized: INormalizedMessage;
+    private _sourceContentNormalized: ParsedMessage;
 
     constructor(protected _element: Element, protected _id: string, protected _translationMessagesFile: ITranslationMessagesFile) {
 
@@ -34,7 +36,7 @@ export abstract class AbstractTransUnit implements ITransUnit {
     /**
      * The original text value, that is to be translated, as normalized message.
      */
-    public sourceContentNormalized(): INormalizedMessage {
+    public sourceContentNormalized(): ParsedMessage {
         if (isNullOrUndefined(this._sourceContentNormalized)) {
             this._sourceContentNormalized = this.createSourceContentNormalized();
         }
@@ -44,7 +46,7 @@ export abstract class AbstractTransUnit implements ITransUnit {
     /**
      * The original text value, that is to be translated, as normalized message.
      */
-    abstract createSourceContentNormalized(): INormalizedMessage;
+    abstract createSourceContentNormalized(): ParsedMessage;
 
     /**
      * The translated value.
@@ -164,6 +166,20 @@ export abstract class AbstractTransUnit implements ITransUnit {
         this.translateNative(translationNative);
         this.setTargetState(STATE_TRANSLATED);
     }
+
+    /**
+     * Create a normalized message.
+     * @param normalizedString
+     * @param format
+     */
+    public createNormalizedMessage(normalizedString: string, format?: string): INormalizedMessage {
+        return this.messageParser().parseNormalizedString(normalizedString, this.sourceContentNormalized());
+    }
+
+    /**
+     * Return a parser used for normalized messages.
+     */
+    protected abstract messageParser(): AbstractMessageParser;
 
     /**
      * Set the translation to a given string (including markup).

@@ -11,6 +11,13 @@ import {ITransUnit} from './i-trans-unit';
 export interface ITranslationMessagesFile {
 
     /**
+     * File format as it is used in config files.
+     * Currently 'xlf', 'xmb', 'xmb2'
+     * Returns one of the constants FORMAT_..
+     */
+    i18nFormat(): string;
+
+    /**
      * File type as displayable, human readable string.
      * Currently 'XLIFF 1.2', 'XLIFF 2.0' or 'XMB'
      * Returns one of the constants FILETYPE_..

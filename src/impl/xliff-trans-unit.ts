@@ -5,8 +5,8 @@ import {DOMUtilities} from './dom-utilities';
 import {INormalizedMessage} from '../api/i-normalized-message';
 import {AbstractTransUnit} from './abstract-trans-unit';
 import {XliffMessageParser} from './xliff-message-parser';
-import {FORMAT_XLIFF12} from '../api/constants';
-import {MessageParserFactory} from './message-parser-factory';
+import {ParsedMessage} from './parsed-message';
+import {AbstractMessageParser} from './abstract-message-parser';
 /**
  * Created by martin on 01.05.2017.
  * A Translation Unit in an XLIFF 1.2 file.
@@ -24,12 +24,19 @@ export class XliffTransUnit extends AbstractTransUnit implements ITransUnit {
     }
 
     /**
+     * Return a parser used for normalized messages.
+     */
+    protected messageParser(): AbstractMessageParser {
+        return new XliffMessageParser();
+    }
+
+    /**
      * The original text value, that is to be translated, as normalized message.
      */
-    public createSourceContentNormalized(): INormalizedMessage {
+    public createSourceContentNormalized(): ParsedMessage {
         const sourceElement = DOMUtilities.getFirstElementByTagName(this._element, 'source');
         if (sourceElement) {
-            return MessageParserFactory.parserForFormat(FORMAT_XLIFF12).parseElement(sourceElement);
+            return this.messageParser().parseElement(sourceElement);
         } else {
             return null;
         }
