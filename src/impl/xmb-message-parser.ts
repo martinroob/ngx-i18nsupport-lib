@@ -1,11 +1,22 @@
-import {AbstractMessageParser} from './abstract-message-parser';
 import {ParsedMessage} from './parsed-message';
 import {DOMUtilities} from './dom-utilities';
+import {FORMAT_XMB} from '../api/constants';
+import './i-message-parser';
+import {AbstractMessageParser} from './abstract-message-parser';
 /**
  * Created by roobm on 10.05.2017.
  * A message parser for XMB
  */
 export class XmbMessageParser extends AbstractMessageParser {
+
+    /**
+     * Format of the translation file.
+     * xmb xliff xliff2
+     * Returns one of the constants FORMAT_..
+     */
+    public i18nFormat(): string {
+        return FORMAT_XMB;
+    }
 
     /**
      * Handle this element node.

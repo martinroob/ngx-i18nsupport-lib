@@ -5,6 +5,8 @@ import {DOMUtilities} from './dom-utilities';
 import {INormalizedMessage} from '../api/i-normalized-message';
 import {AbstractTransUnit} from './abstract-trans-unit';
 import {XliffMessageParser} from './xliff-message-parser';
+import {FORMAT_XLIFF12} from '../api/constants';
+import {MessageParserFactory} from './message-parser-factory';
 /**
  * Created by martin on 01.05.2017.
  * A Translation Unit in an XLIFF 1.2 file.
@@ -24,9 +26,13 @@ export class XliffTransUnit extends AbstractTransUnit implements ITransUnit {
     /**
      * The original text value, that is to be translated, as normalized message.
      */
-    public sourceContentNormalized(): INormalizedMessage {
+    public createSourceContentNormalized(): INormalizedMessage {
         const sourceElement = DOMUtilities.getFirstElementByTagName(this._element, 'source');
-        return new XliffMessageParser().parseElement(sourceElement);
+        if (sourceElement) {
+            return MessageParserFactory.parserForFormat(FORMAT_XLIFF12).parseElement(sourceElement);
+        } else {
+            return null;
+        }
     }
 
     /**
@@ -187,24 +193,16 @@ export class XliffTransUnit extends AbstractTransUnit implements ITransUnit {
     }
 
     /**
-     * Translate the trans unit.
-     * @param translation the translated string or (preferred) a normalized message.
-     * The pure string can contain any markup and will not be checked.
-     * So it can damage the document.
-     * A normalized message prevents this.
+     * Set the translation to a given string (including markup).
+     * @param translation
      */
-    public translate(translation: string | INormalizedMessage) {
-        // TODO support normalized message
+    protected translateNative(translation: string) {
         let target = DOMUtilities.getFirstElementByTagName(this._element, 'target');
         if (!target) {
             let source = DOMUtilities.getFirstElementByTagName(this._element, 'source');
             target = source.parentElement.appendChild(this._element.ownerDocument.createElement('target'));
         }
-        if (isString(translation)) {
-            DOMUtilities.replaceContentWithXMLContent(target, <string> translation);
-        } else {
-            // TODO
-        }
+        DOMUtilities.replaceContentWithXMLContent(target, <string> translation);
         this.setTargetState(STATE_TRANSLATED);
     }
 

@@ -1,10 +1,20 @@
 import {AbstractMessageParser} from './abstract-message-parser';
 import {ParsedMessage} from './parsed-message';
+import {FORMAT_XLIFF12} from '../api/constants';
 /**
  * Created by roobm on 10.05.2017.
  * A message parser for XLIFF 1.2
  */
 export class XliffMessageParser extends AbstractMessageParser {
+
+    /**
+     * Format of the translation file.
+     * xmb xliff xliff2
+     * Returns one of the constants FORMAT_..
+     */
+    public i18nFormat(): string {
+        return FORMAT_XLIFF12;
+    }
 
     /**
      * Handle this element node.

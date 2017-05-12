@@ -4,6 +4,8 @@ import {DOMUtilities} from './dom-utilities';
 import {INormalizedMessage} from '../api/i-normalized-message';
 import {AbstractTransUnit} from './abstract-trans-unit';
 import {XmbMessageParser} from './xmb-message-parser';
+import {FORMAT_XMB} from '../api/constants';
+import {MessageParserFactory} from './message-parser-factory';
 /**
  * Created by martin on 01.05.2017.
  * A Translation Unit in an XMB file.
@@ -33,8 +35,8 @@ export class XmbTransUnit extends AbstractTransUnit implements ITransUnit {
     /**
      * The original text value, that is to be translated, as normalized message.
      */
-    public sourceContentNormalized(): INormalizedMessage {
-        return new XmbMessageParser().parseElement(this._element);
+    public createSourceContentNormalized(): INormalizedMessage {
+        return MessageParserFactory.parserForFormat(FORMAT_XMB).parseElement(this._element);
     }
 
     /**
@@ -170,14 +172,10 @@ export class XmbTransUnit extends AbstractTransUnit implements ITransUnit {
     }
 
     /**
-     * Translate the trans unit.
-     * @param translation the translated string or (preferred) a normalized message.
-     * The pure string can contain any markup and will not be checked.
-     * So it can damage the document.
-     * A normalized message prevents this.
+     * Set the translation to a given string (including markup).
+     * @param translation
      */
-    public translate(translation: string | INormalizedMessage) {
-        // TODO support normalized message
+    protected translateNative(translation: string) {
         let target = this._element;
         // reconvert source refs to html part in translation message
         let sourceRefsHtml = this.sourceRefsToHtml();

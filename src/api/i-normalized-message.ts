@@ -32,4 +32,10 @@ export interface INormalizedMessage {
      * @return null, if ok, error object otherwise.
      */
     validate(): ValidationErrors | null;
+
+    /**
+     * Returns the message content as format dependent native string.
+     * Includes all format specific markup like <ph id="INTERPOLATION" ../> ..
+     */
+    asNativeString(): string;
 }

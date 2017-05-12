@@ -1,4 +1,4 @@
-import {TranslationMessagesFileFactory, ITranslationMessagesFile, ITransUnit, STATE_NEW, STATE_TRANSLATED, STATE_FINAL} from '../api';
+import {TranslationMessagesFileFactory, ITranslationMessagesFile, ITransUnit, INormalizedMessage, STATE_NEW, STATE_TRANSLATED, STATE_FINAL} from '../api';
 import * as fs from "fs";
 
 /**
@@ -196,8 +196,6 @@ describe('ngx-i18nsupport-lib xliff 1.2 test spec', () => {
             const tu: ITransUnit = file.transUnitWithId(ID_TRANSLATED_SCHLIESSEN);
             expect(tu).toBeTruthy();
             expect(tu.targetContent()).toBeFalsy();
-            let isDefaultLang: boolean = false;
-            let copyContent: boolean = true;
             // first translate
             tu.translate('Anwendung läuft');
             const file2: ITranslationMessagesFile = TranslationMessagesFileFactory.fromUnknownFormatFileContent(file.editedContent(), null, null);
@@ -262,6 +260,20 @@ describe('ngx-i18nsupport-lib xliff 1.2 test spec', () => {
             let changedTargetFile = TranslationMessagesFileFactory.fromUnknownFormatFileContent(targetFile.editedContent(), null, null);
             let targetTu = changedTargetFile.transUnitWithId(ID_TO_MERGE);
             expect(targetTu.sourceContent()).toBe('Test for merging units');
+        });
+
+        it ('should translate using NormalizedMessage (plain text case, no placeholders, no markup)', () => {
+            const file: ITranslationMessagesFile = readFile(MASTER1SRC);
+            const tu: ITransUnit = file.transUnitWithId(ID_TRANSLATED_SCHLIESSEN);
+            expect(tu).toBeTruthy();
+            const translationString = 'Anwendung läuft';
+            // first translate
+            let translation: INormalizedMessage = tu.sourceContentNormalized().translate(translationString);
+            tu.translate(translation);
+            expect(tu.targetContent()).toBe(translationString);
+            const file2: ITranslationMessagesFile = TranslationMessagesFileFactory.fromUnknownFormatFileContent(file.editedContent(), null, null);
+            const tu2: ITransUnit = file2.transUnitWithId(ID_TRANSLATED_SCHLIESSEN);
+            expect(tu2.targetContentNormalized().asDisplayString()).toBe(translationString);
         });
 
     });

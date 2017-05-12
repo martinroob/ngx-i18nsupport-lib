@@ -1,5 +1,5 @@
-import {IMessageParser} from './i-message-parser';
 import {ParsedMessage} from './parsed-message';
+import {IMessageParser} from './i-message-parser';
 /**
  * Created by roobm on 10.05.2017.
  * A message parser can parse the xml content of a tzranslatable message.
@@ -7,11 +7,34 @@ import {ParsedMessage} from './parsed-message';
  */
 export abstract class AbstractMessageParser implements IMessageParser {
 
-    public parseElement(messageElem: Element): ParsedMessage {
-        let message: ParsedMessage = new ParsedMessage();
-        if (messageElem) {
-            this.addPartsOfNodeToMessage(messageElem, message, false);
+    /**
+     * Format of the translation file.
+     * xmb xliff xliff2
+     * Returns one of the constants FORMAT_..
+     */
+    abstract i18nFormat(): string;
+
+    /**
+     * Parse XML to ParsedMessage.
+     * @param xmlElement the xml representation
+     */
+    public parseElement(xmlElement: Element): ParsedMessage {
+        const message: ParsedMessage = new ParsedMessage(this.i18nFormat(), null);
+        if (xmlElement) {
+            message.setXmlRepresentation(xmlElement);
+            this.addPartsOfNodeToMessage(xmlElement, message, false);
         }
+        return message;
+    }
+
+    /**
+     * Parse normalized string to ParsedMessage.
+     * @param normalizedString
+     * @param sourceMessage
+     */
+    public parseNormalizedString(normalizedString: string, sourceMessage: ParsedMessage): ParsedMessage {
+        const message: ParsedMessage = new ParsedMessage(this.i18nFormat(), sourceMessage);
+        // TODO parse normalized string
         return message;
     }
 

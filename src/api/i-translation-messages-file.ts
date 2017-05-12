@@ -11,8 +11,9 @@ import {ITransUnit} from './i-trans-unit';
 export interface ITranslationMessagesFile {
 
     /**
-     * File type.
+     * File type as displayable, human readable string.
      * Currently 'XLIFF 1.2', 'XLIFF 2.0' or 'XMB'
+     * Returns one of the constants FILETYPE_..
      */
     fileType(): string;
 

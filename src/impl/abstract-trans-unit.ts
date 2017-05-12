@@ -1,11 +1,14 @@
-import {ITranslationMessagesFile, ITransUnit, INormalizedMessage} from '../api';
+import {ITranslationMessagesFile, ITransUnit, INormalizedMessage, STATE_TRANSLATED} from '../api';
 import {AbstractTranslationMessagesFile} from './abstract-translation-messages-file';
+import {isNullOrUndefined, isString} from 'util';
 /**
  * Created by roobm on 10.05.2017.
  * Abstract superclass for all implementations of ITransUnit.
  */
 
 export abstract class AbstractTransUnit implements ITransUnit {
+
+    private _sourceContentNormalized: INormalizedMessage;
 
     constructor(protected _element: Element, protected _id: string, protected _translationMessagesFile: ITranslationMessagesFile) {
 
@@ -31,7 +34,17 @@ export abstract class AbstractTransUnit implements ITransUnit {
     /**
      * The original text value, that is to be translated, as normalized message.
      */
-    abstract sourceContentNormalized(): INormalizedMessage;
+    public sourceContentNormalized(): INormalizedMessage {
+        if (isNullOrUndefined(this._sourceContentNormalized)) {
+            this._sourceContentNormalized = this.createSourceContentNormalized();
+        }
+        return this._sourceContentNormalized;
+    }
+
+    /**
+     * The original text value, that is to be translated, as normalized message.
+     */
+    abstract createSourceContentNormalized(): INormalizedMessage;
 
     /**
      * The translated value.
@@ -141,6 +154,20 @@ export abstract class AbstractTransUnit implements ITransUnit {
      * So it can damage the document.
      * A normalized message prevents this.
      */
-    abstract translate(translation: string | INormalizedMessage);
+    public translate(translation: string | INormalizedMessage) {
+        let translationNative: string;
+        if (isString(translation)) {
+            translationNative = <string> translation;
+        } else {
+            translationNative = (<INormalizedMessage> translation).asNativeString();
+        }
+        this.translateNative(translationNative);
+        this.setTargetState(STATE_TRANSLATED);
+    }
 
+    /**
+     * Set the translation to a given string (including markup).
+     * @param translation
+     */
+    protected abstract translateNative(translation: string);
 }
