@@ -1,6 +1,7 @@
 import {ITranslationMessagesFile, ITransUnit, STATE_NEW, STATE_TRANSLATED} from '../api';
 import {isNullOrUndefined} from 'util';
 import {XMLSerializer} from 'xmldom';
+import {AbstractTransUnit} from './abstract-trans-unit';
 /**
  * Created by roobm on 09.05.2017.
  * Abstract superclass for all implementations of ITranslationMessagesFile.
@@ -188,7 +189,7 @@ export abstract class AbstractTranslationMessagesFile implements ITranslationMes
      * When false, content will be left empty (if it is not the default language).
      */
     public useSourceAsTarget(transUnit: ITransUnit, isDefaultLang: boolean, copyContent: boolean) {
-        transUnit.useSourceAsTarget(isDefaultLang, copyContent);
+        (<AbstractTransUnit> transUnit).useSourceAsTarget(isDefaultLang, copyContent);
     }
 
     /**

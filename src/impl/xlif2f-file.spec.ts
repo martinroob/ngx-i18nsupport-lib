@@ -220,7 +220,7 @@ describe('ngx-i18nsupport-lib XLIFF 2.0 test spec', () => {
             expect(tu.targetContent()).toBeFalsy();
             let isDefaultLang: boolean = true;
             let copyContent: boolean = false;
-            tu.useSourceAsTarget(isDefaultLang, copyContent);
+            file.useSourceAsTarget(tu, isDefaultLang, copyContent);
             const file2: ITranslationMessagesFile = TranslationMessagesFileFactory.fromUnknownFormatFileContent(file.editedContent(), null, null);
             const tu2: ITransUnit = file2.transUnitWithId(ID_WITH_PLACEHOLDER);
             expect(tu2.targetContentNormalized().asDisplayString()).toBe('Eintrag {{0}} von {{1}} hinzugefügt.');
@@ -233,7 +233,7 @@ describe('ngx-i18nsupport-lib XLIFF 2.0 test spec', () => {
             expect(tu.targetContent()).toBeFalsy();
             let isDefaultLang: boolean = false;
             let copyContent: boolean = true;
-            tu.useSourceAsTarget(isDefaultLang, copyContent);
+            file.useSourceAsTarget(tu, isDefaultLang, copyContent);
             const file2: ITranslationMessagesFile = TranslationMessagesFileFactory.fromUnknownFormatFileContent(file.editedContent(), null, null);
             const tu2: ITransUnit = file2.transUnitWithId(ID_WITH_PLACEHOLDER);
             expect(tu2.targetContentNormalized().asDisplayString()).toBe('Eintrag {{0}} von {{1}} hinzugefügt.');
@@ -246,7 +246,7 @@ describe('ngx-i18nsupport-lib XLIFF 2.0 test spec', () => {
             expect(tu.targetContent()).toBeFalsy();
             let isDefaultLang: boolean = false;
             let copyContent: boolean = false;
-            tu.useSourceAsTarget(isDefaultLang, copyContent);
+            file.useSourceAsTarget(tu, isDefaultLang, copyContent);
             const file2: ITranslationMessagesFile = TranslationMessagesFileFactory.fromUnknownFormatFileContent(file.editedContent(), null, null);
             const tu2: ITransUnit = file2.transUnitWithId(ID_WITH_PLACEHOLDER);
             expect(tu2.targetContent()).toBeFalsy();

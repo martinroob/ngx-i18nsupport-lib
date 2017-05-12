@@ -219,7 +219,7 @@ describe('ngx-i18nsupport-lib xliff 1.2 test spec', () => {
             expect(tu.targetContent()).toBeFalsy();
             let isDefaultLang: boolean = true;
             let copyContent: boolean = false;
-            tu.useSourceAsTarget(isDefaultLang, copyContent);
+            file.useSourceAsTarget(tu, isDefaultLang, copyContent);
             const file2: ITranslationMessagesFile = TranslationMessagesFileFactory.fromUnknownFormatFileContent(file.editedContent(), null, null);
             const tu2: ITransUnit = file2.transUnitWithId(ID_UNTRANSLATED_DESCRIPTION);
             expect(tu2.targetContentNormalized().asDisplayString()).toBe('Beschreibung zu {{0}} ({{1}})');
@@ -232,7 +232,7 @@ describe('ngx-i18nsupport-lib xliff 1.2 test spec', () => {
             expect(tu.targetContent()).toBeFalsy();
             let isDefaultLang: boolean = false;
             let copyContent: boolean = true;
-            tu.useSourceAsTarget(isDefaultLang, copyContent);
+            file.useSourceAsTarget(tu, isDefaultLang, copyContent);
             const file2: ITranslationMessagesFile = TranslationMessagesFileFactory.fromUnknownFormatFileContent(file.editedContent(), null, null);
             const tu2: ITransUnit = file2.transUnitWithId(ID_UNTRANSLATED_DESCRIPTION);
             expect(tu2.targetContentNormalized().asDisplayString()).toBe('Beschreibung zu {{0}} ({{1}})');
@@ -245,7 +245,7 @@ describe('ngx-i18nsupport-lib xliff 1.2 test spec', () => {
             expect(tu.targetContent()).toBeFalsy();
             let isDefaultLang: boolean = false;
             let copyContent: boolean = false;
-            tu.useSourceAsTarget(isDefaultLang, copyContent);
+            file.useSourceAsTarget(tu, isDefaultLang, copyContent);
             const file2: ITranslationMessagesFile = TranslationMessagesFileFactory.fromUnknownFormatFileContent(file.editedContent(), null, null);
             const tu2: ITransUnit = file2.transUnitWithId(ID_UNTRANSLATED_DESCRIPTION);
             expect(tu2.targetContent()).toBeFalsy();

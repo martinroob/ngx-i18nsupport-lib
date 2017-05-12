@@ -135,7 +135,7 @@ export class XmbFile extends AbstractTranslationMessagesFile implements ITransla
     public addNewTransUnit(transUnit: ITransUnit) {
         let messagebundleElement = DOMUtilities.getFirstElementByTagName(this._parsedDocument, 'messagebundle');
         if (messagebundleElement) {
-            messagebundleElement.appendChild(<Node>transUnit.asXmlElement());
+            messagebundleElement.appendChild(<Node>(<XmbTransUnit> transUnit).asXmlElement());
             this.lazyInitializeTransUnits();
             this.transUnits.push(transUnit);
             this.countNumbers();

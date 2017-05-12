@@ -80,19 +80,6 @@ export interface ITransUnit {
     meaning(): string;
 
     /**
-     * The real xml element used for the trans unit.
-     * (internal usage only, a client should never need this)
-     * @return {Element}
-     */
-    asXmlElement(): Element;
-
-    /**
-     * Copy source to target to use it as dummy translation.
-     * (internal usage only, a client should call useSourceAsTarget on ITranslationMessageFile)
-     */
-    useSourceAsTarget(isDefaultLang: boolean, copyContent: boolean);
-
-    /**
      * Translate the trans unit.
      * @param translation the translated string or (preferred) a normalized message.
      * The pure string can contain any markup and will not be checked.

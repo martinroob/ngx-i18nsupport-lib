@@ -120,7 +120,7 @@ export class XliffFile extends AbstractTranslationMessagesFile implements ITrans
     public addNewTransUnit(transUnit: ITransUnit) {
         let bodyElement = DOMUtilities.getFirstElementByTagName(this._parsedDocument, 'body');
         if (bodyElement) {
-            bodyElement.appendChild(<Node>transUnit.asXmlElement());
+            bodyElement.appendChild(<Node>(<XliffTransUnit> transUnit).asXmlElement());
             this.lazyInitializeTransUnits();
             this.transUnits.push(transUnit);
             this.countNumbers();
