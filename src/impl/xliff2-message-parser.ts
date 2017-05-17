@@ -1,6 +1,12 @@
 import {AbstractMessageParser} from './abstract-message-parser';
 import {ParsedMessage} from './parsed-message';
 import {FORMAT_XLIFF20} from '../api/constants';
+import {ParsedMessagePartStartTag} from './parsed-message-part-start-tag';
+import {ParsedMessagePartEndTag} from './parsed-message-part-end-tag';
+import {ParsedMessagePartPlaceholder} from './parsed-message-part-placeholder';
+import {ParsedMessagePartText} from './parsed-message-part-text';
+import {ParsedMessagePartType} from './parsed-message-part';
+import {TagMapping} from './tag-mapping';
 /**
  * Created by roobm on 10.05.2017.
  * A message parser for XLIFF 2.0
@@ -46,7 +52,7 @@ export class Xliff2MessageParser extends AbstractMessageParser {
             // pc example: <pc id="0" equivStart="START_BOLD_TEXT" equivEnd="CLOSE_BOLD_TEXT" type="fmt" dispStart="&lt;b&gt;" dispEnd="&lt;/b&gt;">IMPORTANT</pc>
             let embeddedTagName = this.tagNameFromPCElement(elementNode);
             if (embeddedTagName) {
-                message.addOpenTag(embeddedTagName);
+                message.addStartTag(embeddedTagName);
             }
         }
         return true;
@@ -64,7 +70,7 @@ export class Xliff2MessageParser extends AbstractMessageParser {
             // pc example: <pc id="0" equivStart="START_BOLD_TEXT" equivEnd="CLOSE_BOLD_TEXT" type="fmt" dispStart="&lt;b&gt;" dispEnd="&lt;/b&gt;">IMPORTANT</pc>
             let embeddedTagName = this.tagNameFromPCElement(elementNode);
             if (embeddedTagName) {
-                message.addCloseTag(embeddedTagName);
+                message.addEndTag(embeddedTagName);
             }
             return;
         }
@@ -80,5 +86,99 @@ export class Xliff2MessageParser extends AbstractMessageParser {
         }
         return dispStart;
     }
+
+    /**
+     * reimplemented here, because XLIFF 2.0 uses a deeper xml model.
+     * So we cannot simply replace the message parts by xml parts.
+     * @param message
+     * @param rootElem
+     */
+    protected addXmlRepresentationToRoot(message: ParsedMessage, rootElem: Element) {
+        let stack = [{element: rootElem, tagName: 'root'}];
+        let tagIdCounter = 0;
+        message.parts().forEach((part) => {
+            switch (part.type) {
+                case ParsedMessagePartType.TEXT:
+                    stack[stack.length - 1].element.appendChild(this.createXmlRepresentationOfTextPart(<ParsedMessagePartText> part, rootElem));
+                    break;
+                case ParsedMessagePartType.PLACEHOLDER:
+                    stack[stack.length - 1].element.appendChild(this.createXmlRepresentationOfPlaceholderPart(<ParsedMessagePartPlaceholder> part, rootElem));
+                    break;
+                case ParsedMessagePartType.START_TAG:
+                    let newTagElem = this.createXmlRepresentationOfStartTagPart(<ParsedMessagePartStartTag> part, rootElem, tagIdCounter);
+                    tagIdCounter++;
+                    stack[stack.length - 1].element.appendChild(newTagElem);
+                    stack.push({element: <Element> newTagElem, tagName: (<ParsedMessagePartStartTag> part).tagName()});
+                    break;
+                case ParsedMessagePartType.END_TAG:
+                    let closeTagName = (<ParsedMessagePartEndTag> part).tagName();
+                    if (stack.length <= 1 || stack[stack.length - 1].tagName !== closeTagName) {
+                        // oops, not well formed
+                        throw new Error('unexpected close tag ' + closeTagName); // TODO error handling
+                    }
+                    stack.pop();
+                    break;
+            }
+        });
+        if (stack.length !== 1) {
+            // oops, not well closed tags
+            throw new Error('missing close tag ' + stack[stack.length - 1].tagName); // TODO error handling
+        }
+    }
+
+    /**
+     * the xml used for start tag in the message.
+     * Returns an empty pc-Element.
+     * e.g. <pc id="0" equivStart="START_BOLD_TEXT" equivEnd="CLOSE_BOLD_TEXT" type="fmt" dispStart="&lt;b&gt;" dispEnd="&lt;/b&gt;">
+     * Text content will be added later.
+     * @param part
+     * @param rootElem
+     */
+    protected createXmlRepresentationOfStartTagPart(part: ParsedMessagePartStartTag, rootElem: Element, id?: number): Node {
+        const tagMapping = new TagMapping();
+        let pcElem = rootElem.ownerDocument.createElement('pc');
+        let equivStart = tagMapping.getStartTagPlaceholderName(part.tagName());
+        let equivEnd = tagMapping.getCloseTagPlaceholderName(part.tagName());
+        let dispStart = '<' + part.tagName() + '>';
+        let dispEnd = '</' + part.tagName() + '>';
+        pcElem.setAttribute('id', id.toString(10));
+        pcElem.setAttribute('equivStart', equivStart);
+        pcElem.setAttribute('equivEnd', equivEnd);
+        pcElem.setAttribute('type', 'fmt');
+        pcElem.setAttribute('dispStart', dispStart);
+        pcElem.setAttribute('dispEnd', dispEnd);
+        return pcElem;
+    }
+
+    /**
+     * the xml used for end tag in the message.
+     * Not used here, because content is child of start tag.
+     * @param part
+     * @param rootElem
+     */
+    protected createXmlRepresentationOfEndTagPart(part: ParsedMessagePartEndTag, rootElem: Element): Node {
+        // not used
+        return null;
+    }
+
+    /**
+     * the xml used for placeholder in the message.
+     * Returns e.g. <ph id="1" equiv="INTERPOLATION_1" disp="{{total()}}"/>
+     * @param part
+     * @param rootElem
+     */
+    protected createXmlRepresentationOfPlaceholderPart(part: ParsedMessagePartPlaceholder, rootElem: Element): Node {
+        let phElem = rootElem.ownerDocument.createElement('ph');
+        let equivAttrib = 'INTERPOLATION';
+        if (part.index() > 0) {
+            equivAttrib = 'INTERPOLATION_' + part.index().toString(10);
+        }
+        phElem.setAttribute('id', part.index().toString(10));
+        phElem.setAttribute('equiv', equivAttrib);
+        // disp ignored TODO copy from source ?
+        phElem.setAttribute('disp', '{{todo()}}');
+        return phElem;
+    }
+
 
 }

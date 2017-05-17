@@ -1,10 +1,12 @@
-import {ParsedMessagePart} from './parsed-message-part';
+import {ParsedMessagePart, ParsedMessagePartType} from './parsed-message-part';
 import {ParsedMessagePartText} from './parsed-message-part-text';
 import {ParsedMessagePartPlaceholder} from './parsed-message-part-placeholder';
 import {ParsedMessagePartStartTag} from './parsed-message-part-start-tag';
 import {ParsedMessagePartEndTag} from './parsed-message-part-end-tag';
 import {INormalizedMessage, ValidationErrors} from '../api/i-normalized-message';
 import {XMLSerializer} from 'xmldom';
+import {DOMUtilities} from './dom-utilities';
+import {IMessageParser} from './i-message-parser';
 /**
  * Created by martin on 05.05.2017.
  * A message text read from a translation file.
@@ -14,9 +16,9 @@ import {XMLSerializer} from 'xmldom';
 export class ParsedMessage implements INormalizedMessage {
 
     /**
-     * The internal format of the message
+     * Parser that created this message (determines the native format).
      */
-    private i18nFormat: string;
+    private _parser: IMessageParser;
 
     /**
      * The message where this one stems from as translation.
@@ -34,10 +36,18 @@ export class ParsedMessage implements INormalizedMessage {
      */
     private _xmlRepresentation: Element;
 
-    constructor(i18nFormat: string, sourceMessage: ParsedMessage) {
-        this.i18nFormat = i18nFormat;
+    constructor(parser: IMessageParser, sourceMessage: ParsedMessage) {
+        this._parser = parser;
         this.sourceMessage = sourceMessage;
         this._parts = [];
+    }
+
+    /**
+     * Create a new normalized message as a translation of this one.
+     * @param normalizedString
+     */
+    public translate(normalizedString: string): INormalizedMessage {
+        return this._parser.parseNormalizedString(normalizedString, this);
     }
 
     /**
@@ -46,8 +56,7 @@ export class ParsedMessage implements INormalizedMessage {
      * Allowed formats are defined as constants NORMALIZATION_FORMAT...
      */
     public asDisplayString(format?: string) {
-        // TODO format
-        return this._parts.map((part) => part.asDisplayString()).join('');
+        return this._parts.map((part) => part.asDisplayString(format)).join('');
     }
 
     /**
@@ -55,7 +64,7 @@ export class ParsedMessage implements INormalizedMessage {
      * Includes all format specific markup like <ph id="INTERPOLATION" ../> ..
      */
     asNativeString(): string {
-        return new XMLSerializer().serializeToString(this._xmlRepresentation);
+        return DOMUtilities.getXMLContent(this._xmlRepresentation);
     }
 
     /**
@@ -65,6 +74,10 @@ export class ParsedMessage implements INormalizedMessage {
     public validate(): ValidationErrors | null {
         // TODO
         return null;
+    }
+
+    public parts(): ParsedMessagePart[] {
+        return this._parts;
     }
 
     setXmlRepresentation(xmlRepresentation: Element) {
@@ -79,11 +92,40 @@ export class ParsedMessage implements INormalizedMessage {
         this._parts.push(new ParsedMessagePartPlaceholder(index));
     }
 
-    addOpenTag(tagname: string) {
+    addStartTag(tagname: string) {
         this._parts.push(new ParsedMessagePartStartTag(tagname));
     }
 
-    addCloseTag(tagname: string) {
+    addEndTag(tagname: string) {
+        // check if well formed
+        const openTag = this.calculateOpenTagName();
+        if (!openTag || openTag !== tagname) {
+            // oops, not well formed
+            throw new Error('unexpected close tag ' + tagname);
+        }
         this._parts.push(new ParsedMessagePartEndTag(tagname));
+    }
+
+    /**
+     * Determine, wether there is an open tag, that is not closed.
+     * Returns the latest one or null, if there is no open tag.
+     */
+    private calculateOpenTagName(): string {
+        let openTags = [];
+        this._parts.forEach((part) => {
+            switch (part.type) {
+                case ParsedMessagePartType.START_TAG:
+                    openTags.push((<ParsedMessagePartStartTag> part).tagName());
+                    break;
+                case ParsedMessagePartType.END_TAG:
+                    const tagName = (<ParsedMessagePartEndTag> part).tagName();
+                    if (openTags.length === 0 || openTags[openTags.length - 1] !== tagName) {
+                        // oops, not well formed
+                        throw new Error('unexpected close tag ' + tagName);
+                    }
+                    openTags.pop();
+            }
+        });
+        return openTags.length === 0 ? null : openTags[openTags.length - 1];
     }
 }

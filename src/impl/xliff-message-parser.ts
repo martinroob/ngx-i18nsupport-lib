@@ -1,6 +1,10 @@
 import {AbstractMessageParser} from './abstract-message-parser';
 import {ParsedMessage} from './parsed-message';
 import {FORMAT_XLIFF12} from '../api/constants';
+import {ParsedMessagePartStartTag} from './parsed-message-part-start-tag';
+import {ParsedMessagePartEndTag} from './parsed-message-part-end-tag';
+import {ParsedMessagePartPlaceholder} from './parsed-message-part-placeholder';
+import {TagMapping} from './tag-mapping';
 /**
  * Created by roobm on 10.05.2017.
  * A message parser for XLIFF 1.2
@@ -25,6 +29,7 @@ export class XliffMessageParser extends AbstractMessageParser {
      */
     protected processStartElement(elementNode: Element, message: ParsedMessage): boolean {
         const tagName = elementNode.tagName;
+        const tagMapping = new TagMapping();
         if (tagName === 'x') {
             // placeholder are like <x id="INTERPOLATION"/> or <x id="INTERPOLATION_1">
             let id = elementNode.getAttribute('id');
@@ -34,14 +39,16 @@ export class XliffMessageParser extends AbstractMessageParser {
             if (id.startsWith('INTERPOLATION')) {
                 const index = this.parsePlaceholderIndexFromId(id);
                 message.addPlaceholder(index);
-            } else if (id === 'START_BOLD_TEXT') {
-                message.addOpenTag('b');
-            } else if (id === 'CLOSE_BOLD_TEXT') {
-                message.addCloseTag('b');
-            } else if (id.startsWith('START_TAG_')) {
-                message.addOpenTag(id.substring('START_TAG_'.length));
-            } else if (id.startsWith('CLOSE_TAG_')) {
-                message.addCloseTag(id.substring('CLOSE_TAG_'.length));
+            } else if (id.startsWith('START_')) {
+                let normalizedTagName = tagMapping.getTagnameFromStartTagPlaceholderName(id);
+                if (normalizedTagName) {
+                    message.addStartTag(normalizedTagName);
+                }
+            } else if (id.startsWith('CLOSE_')) {
+                let normalizedTagName = tagMapping.getTagnameFromCloseTagPlaceholderName(id);
+                if (normalizedTagName) {
+                    message.addEndTag(normalizedTagName);
+                }
             }
         }
         return true;
@@ -71,6 +78,54 @@ export class XliffMessageParser extends AbstractMessageParser {
             indexString = id.substring('INTERPOLATION_'.length);
         }
         return Number.parseInt(indexString);
+    }
+
+    /**
+     * the xml used for start tag in the message.
+     * Returns an empty <x/>-Element with attributes id and ctype
+     * @param part
+     * @param rootElem
+     */
+    protected createXmlRepresentationOfStartTagPart(part: ParsedMessagePartStartTag, rootElem: Element, id?: number): Node {
+        let xElem = rootElem.ownerDocument.createElement('x');
+        const tagMapping = new TagMapping();
+        let idAttrib = tagMapping.getStartTagPlaceholderName(part.tagName());
+        let ctypeAttrib = 'x-' + part.tagName();
+        xElem.setAttribute('id', idAttrib);
+        xElem.setAttribute('ctype', ctypeAttrib);
+        return xElem;
+    }
+
+    /**
+     * the xml used for end tag in the message.
+     * Returns an empty <x/>-Element with attributes id and ctype
+     * @param part
+     * @param rootElem
+     */
+    protected createXmlRepresentationOfEndTagPart(part: ParsedMessagePartEndTag, rootElem: Element): Node {
+        let xElem = rootElem.ownerDocument.createElement('x');
+        const tagMapping = new TagMapping();
+        let idAttrib = tagMapping.getCloseTagPlaceholderName(part.tagName());
+        let ctypeAttrib = 'x-' + part.tagName();
+        xElem.setAttribute('id', idAttrib);
+        xElem.setAttribute('ctype', ctypeAttrib);
+        return xElem;
+    }
+
+    /**
+     * the xml used for placeholder in the message.
+     * Returns an empty <x/>-Element with attribute id="INTERPOLATION" or id="INTERPOLATION_n"
+     * @param part
+     * @param rootElem
+     */
+    protected createXmlRepresentationOfPlaceholderPart(part: ParsedMessagePartPlaceholder, rootElem: Element): Node {
+        let xElem = rootElem.ownerDocument.createElement('x');
+        let idAttrib = 'INTERPOLATION';
+        if (part.index() > 0) {
+            idAttrib = 'INTERPOLATION_' + part.index().toString(10);
+        }
+        xElem.setAttribute('id', idAttrib);
+        return xElem;
     }
 
 }

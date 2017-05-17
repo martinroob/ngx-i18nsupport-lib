@@ -2,6 +2,10 @@ import {AbstractMessageParser} from './abstract-message-parser';
 import {ParsedMessage} from './parsed-message';
 import {DOMUtilities} from './dom-utilities';
 import {FORMAT_XMB} from '../api/constants';
+import {ParsedMessagePartStartTag} from './parsed-message-part-start-tag';
+import {ParsedMessagePartEndTag} from './parsed-message-part-end-tag';
+import {ParsedMessagePartPlaceholder} from './parsed-message-part-placeholder';
+import {TagMapping} from './tag-mapping';
 /**
  * Created by roobm on 10.05.2017.
  * A message parser for XMB
@@ -40,13 +44,13 @@ export class XmbMessageParser extends AbstractMessageParser {
             } else if (name.startsWith('START_')) {
                 const tag = this.parseTagnameFromPhElement(elementNode);
                 if (tag) {
-                    message.addOpenTag(tag);
+                    message.addStartTag(tag);
                 }
                 return false; // ignore children
             } else if (name.startsWith('CLOSE_')) {
                 const tag = this.parseTagnameFromPhElement(elementNode);
                 if (tag) {
-                    message.addCloseTag(tag);
+                    message.addEndTag(tag);
                 }
                 return false; // ignore children
             }
@@ -106,4 +110,58 @@ export class XmbMessageParser extends AbstractMessageParser {
             return null;
         }
     }
+
+    /**
+     * the xml used for start tag in the message.
+     * Returns an <ph>-Element with attribute name and subelement ex
+     * @param part
+     * @param rootElem
+     */
+    protected createXmlRepresentationOfStartTagPart(part: ParsedMessagePartStartTag, rootElem: Element, id?: number): Node {
+        let phElem = rootElem.ownerDocument.createElement('ph');
+        const tagMapping = new TagMapping();
+        let nameAttrib = tagMapping.getStartTagPlaceholderName(part.tagName());
+        phElem.setAttribute('name', nameAttrib);
+        let exElem = rootElem.ownerDocument.createElement('ex');
+        exElem.appendChild(rootElem.ownerDocument.createTextNode('<' + part.tagName() + '>'));
+        phElem.appendChild(exElem);
+        return phElem;
+    }
+
+    /**
+     * the xml used for end tag in the message.
+     * Returns an <ph>-Element with attribute name and subelement ex
+     * @param part
+     * @param rootElem
+     */
+    protected createXmlRepresentationOfEndTagPart(part: ParsedMessagePartEndTag, rootElem: Element): Node {
+        let phElem = rootElem.ownerDocument.createElement('ph');
+        const tagMapping = new TagMapping();
+        let nameAttrib = tagMapping.getCloseTagPlaceholderName(part.tagName());
+        phElem.setAttribute('name', nameAttrib);
+        let exElem = rootElem.ownerDocument.createElement('ex');
+        exElem.appendChild(rootElem.ownerDocument.createTextNode('</' + part.tagName() + '>'));
+        phElem.appendChild(exElem);
+        return phElem;
+    }
+
+    /**
+     * the xml used for placeholder in the message.
+     * Returns an <ph>-Element with attribute name and subelement ex
+     * @param part
+     * @param rootElem
+     */
+    protected createXmlRepresentationOfPlaceholderPart(part: ParsedMessagePartPlaceholder, rootElem: Element): Node {
+        let phElem = rootElem.ownerDocument.createElement('ph');
+        let nameAttrib = 'INTERPOLATION';
+        if (part.index() > 0) {
+            nameAttrib = 'INTERPOLATION_' + part.index().toString(10);
+        }
+        phElem.setAttribute('name', nameAttrib);
+        let exElem = rootElem.ownerDocument.createElement('ex');
+        exElem.appendChild(rootElem.ownerDocument.createTextNode(nameAttrib));
+        phElem.appendChild(exElem);
+        return phElem;
+    }
+
 }

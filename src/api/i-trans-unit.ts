@@ -25,6 +25,8 @@ export interface ITransUnit {
 
     /**
      * The original text value, that is to be translated, as normalized message.
+     * Throws an error if normalized xml is not well formed.
+     * (which should not happen in generated files)
      */
     sourceContentNormalized(): INormalizedMessage;
 
@@ -38,6 +40,8 @@ export interface ITransUnit {
      * The translated value as normalized message.
      * All placeholders are replaced with {{n}} (starting at 0)
      * and all embedded html is replaced by direct html markup.
+     * Throws an error if normalized xml is not well formed.
+     * (which should not happen in generated files)
      */
     targetContentNormalized(): INormalizedMessage;
 
@@ -88,10 +92,4 @@ export interface ITransUnit {
      */
     translate(translation: string | INormalizedMessage);
 
-    /**
-     * Create a normalized message.
-     * @param normalizedString
-     * @param format
-     */
-    createNormalizedMessage(normalizedString: string, format?: string): INormalizedMessage;
 }

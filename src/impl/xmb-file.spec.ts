@@ -68,7 +68,7 @@ describe('ngx-i18nsupport-lib xmb test spec', () => {
 
         it('should count units', () => {
             const file: ITranslationMessagesFile = readFile(MASTER1SRC);
-            expect(file.numberOfTransUnits()).toBe(11);
+            expect(file.numberOfTransUnits()).toBe(14);
             expect(file.numberOfTransUnitsWithMissingId()).toBe(1);
             expect(file.numberOfUntranslatedTransUnits()).toBe(file.numberOfTransUnits());
             expect(file.numberOfReviewedTransUnits()).toBe(0);
@@ -226,7 +226,7 @@ describe('ngx-i18nsupport-lib xmb test spec', () => {
             expect(tu).toBeTruthy();
             const translationString = 'Anwendung läuft';
             // first translate
-            let translation: INormalizedMessage = tu.createNormalizedMessage(translationString);
+            let translation: INormalizedMessage = tu.sourceContentNormalized().translate(translationString);
             tu.translate(translation);
             expect(tu.targetContent()).toBe(translationString);
             const file2: ITranslationMessagesFile = TranslationMessagesFileFactory.fromUnknownFormatFileContent(file.editedContent(), null, null);

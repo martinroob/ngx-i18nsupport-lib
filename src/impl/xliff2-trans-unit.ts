@@ -1,5 +1,3 @@
-import {DOMParser, XMLSerializer} from "xmldom";
-import {isNullOrUndefined, format, isString} from 'util';
 import {ITranslationMessagesFile, ITransUnit, STATE_NEW, STATE_TRANSLATED, STATE_FINAL} from '../api';
 import {DOMUtilities} from './dom-utilities';
 import {ParsedMessage} from './parsed-message';
@@ -36,7 +34,7 @@ export class Xliff2TransUnit extends AbstractTransUnit  implements ITransUnit {
     public createSourceContentNormalized(): ParsedMessage {
         const sourceElement = DOMUtilities.getFirstElementByTagName(this._element, 'source');
         if (sourceElement) {
-            return this.messageParser().parseElement(sourceElement);
+            return this.messageParser().createNormalizedMessageFromXML(sourceElement, null);
         } else {
             return null;
         }
@@ -56,7 +54,7 @@ export class Xliff2TransUnit extends AbstractTransUnit  implements ITransUnit {
      */
     targetContentNormalized(): INormalizedMessage {
         const targetElement = DOMUtilities.getFirstElementByTagName(this._element, 'target');
-        return new Xliff2MessageParser().parseElement(targetElement);
+        return new Xliff2MessageParser().createNormalizedMessageFromXML(targetElement, this.sourceContentNormalized());
     }
 
     /**
@@ -138,8 +136,7 @@ export class Xliff2TransUnit extends AbstractTransUnit  implements ITransUnit {
         for (let i = 0; i < noteElements.length; i++) {
             const noteElem = noteElements.item(i);
             if (noteElem.getAttribute('category') === 'location') {
-                let source = DOMUtilities.getPCDATA(noteElem);
-                let sourcefile = source; // TODO parse it, wait for concrete syntax here
+                let sourcefile = DOMUtilities.getPCDATA(noteElem); // TODO parse it, wait for concrete syntax here
                 let linenumber = 0;
                 sourceRefs.push({sourcefile: sourcefile, linenumber: linenumber});
             }

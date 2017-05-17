@@ -13,7 +13,7 @@ export class ParsedMessagePartText extends ParsedMessagePart {
         this.text = text;
     }
 
-    public asDisplayString() {
+    public asDisplayString(format?: string) {
         return this.text;
     }
 }

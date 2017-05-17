@@ -168,15 +168,6 @@ export abstract class AbstractTransUnit implements ITransUnit {
     }
 
     /**
-     * Create a normalized message.
-     * @param normalizedString
-     * @param format
-     */
-    public createNormalizedMessage(normalizedString: string, format?: string): INormalizedMessage {
-        return this.messageParser().parseNormalizedString(normalizedString, this.sourceContentNormalized());
-    }
-
-    /**
      * Return a parser used for normalized messages.
      */
     protected abstract messageParser(): AbstractMessageParser;

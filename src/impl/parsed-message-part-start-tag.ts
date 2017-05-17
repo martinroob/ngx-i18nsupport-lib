@@ -6,14 +6,18 @@ import {ParsedMessagePart, ParsedMessagePartType} from './parsed-message-part';
 
 export class ParsedMessagePartStartTag extends ParsedMessagePart {
 
-    private tagname: string;
+    private _tagname: string;
 
     constructor(tagname: string) {
         super(ParsedMessagePartType.START_TAG);
-        this.tagname = tagname;
+        this._tagname = tagname;
     }
 
-    public asDisplayString() {
-        return '<' + this.tagname + '>';
+    public asDisplayString(format?: string) {
+        return '<' + this._tagname + '>';
+    }
+
+    public tagName(): string {
+        return this._tagname;
     }
 }

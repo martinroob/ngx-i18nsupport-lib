@@ -1,4 +1,4 @@
-import {isNullOrUndefined, format} from 'util';
+import {isNullOrUndefined} from 'util';
 import {ITranslationMessagesFile, ITransUnit} from '../api';
 import {DOMUtilities} from './dom-utilities';
 import {INormalizedMessage} from '../api/i-normalized-message';
@@ -43,7 +43,7 @@ export class XmbTransUnit extends AbstractTransUnit implements ITransUnit {
      * The original text value, that is to be translated, as normalized message.
      */
     public createSourceContentNormalized(): ParsedMessage {
-        return this.messageParser().parseElement(this._element);
+        return this.messageParser().createNormalizedMessageFromXML(this._element, null);
     }
 
     /**
@@ -59,7 +59,7 @@ export class XmbTransUnit extends AbstractTransUnit implements ITransUnit {
      * and all embedded html is replaced by direct html markup.
      */
     targetContentNormalized(): INormalizedMessage {
-        return new XmbMessageParser().parseElement(this._element);
+        return new XmbMessageParser().createNormalizedMessageFromXML(this._element, this.sourceContentNormalized());
     }
 
     /**
@@ -129,7 +129,7 @@ export class XmbTransUnit extends AbstractTransUnit implements ITransUnit {
 
     /**
      * Parses something like 'c:\xxx:7' and returns source and linenumber.
-     * @param sourceAndPossomething like 'c:\xxx:7', last colon is the separator
+     * @param sourceAndPos something like 'c:\xxx:7', last colon is the separator
      * @return {{sourcefile: string, linenumber: number}}
      */
     private parseSourceAndPos(sourceAndPos: string): { sourcefile: string, linenumber } {

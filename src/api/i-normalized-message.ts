@@ -28,4 +28,10 @@ export interface INormalizedMessage {
      * Includes all format specific markup like <ph id="INTERPOLATION" ../> ..
      */
     asNativeString(): string;
+
+    /**
+     * Create a new normalized message as a translation of this one.
+     * @param normalizedString
+     */
+    translate(normalizedString: string): INormalizedMessage;
 }

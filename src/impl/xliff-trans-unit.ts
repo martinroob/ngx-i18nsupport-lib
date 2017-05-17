@@ -1,5 +1,3 @@
-import {DOMParser, XMLSerializer} from "xmldom";
-import {isNullOrUndefined, format, isString} from 'util';
 import {ITranslationMessagesFile, ITransUnit, STATE_NEW, STATE_TRANSLATED, STATE_FINAL} from '../api';
 import {DOMUtilities} from './dom-utilities';
 import {INormalizedMessage} from '../api/i-normalized-message';
@@ -36,7 +34,7 @@ export class XliffTransUnit extends AbstractTransUnit implements ITransUnit {
     public createSourceContentNormalized(): ParsedMessage {
         const sourceElement = DOMUtilities.getFirstElementByTagName(this._element, 'source');
         if (sourceElement) {
-            return this.messageParser().parseElement(sourceElement);
+            return this.messageParser().createNormalizedMessageFromXML(sourceElement, null);
         } else {
             return null;
         }
@@ -56,7 +54,7 @@ export class XliffTransUnit extends AbstractTransUnit implements ITransUnit {
      */
     targetContentNormalized(): INormalizedMessage {
         const targetElement = DOMUtilities.getFirstElementByTagName(this._element, 'target');
-        return new XliffMessageParser().parseElement(targetElement);
+        return new XliffMessageParser().createNormalizedMessageFromXML(targetElement, this.sourceContentNormalized());
     }
 
     /**
@@ -159,7 +157,7 @@ export class XliffTransUnit extends AbstractTransUnit implements ITransUnit {
                     if (contextElem.getAttribute('context-type') === 'linenumber') {
                         linenumber = Number.parseInt(DOMUtilities.getPCDATA(contextElem));
                     }
-                };
+                }
                 sourceRefs.push({sourcefile: sourcefile, linenumber: linenumber});
             }
         }

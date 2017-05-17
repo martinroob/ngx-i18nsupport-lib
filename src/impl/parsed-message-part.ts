@@ -19,7 +19,9 @@ export abstract class ParsedMessagePart {
 
     /**
      * String representation of the part.
+     * @param format optional way to determine the exact syntax.
+     * Allowed formats are defined as constants NORMALIZATION_FORMAT...
      */
-    public abstract asDisplayString(): string;
+    public abstract asDisplayString(format?: string): string;
 
 }
