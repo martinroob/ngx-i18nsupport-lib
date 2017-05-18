@@ -2125,6 +2125,10 @@ to-arraybuffer@^1.0.0:
   version "1.0.1"
   resolved "https://registry.yarnpkg.com/to-arraybuffer/-/to-arraybuffer-1.0.1.tgz#7d229b1fcc637e466ca081180836a7aabff83f43"
 
+tokenizr@^1.1.4:
+  version "1.1.4"
+  resolved "https://registry.yarnpkg.com/tokenizr/-/tokenizr-1.1.4.tgz#8b9089f14cb490e24ad3872cff1e38e713e884ef"
+
 tough-cookie@~2.3.0:
   version "2.3.2"
   resolved "https://registry.yarnpkg.com/tough-cookie/-/tough-cookie-2.3.2.tgz#f081f76e4c85720e6c37a5faced737150d84072a"

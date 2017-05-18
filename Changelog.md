@@ -1,3 +1,14 @@
+<a name="1.0.0"></a>
+# [1.0.0](https://github.com/martinroob/ngx-i18nsupport-lib/compare/v1.0.0...v0.1.3) (2017-05-18)
+
+### Features
+
+* **API** API has been sligtly changed to support new features (especially normalized messages)
+
+* **API** add format independent translation messages (normalized messages) ([#2](https://github.com/martinroob/ngx-i18nsupport-lib/issues/2)).
+
+* **API** normalize state and add setter to API ([#8](https://github.com/martinroob/ngx-i18nsupport-lib/issues/8)).
+
 <a name="0.1.3"></a>
 # [0.1.3](https://github.com/martinroob/ngx-i18nsupport-lib/compare/v0.1.3...v0.1.2) (2017-05-05)
 

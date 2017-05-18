@@ -23,11 +23,11 @@ export class DOMUtilities {
     }
 
     /**
-     * return PCDATA content of element.
+     * return content of element as string, including all markup.
      * @param element
      * @return {string}
      */
-    public static getPCDATA(element: Element): string {
+    public static getXMLContent(element: Element): string {
         if (!element) {
             return null;
         }
@@ -41,11 +41,31 @@ export class DOMUtilities {
     }
 
     /**
+     * return PCDATA content of element.
+     * @param element
+     * @return {string}
+     */
+    public static getPCDATA(element: Element): string {
+        if (!element) {
+            return null;
+        }
+        let result = '';
+        let childNodes = element.childNodes;
+        for (let i = 0; i < childNodes.length; i++) {
+            let child = childNodes.item(i);
+            if (child.nodeType === child.TEXT_NODE || child.nodeType === child.CDATA_SECTION_NODE) {
+                result = result + child.nodeValue;
+            }
+        }
+        return result.length === 0 ? null : result;
+    }
+
+    /**
      * replace PCDATA content with a new one.
      * @param element
      * @param pcdata
      */
-    public static replaceContentWithPCDATA(element: Element, pcdata: string) {
+    public static replaceContentWithXMLContent(element: Element, pcdata: string) {
         // remove all children
         while (element.firstChild) {
             element.removeChild(element.firstChild);

@@ -1,128 +1,122 @@
-import {DOMParser, XMLSerializer} from "xmldom";
-import {isNullOrUndefined, format} from 'util';
-import {ITranslationMessagesFile} from '../api/i-translation-messages-file';
-import {ITransUnit} from '../api/i-trans-unit';
+import {ITranslationMessagesFile, ITransUnit, STATE_NEW, STATE_TRANSLATED, STATE_FINAL} from '../api';
 import {DOMUtilities} from './dom-utilities';
 import {ParsedMessage} from './parsed-message';
+import {INormalizedMessage} from '../api/i-normalized-message';
+import {AbstractTransUnit} from './abstract-trans-unit';
+import {Xliff2MessageParser} from './xliff2-message-parser';
+import {AbstractMessageParser} from './abstract-message-parser';
 /**
  * Created by martin on 04.05.2017.
  * A Translation Unit in an XLIFF 2.0 file.
  */
 
-export class Xliff2TransUnit implements ITransUnit {
+export class Xliff2TransUnit extends AbstractTransUnit  implements ITransUnit {
 
-    constructor(private _transUnit: Element, private _id: string) {
-
-    }
-
-    public get id(): string {
-        return this._id;
+    constructor(_element: Element, _id: string,_translationMessagesFile: ITranslationMessagesFile) {
+        super(_element, _id, _translationMessagesFile);
     }
 
     public sourceContent(): string {
-        const sourceElement = DOMUtilities.getFirstElementByTagName(this._transUnit, 'source');
-        return DOMUtilities.getPCDATA(sourceElement);
+        const sourceElement = DOMUtilities.getFirstElementByTagName(this._element, 'source');
+        return DOMUtilities.getXMLContent(sourceElement);
+    }
+
+    /**
+     * Return a parser used for normalized messages.
+     */
+    protected messageParser(): AbstractMessageParser {
+        return new Xliff2MessageParser();
+    }
+
+    /**
+     * The original text value, that is to be translated, as normalized message.
+     */
+    public createSourceContentNormalized(): ParsedMessage {
+        const sourceElement = DOMUtilities.getFirstElementByTagName(this._element, 'source');
+        if (sourceElement) {
+            return this.messageParser().createNormalizedMessageFromXML(sourceElement, null);
+        } else {
+            return null;
+        }
     }
 
     /**
      * the translated value (containing all markup, depends on the concrete format used).
      */
     public targetContent(): string {
-        let targetElement = DOMUtilities.getFirstElementByTagName(this._transUnit, 'target');
-        return DOMUtilities.getPCDATA(targetElement);
+        const targetElement = DOMUtilities.getFirstElementByTagName(this._element, 'target');
+        return DOMUtilities.getXMLContent(targetElement);
     }
 
     /**
      * the translated value, but all placeholders are replaced with {{n}} (starting at 0)
      * and all embedded html is replaced by direct html markup.
      */
-    targetContentNormalized(): string {
-        let parsedMessage: ParsedMessage = this.parseTargetContent();
-        return parsedMessage.asDisplayString();
-
-    }
-
-    private parseTargetContent(): ParsedMessage {
-        return this.parseAsMessage(DOMUtilities.getFirstElementByTagName(this._transUnit, 'target'));
-    }
-
-    private parseAsMessage(messageElem: Element): ParsedMessage {
-        let message: ParsedMessage = new ParsedMessage();
-        if (messageElem) {
-            this.addPartsOfNodeToMessage(messageElem, message, false);
-        }
-        return message;
-    }
-
-    private addPartsOfNodeToMessage(node: Node, message: ParsedMessage, includeSelf: boolean) {
-        if (includeSelf) {
-            if (node.nodeType === node.TEXT_NODE) {
-                message.addText(node.textContent);
-                return;
-            }
-            if (node.nodeType === node.ELEMENT_NODE) {
-                let elementNode: Element = <Element> node;
-                let tagName = elementNode.tagName;
-                if (tagName === 'ph') {
-                    // placeholder are like <ph id="0" equiv="INTERPOLATION" disp="{{number()}}"/>
-                    // They contain the id and also a name (number in the example)
-                    // TODO make some use of the name (but it is not available in XLIFF 1.2)
-                    let equiv = elementNode.getAttribute('equiv');
-                    let indexString = '';
-                    if (!equiv || !equiv.startsWith('INTERPOLATION')) {
-                        indexString = elementNode.getAttribute('id')
-                    } else {
-                        if (equiv === 'INTERPOLATION') {
-                            indexString = '0';
-                        } else {
-                            indexString = equiv.substring('INTERPOLATION_'.length);
-                        }
-                    }
-                    let index = Number.parseInt(indexString);
-                    message.addPlaceholder(index);
-                    return;
-                } else if (tagName === 'pc') {
-                    // pc example: <pc id="0" equivStart="START_BOLD_TEXT" equivEnd="CLOSE_BOLD_TEXT" type="fmt" dispStart="&lt;b&gt;" dispEnd="&lt;/b&gt;">IMPORTANT</pc>
-                    let embeddedTagName = this.tagNameFromPCElement(elementNode);
-                    if (embeddedTagName) {
-                        message.addOpenTag(embeddedTagName);
-                        this.addPartsOfNodeToMessage(elementNode, message, false);
-                        message.addCloseTag(embeddedTagName);
-                    } else {
-                        this.addPartsOfNodeToMessage(elementNode, message, false);
-                    }
-                    return;
-                }
-            }
-        }
-        const children = node.childNodes;
-        for (let i = 0; i < children.length; i++) {
-            this.addPartsOfNodeToMessage(children.item(i), message, true);
-        }
-    }
-
-    private tagNameFromPCElement(pcNode: Element): string {
-        let dispStart = pcNode.getAttribute('dispStart');
-        if (dispStart.startsWith('<')) {
-            dispStart = dispStart.substring(1);
-        }
-        if (dispStart.endsWith('>')) {
-            dispStart = dispStart.substring(0, dispStart.length - 1);
-        }
-        return dispStart;
+    targetContentNormalized(): INormalizedMessage {
+        const targetElement = DOMUtilities.getFirstElementByTagName(this._element, 'target');
+        return new Xliff2MessageParser().createNormalizedMessageFromXML(targetElement, this.sourceContentNormalized());
     }
 
     /**
-     * State of the translation.
-     * (new, final, ...)
+     * State of the translation as stored in the xml.
      */
-    public targetState(): string {
-        let segmentElement = DOMUtilities.getFirstElementByTagName(this._transUnit, 'segment');
+    public nativeTargetState(): string {
+        let segmentElement = DOMUtilities.getFirstElementByTagName(this._element, 'segment');
         if (segmentElement) {
             return segmentElement.getAttribute('state');
-            // TODO mapping from XLIFF 2.0 state (initial, translated, reviewed, final) to some abstract one
         } else {
             return null;
+        }
+    }
+
+    /**
+     * set state in xml.
+     * @param nativeState
+     */
+    protected setNativeTargetState(nativeState: string) {
+        let segmentElement = DOMUtilities.getFirstElementByTagName(this._element, 'segment');
+        if (segmentElement) {
+            segmentElement.setAttribute('state', nativeState);
+        }
+    }
+
+    /**
+     * Map an abstract state (new, translated, final) to a concrete state used in the xml.
+     * Returns the state to be used in the xml.
+     * @param state one of Constants.STATE...
+     * @returns a native state (depends on concrete format)
+     * @throws error, if state is invalid.
+     */
+    protected mapStateToNativeState(state: string): string {
+        switch( state) {
+            case STATE_NEW:
+                return 'initial';
+            case STATE_TRANSLATED:
+                return 'translated';
+            case STATE_FINAL:
+                return 'final';
+            default:
+                throw new Error('unknown state ' +  state);
+        }
+    }
+
+    /**
+     * Map a native state (found in the document) to an abstract state (new, translated, final).
+     * Returns the abstract state.
+     * @param nativeState
+     */
+    protected mapNativeStateToState(nativeState: string): string {
+        switch( nativeState) {
+            case 'initial':
+                return STATE_NEW;
+            case 'translated':
+                return STATE_TRANSLATED;
+            case 'reviewed': // same as translated
+                return STATE_TRANSLATED;
+            case 'final':
+                return STATE_FINAL;
+            default:
+                return STATE_NEW;
         }
     }
 
@@ -137,13 +131,12 @@ export class Xliff2TransUnit implements ITransUnit {
     public sourceReferences(): {sourcefile: string, linenumber}[] {
         // TODO in the moment there is no source ref written in XLIFF 2.0
         // so this code is just a guess, expect source as <file>:<line> in <note category="location">...
-        let noteElements = this._transUnit.getElementsByTagName('note');
+        let noteElements = this._element.getElementsByTagName('note');
         let sourceRefs: { sourcefile: string, linenumber }[] = [];
         for (let i = 0; i < noteElements.length; i++) {
             const noteElem = noteElements.item(i);
             if (noteElem.getAttribute('category') === 'location') {
-                let source = DOMUtilities.getPCDATA(noteElem);
-                let sourcefile = source; // TODO parse it, wait for concrete syntax here
+                let sourcefile = DOMUtilities.getPCDATA(noteElem); // TODO parse it, wait for concrete syntax here
                 let linenumber = 0;
                 sourceRefs.push({sourcefile: sourcefile, linenumber: linenumber});
             }
@@ -157,7 +150,7 @@ export class Xliff2TransUnit implements ITransUnit {
      * In xliff 2.0 this is stored as a note element with attribute category="description".
      */
     public description(): string {
-        let noteElements = this._transUnit.getElementsByTagName('note');
+        let noteElements = this._element.getElementsByTagName('note');
         for (let i = 0; i < noteElements.length; i++) {
             const noteElem = noteElements.item(i);
             if (noteElem.getAttribute('category') === 'description') {
@@ -174,7 +167,7 @@ export class Xliff2TransUnit implements ITransUnit {
      * In xliff 2.0 this is stored as a note element with attribute category="meaning".
      */
     public meaning(): string {
-        let noteElements = this._transUnit.getElementsByTagName('note');
+        let noteElements = this._element.getElementsByTagName('note');
         for (let i = 0; i < noteElements.length; i++) {
             const noteElem = noteElements.item(i);
             if (noteElem.getAttribute('category') === 'meaning') {
@@ -185,30 +178,17 @@ export class Xliff2TransUnit implements ITransUnit {
     }
 
     /**
-     * the real xml element used for trans unit.
-     * Here it is a <trans-unit> element defined in XLIFF Spec.
-     * @return {Element}
+     * Set the translation to a given string (including markup).
+     * @param translation
      */
-    public asXmlElement(): Element {
-        return this._transUnit;
-    }
-
-    /**
-     * Translate trans unit.
-     * (very simple, just for tests)
-     * @param translation the translated string
-     */
-    public translate(translation: string) {
-        let target = DOMUtilities.getFirstElementByTagName(this._transUnit, 'target');
+    protected translateNative(translation: string) {
+        let target = DOMUtilities.getFirstElementByTagName(this._element, 'target');
         if (!target) {
-            let source = DOMUtilities.getFirstElementByTagName(this._transUnit, 'source');
-            target = source.parentNode.appendChild(this._transUnit.ownerDocument.createElement('target'));
+            let source = DOMUtilities.getFirstElementByTagName(this._element, 'source');
+            target = source.parentNode.appendChild(this._element.ownerDocument.createElement('target'));
         }
-        DOMUtilities.replaceContentWithPCDATA(target, translation);
-        let segment = DOMUtilities.getFirstElementByTagName(this._transUnit, 'segment');
-        if (segment) {
-            segment.setAttribute('state', 'final');
-        }
+        DOMUtilities.replaceContentWithXMLContent(target, <string> translation);
+        this.setTargetState(STATE_TRANSLATED);
     }
 
     /**
@@ -216,17 +196,17 @@ export class Xliff2TransUnit implements ITransUnit {
      * (better than missing value)
      */
     public useSourceAsTarget(isDefaultLang: boolean, copyContent: boolean) {
-        let source = DOMUtilities.getFirstElementByTagName(this._transUnit, 'source');
-        let target = DOMUtilities.getFirstElementByTagName(this._transUnit, 'target');
+        let source = DOMUtilities.getFirstElementByTagName(this._element, 'source');
+        let target = DOMUtilities.getFirstElementByTagName(this._element, 'target');
         if (!target) {
-            target = source.parentNode.appendChild(this._transUnit.ownerDocument.createElement('target'));
+            target = source.parentNode.appendChild(this._element.ownerDocument.createElement('target'));
         }
         if (isDefaultLang || copyContent) {
-            DOMUtilities.replaceContentWithPCDATA(target, DOMUtilities.getPCDATA(source));
+            DOMUtilities.replaceContentWithXMLContent(target, DOMUtilities.getXMLContent(source));
         } else {
-            DOMUtilities.replaceContentWithPCDATA(target, '');
+            DOMUtilities.replaceContentWithXMLContent(target, '');
         }
-        let segment = DOMUtilities.getFirstElementByTagName(this._transUnit, 'segment');
+        let segment = DOMUtilities.getFirstElementByTagName(this._element, 'segment');
         if (segment) {
             if (isDefaultLang) {
                 segment.setAttribute('state', 'final');

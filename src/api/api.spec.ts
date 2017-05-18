@@ -120,5 +120,25 @@ describe('ngx-i18nsupport-lib API test spec', () => {
             expect(file4.fileType()).toBe('XLIFF 2.0');
         });
 
+        it ('should detect files with wrong format', () => {
+           try {
+               TranslationMessagesFileFactory.fromUnknownFormatFileContent('schrott', 'dummyfile', 'UTF-X');
+           }  catch (error) {
+               expect(error.toString()).toBe('Error: could not identify file format, it is neiter XLIFF (1.2 or 2.0) nor XMB');
+               return;
+           }
+           fail('expected error not received');
+        });
+
+        it ('should should report wrong format as error', () => {
+            try {
+                TranslationMessagesFileFactory.fromFileContent('schrott', 'schrott', 'dummyfile', 'UTF-X');
+            }  catch (error) {
+                expect(error.toString()).toBe('Error: oops, unsupported format "schrott"');
+                return;
+            }
+            fail('expected error not received');
+        });
+
     });
 });

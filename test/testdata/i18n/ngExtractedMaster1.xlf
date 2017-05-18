@@ -82,9 +82,37 @@
         <source>no_sourceref_test</source>
         <target/>
       </trans-unit>
+      <trans-unit id="unittomerge" datatype="html">
+        <source>Test for merging units</source>
+        <target/>
+      </trans-unit>
       <trans-unit datatype="html">
         <source>no id</source>
         <target/>
+      </trans-unit>
+	  <trans-unit id="complextags.tagsWithAttribute1" datatype="html">
+        <source><x id="START_LINK" ctype="x-a"/>link1<x id="CLOSE_LINK" ctype="x-a"/> and <x id="START_EMPHASISED_TEXT" ctype="x-em"/><x id="START_LINK_1" ctype="x-a"/><x id="TAG_IMG" ctype="image"/><x id="CLOSE_LINK" ctype="x-a"/><x id="CLOSE_EMPHASISED_TEXT" ctype="x-em"/></source>
+        <target><x id="START_LINK" ctype="x-a"/>link1<x id="CLOSE_LINK" ctype="x-a"/> and <x id="START_EMPHASISED_TEXT" ctype="x-em"/><x id="START_LINK_1" ctype="x-a"/><x id="TAG_IMG" ctype="image"/><x id="CLOSE_LINK" ctype="x-a"/><x id="CLOSE_EMPHASISED_TEXT" ctype="x-em"/></target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">S:/experimente/sampleapp41/src/app/ngx-translate-test-data/ngx-translate-test-data.component.ts</context>
+          <context context-type="linenumber">19</context>
+        </context-group>
+      </trans-unit>
+	  <trans-unit id="complextags.tagsWithAttribute2" datatype="html">
+        <source><x id="START_LINK" ctype="x-a"/>link1 with placeholder <x id="INTERPOLATION"/><x id="CLOSE_LINK" ctype="x-a"/></source>
+        <target><x id="START_LINK" ctype="x-a"/>link1 with placeholder <x id="INTERPOLATION"/><x id="CLOSE_LINK" ctype="x-a"/></target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">S:/experimente/sampleapp41/src/app/ngx-translate-test-data/ngx-translate-test-data.component.ts</context>
+          <context context-type="linenumber">20</context>
+        </context-group>
+      </trans-unit>
+	  <trans-unit id="complextags.tagsWithAttribute3" datatype="html">
+        <source><x id="START_LINK" ctype="x-a"/>link1 with placeholder <x id="INTERPOLATION"/><x id="CLOSE_LINK" ctype="x-a"/></source>
+        <target><x id="START_LINK" ctype="x-a"/>link1 with placeholder <x id="INTERPOLATION"/><x id="CLOSE_LINK" ctype="x-a"/></target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">S:/experimente/sampleapp41/src/app/ngx-translate-test-data/ngx-translate-test-data.component.ts</context>
+          <context context-type="linenumber">21</context>
+        </context-group>
       </trans-unit>
     </body>
   </file>

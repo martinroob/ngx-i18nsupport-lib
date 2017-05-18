@@ -1,3 +1,6 @@
+import {INormalizedMessage} from './i-normalized-message';
+import {ITranslationMessagesFile} from './i-translation-messages-file';
+
 /**
  * Created by martin on 19.03.2017.
  */
@@ -10,26 +13,52 @@ export interface ITransUnit {
     readonly id: string;
 
     /**
+     * The file the unit belongs to.,
+     */
+    translationMessagesFile(): ITranslationMessagesFile;
+
+    /**
      * The original text value, that is to be translated.
+     * Contains all markup, depends on the concrete format used.
      */
     sourceContent(): string;
 
     /**
-     * the translated value (containing all markup, depends on the concrete format used).
+     * The original text value, that is to be translated, as normalized message.
+     * Throws an error if normalized xml is not well formed.
+     * (which should not happen in generated files)
+     */
+    sourceContentNormalized(): INormalizedMessage;
+
+    /**
+     * The translated value.
+     * Contains all markup, depends on the concrete format used.
      */
     targetContent(): string;
 
     /**
-     * the translated value, but all placeholders are replaced with {{n}} (starting at 0)
+     * The translated value as normalized message.
+     * All placeholders are replaced with {{n}} (starting at 0)
      * and all embedded html is replaced by direct html markup.
+     * Throws an error if normalized xml is not well formed.
+     * (which should not happen in generated files)
      */
-    targetContentNormalized(): string;
+    targetContentNormalized(): INormalizedMessage;
 
     /**
      * State of the translation.
-     * (new, final, ...)
+     * (on of new, translated, final)
+     * Return values are defined as Constants STATE_...
      */
     targetState(): string;
+
+    /**
+     * Modify the target state.
+     * @param newState one of the 3 allowed target states new, translated, final.
+     * Constants STATE_...
+     * Invalid states throw an error.
+     */
+    setTargetState(newState: string);
 
     /**
      * All the source elements in the trans unit.
@@ -55,21 +84,12 @@ export interface ITransUnit {
     meaning(): string;
 
     /**
-     * the real xml element used for trans unit.
-     * @return {Element}
+     * Translate the trans unit.
+     * @param translation the translated string or (preferred) a normalized message.
+     * The pure string can contain any markup and will not be checked.
+     * So it can damage the document.
+     * A normalized message prevents this.
      */
-    asXmlElement(): Element;
+    translate(translation: string | INormalizedMessage);
 
-    /**
-     * Copy source to target to use it as dummy translation.
-     * (better than missing value)
-     */
-    useSourceAsTarget(isDefaultLang: boolean, copyContent: boolean);
-
-    /**
-     * Translate trans unit.
-     * (very simple, just for tests)
-     * @param translation the translated string
-     */
-    translate(translation: string);
 }

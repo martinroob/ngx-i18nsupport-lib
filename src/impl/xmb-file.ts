@@ -1,27 +1,15 @@
-import {DOMParser, XMLSerializer} from "xmldom";
-import {ITranslationMessagesFile} from '../api/i-translation-messages-file';
-import {isNullOrUndefined, format} from 'util';
-import {ITransUnit} from '../api/i-trans-unit';
+import {DOMParser} from "xmldom";
+import {ITranslationMessagesFile, ITransUnit, FORMAT_XMB, FILETYPE_XMB} from '../api';
+import {format} from 'util';
 import {DOMUtilities} from './dom-utilities';
 import {XmbTransUnit} from './xmb-trans-unit';
+import {AbstractTranslationMessagesFile} from './abstract-translation-messages-file';
 /**
  * Created by martin on 10.03.2017.
  * xmb-File access.
  */
 
-export class XmbFile implements ITranslationMessagesFile {
-
-    private _filename: string;
-
-    private _encoding: string;
-
-    private xmbContent: Document;
-
-    // trans-unit elements and their id from the file
-    private transUnits: ITransUnit[];
-
-    private _warnings: string[];
-    private _numberOfTransUnitsWithMissingId: number;
+export class XmbFile extends AbstractTranslationMessagesFile implements ITranslationMessagesFile {
 
     // attached master file, if any
     // used as source to determine state ...
@@ -38,6 +26,7 @@ export class XmbFile implements ITranslationMessagesFile {
      * @return {XmbFile}
      */
     constructor(xmlString: string, path: string, encoding: string, optionalMaster?: { xmlContent: string, path: string, encoding: string }) {
+        super();
         this._warnings = [];
         this._numberOfTransUnitsWithMissingId = 0;
         this.initializeFromContent(xmlString, path, encoding, optionalMaster);
@@ -46,8 +35,8 @@ export class XmbFile implements ITranslationMessagesFile {
     private initializeFromContent(xmlString: string, path: string, encoding: string, optionalMaster?: { xmlContent: string, path: string, encoding: string }): XmbFile {
         this._filename = path;
         this._encoding = encoding;
-        this.xmbContent = new DOMParser().parseFromString(xmlString, 'text/xml');
-        if (this.xmbContent.getElementsByTagName('messagebundle').length !== 1) {
+        this._parsedDocument = new DOMParser().parseFromString(xmlString, 'text/xml');
+        if (this._parsedDocument.getElementsByTagName('messagebundle').length !== 1) {
             throw new Error(format('File "%s" seems to be no xmb file (should contain a messagebundle element)', path));
         }
         if (optionalMaster) {
@@ -57,24 +46,30 @@ export class XmbFile implements ITranslationMessagesFile {
         return this;
     }
 
-    private initializeTransUnits() {
-        if (isNullOrUndefined(this.transUnits)) {
-            this.transUnits = [];
-            let transUnitsInFile = this.xmbContent.getElementsByTagName('msg');
-            for (let i = 0; i < transUnitsInFile.length; i++) {
-                let msg = transUnitsInFile.item(i);
-                let id = msg.getAttribute('id');
-                if (!id) {
-                    this._warnings.push(format('oops, msg without "id" found in master, please check file %s', this._filename));
-                    this._numberOfTransUnitsWithMissingId++;
-                }
-                let masterUnit: ITransUnit = null;
-                if (this._masterFile) {
-                    masterUnit = this._masterFile.transUnitWithId(id);
-                }
-                this.transUnits.push(new XmbTransUnit(msg, id, masterUnit));
+    protected initializeTransUnits() {
+        this.transUnits = [];
+        let transUnitsInFile = this._parsedDocument.getElementsByTagName('msg');
+        for (let i = 0; i < transUnitsInFile.length; i++) {
+            let msg = transUnitsInFile.item(i);
+            let id = msg.getAttribute('id');
+            if (!id) {
+                this._warnings.push(format('oops, msg without "id" found in master, please check file %s', this._filename));
             }
+            let masterUnit: ITransUnit = null;
+            if (this._masterFile) {
+                masterUnit = this._masterFile.transUnitWithId(id);
+            }
+            this.transUnits.push(new XmbTransUnit(msg, id, this, masterUnit));
         }
+    }
+
+    /**
+     * File format as it is used in config files.
+     * Currently 'xlf', 'xmb', 'xmb2'
+     * Returns one of the constants FORMAT_..
+     */
+    public i18nFormat(): string {
+        return FORMAT_XMB;
     }
 
     /**
@@ -82,37 +77,7 @@ export class XmbFile implements ITranslationMessagesFile {
      * Here 'XMB'
      */
     public fileType(): string {
-        return 'XMB';
-    }
-
-    public forEachTransUnit(callback: ((transunit: ITransUnit) => void)) {
-        this.initializeTransUnits();
-        this.transUnits.forEach((tu) => callback(tu));
-    }
-
-    /**
-     * Get trans-unit with given id.
-     * @param id
-     * @return {ITransUnit}
-     */
-    public transUnitWithId(id: string): ITransUnit {
-        this.initializeTransUnits();
-        return this.transUnits.find((tu) => tu.id === id);
-    }
-
-    public warnings(): string[] {
-        this.initializeTransUnits();
-        return this._warnings;
-    }
-
-    public numberOfTransUnits(): number {
-        this.initializeTransUnits();
-        return this.transUnits.length;
-    }
-
-    public numberOfTransUnitsWithMissingId(): number {
-        this.initializeTransUnits();
-        return this._numberOfTransUnitsWithMissingId;
+        return FILETYPE_XMB;
     }
 
     /**
@@ -173,69 +138,17 @@ export class XmbFile implements ITranslationMessagesFile {
     }
 
     /**
-     * Copy source to target to use it as dummy translation.
-     * (better than missing value)
-     * In xmb there is nothing to do, because there is only a target, no source.
-     */
-    public useSourceAsTarget(transUnit: ITransUnit, isDefaultLang: boolean, copyContent: boolean) {
-        transUnit.useSourceAsTarget(isDefaultLang, copyContent);
-    }
-
-    /**
-     * Translate a given trans unit.
-     * (very simple, just for tests)
-     * @param transUnit
-     * @param translation the translated string
-     */
-    public translate(transUnit: ITransUnit, translation: string) {
-        transUnit.translate(translation);
-    }
-
-    /**
      * Add a new trans-unit.
      * @param transUnit
      */
     public addNewTransUnit(transUnit: ITransUnit) {
-        let messagebundleElement = DOMUtilities.getFirstElementByTagName(this.xmbContent, 'messagebundle');
+        let messagebundleElement = DOMUtilities.getFirstElementByTagName(this._parsedDocument, 'messagebundle');
         if (messagebundleElement) {
-            messagebundleElement.appendChild(<Node>transUnit.asXmlElement());
-            this.initializeTransUnits();
+            messagebundleElement.appendChild(<Node>(<XmbTransUnit> transUnit).asXmlElement());
+            this.lazyInitializeTransUnits();
             this.transUnits.push(transUnit);
+            this.countNumbers();
         }
-    }
-
-    /**
-     * Remove the trans-unit with the given id.
-     * @param id
-     */
-    public removeTransUnitWithId(id: string) {
-        let tuNode: Node = this.xmbContent.getElementById(id);
-        if (tuNode) {
-            tuNode.parentNode.removeChild(tuNode);
-            this.initializeTransUnits();
-            this.transUnits = this.transUnits.filter((tu) => tu.id !== id);
-        }
-    }
-
-    /**
-     * The filename where the data is read from.
-     */
-    public filename(): string {
-        return this._filename;
-    }
-
-    /**
-     * The encoding of the xml content (UTF-8, ISO-8859-1, ...)
-     */
-    public encoding(): string {
-        return this._encoding;
-    }
-
-    /**
-     * The xml to be saved after changes are made.
-     */
-    public editedContent(): string {
-        return new XMLSerializer().serializeToString(this.xmbContent);
     }
 
 }

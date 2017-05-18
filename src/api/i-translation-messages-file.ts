@@ -11,8 +11,16 @@ import {ITransUnit} from './i-trans-unit';
 export interface ITranslationMessagesFile {
 
     /**
-     * File type.
-     * Currently 'XLIFF 1.2' or 'XMB'
+     * File format as it is used in config files.
+     * Currently 'xlf', 'xmb', 'xmb2'
+     * Returns one of the constants FORMAT_..
+     */
+    i18nFormat(): string;
+
+    /**
+     * File type as displayable, human readable string.
+     * Currently 'XLIFF 1.2', 'XLIFF 2.0' or 'XMB'
+     * Returns one of the constants FILETYPE_..
      */
     fileType(): string;
 
@@ -22,12 +30,23 @@ export interface ITranslationMessagesFile {
     warnings(): string[];
 
     /**
-     * Number of translations found in the file.
+     * Total number of translation units found in the file.
      */
     numberOfTransUnits(): number;
 
     /**
-     * Number of translations without id found in the file.
+     * Number of translation units without translation found in the file.
+     * These units have state 'translated'.
+     */
+    numberOfUntranslatedTransUnits(): number;
+
+    /**
+     * Number of translation units with state 'final'.
+     */
+    numberOfReviewedTransUnits(): number;
+
+    /**
+     * Number of translation units without id found in the file.
      */
     numberOfTransUnitsWithMissingId(): number;
 
@@ -52,7 +71,7 @@ export interface ITranslationMessagesFile {
     /**
      * Get trans-unit with given id.
      * @param id
-     * @return {Cheerio}
+     * @return {ITransUnit}
      */
     transUnitWithId(id: string): ITransUnit;
 
@@ -73,7 +92,9 @@ export interface ITranslationMessagesFile {
     setTargetLanguage(language: string);
 
     /**
-     * Add a new trans-unit.
+     * Add a new trans-unit to this file.
+     * The trans unit stems from another file.
+     * (used by xliffmerge)
      * @param transUnit
      */
     addNewTransUnit(transUnit: ITransUnit);
@@ -87,16 +108,16 @@ export interface ITranslationMessagesFile {
     /**
      * Copy source to target to use it as dummy translation.
      * (better than missing value)
+     * @param transUnit the trans unit to be used.
+     * @param isDefaultLang Flag, wether file contains the default language.
+     * Then source and target are just equal.
+     * The content will be copied.
+     * State will be final.
+     * @param copyContent Flag, wether to copy content or leave it empty.
+     * Wben true, content will be copied from source.
+     * When false, content will be left empty (if it is not the default language).
      */
     useSourceAsTarget(transUnit: ITransUnit, isDefaultLang: boolean, copyContent: boolean);
-
-    /**
-     * Translate a given trans unit.
-     * (very simple, just for tests)
-     * @param transUnit
-     * @param translation the translated string
-     */
-    translate(transUnit: ITransUnit, translation: string);
 
     /**
      * The filename where the data is read from.

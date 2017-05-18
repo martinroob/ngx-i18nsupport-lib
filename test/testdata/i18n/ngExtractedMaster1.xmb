@@ -32,4 +32,8 @@
     <msg id="7610784844464920497" desc="ngx-translate" meaning="embeddedhtml.strange"><source>S:/experimente/sampleapp41/src/app/ngx-translate-test-data/ngx-translate-test-data.component.ts:17</source>Diese Nachricht ist <ph name="START_TAG_STRANGE"><ex>&lt;strange&gt;</ex></ph><ph name="INTERPOLATION"><ex>INTERPOLATION</ex></ph><ph name="CLOSE_TAG_STRANGE"><ex>&lt;/strange&gt;</ex></ph></msg>
     <msg id="no_sourceref_test">no source ref</msg>
     <msg>no id</msg>
+    <msg id="unittomerge">Test for merging units</msg>
+  <msg id="complextags.tagsWithAttribute1"><source>S:/experimente/sampleapp41/src/app/ngx-translate-test-data/ngx-translate-test-data.component.ts:19</source><ph name="START_LINK"><ex>&lt;a&gt;</ex></ph>link1<ph name="CLOSE_LINK"><ex>&lt;/a&gt;</ex></ph> and <ph name="START_EMPHASISED_TEXT"><ex>&lt;em&gt;</ex></ph><ph name="START_LINK_1"><ex>&lt;a&gt;</ex></ph><ph name="TAG_IMG"><ex>&lt;img&gt;</ex></ph><ph name="CLOSE_LINK"><ex>&lt;/a&gt;</ex></ph><ph name="CLOSE_EMPHASISED_TEXT"><ex>&lt;/em&gt;</ex></ph></msg>
+  <msg id="complextags.tagsWithAttribute2"><source>S:/experimente/sampleapp41/src/app/ngx-translate-test-data/ngx-translate-test-data.component.ts:20</source><ph name="START_LINK"><ex>&lt;a&gt;</ex></ph>link1 with placeholder <ph name="INTERPOLATION"><ex>INTERPOLATION</ex></ph><ph name="CLOSE_LINK"><ex>&lt;/a&gt;</ex></ph></msg>
+  <msg id="complextags.tagsWithAttribute3"><source>S:/experimente/sampleapp41/src/app/ngx-translate-test-data/ngx-translate-test-data.component.ts:21</source><ph name="START_LINK"><ex>&lt;a&gt;</ex></ph>link1 with placeholder <ph name="INTERPOLATION"><ex>INTERPOLATION</ex></ph><ph name="CLOSE_LINK"><ex>&lt;/a&gt;</ex></ph></msg>
 </messagebundle>
