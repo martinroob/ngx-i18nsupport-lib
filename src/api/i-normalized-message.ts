@@ -5,7 +5,11 @@
  */
 
 export type ValidationErrors = {
-    [key: string]: any
+    [key: string]: any;
+    placeholderAdded?: string;
+    placeholderRemoved?: string;
+    tagAdded?: string;
+    tagRemoved?: string;
 };
 
 export interface INormalizedMessage {
@@ -24,6 +28,14 @@ export interface INormalizedMessage {
     validate(): ValidationErrors | null;
 
     /**
+     * Validate the message, check for warnings only.
+     * A warning shows, that the message is acceptable, but misses something.
+     * E.g. if you remove a placeholder or a special tag from the original message, this generates a warning.
+     * @return null, if no warning, warnings as error object otherwise.
+     */
+    validateWarnings(): ValidationErrors | null;
+
+    /**
      * Returns the message content as format dependent native string.
      * Includes all format specific markup like <ph id="INTERPOLATION" ../> ..
      */
@@ -32,6 +44,7 @@ export interface INormalizedMessage {
     /**
      * Create a new normalized message as a translation of this one.
      * @param normalizedString
+     * Throws an error if normalized string is not well formed.
      */
     translate(normalizedString: string): INormalizedMessage;
 }
