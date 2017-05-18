@@ -38,7 +38,7 @@ export class XliffFile extends AbstractTranslationMessagesFile implements ITrans
             const version = xliffList.item(0).getAttribute('version');
             const expectedVersion = '1.2';
             if (version !== expectedVersion) {
-                throw new Error(format('File "%s" seems to be no xliff 2 file, version should be %s, found %s', path, expectedVersion, version));
+                throw new Error(format('File "%s" seems to be no xliff 1.2 file, version should be %s, found %s', path, expectedVersion, version));
             }
         }
         return this;
