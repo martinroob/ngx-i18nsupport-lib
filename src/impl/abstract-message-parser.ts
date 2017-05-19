@@ -91,7 +91,12 @@ export abstract class AbstractMessageParser implements IMessageParser {
     public parseNormalizedString(normalizedString: string, sourceMessage: ParsedMessage): ParsedMessage {
         const message: ParsedMessage = new ParsedMessage(this, sourceMessage);
         let openTags = [];
-        let tokens: Token[] = new ParsedMesageTokenizer().tokenize(normalizedString);
+        let tokens: Token[];
+        try {
+            tokens = new ParsedMesageTokenizer().tokenize(normalizedString);
+        } catch (error) {
+            throw new Error('unexpected error while parsing message: ' + error.message); // TODO error handling
+        }
         tokens.forEach((token: Token) => {
             switch (token.type) {
                 case TEXT:
