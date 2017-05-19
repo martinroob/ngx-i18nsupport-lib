@@ -50,6 +50,10 @@ export class ParsedMesageTokenizer {
             plaintext += match[0];
             ctx.ignore();
         }, TEXT);
+        lexer.rule(/[\t\r\n]+/, (ctx, match) => {
+            plaintext += match[0];
+            ctx.ignore();
+        }, TEXT);
         return lexer;
     }
 

@@ -89,6 +89,15 @@ describe('normalized message test spec', () => {
             expect(warnings.tagAdded).toBe('added tag <strange>, which is not in original message');
         });
 
+        it('should find nothing wrong with text containing line breaks', () => {
+            let translation = 'a text without\na line break';
+            let parsedMessage = parsedMessageFor(translation);
+            expect(parsedMessage.asDisplayString()).toBe(translation);
+            expect(parsedMessage.validate()).toBeFalsy();
+            expect(parsedMessage.validateWarnings()).toBeFalsy();
+        });
+
+
     });
 
 });

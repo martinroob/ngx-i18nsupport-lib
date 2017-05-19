@@ -1,3 +1,12 @@
+<a name="1.0.1"></a>
+# [1.0.1](https://github.com/martinroob/ngx-i18nsupport-lib/compare/v1.0.1...v1.0.0) (2017-05-19)
+
+### Bug Fixes
+
+* **all formats:** fixed "A linebreak in a message throws exception 'token not recognized'". ([#11](https://github.com/martinroob/ngx-i18nsupport-lib/issues/11)).
+
+* **XLIFF 1.2:** fixed "Typo in errormessage for XLIFF 1.2 files". ([#10](https://github.com/martinroob/ngx-i18nsupport-lib/issues/10)).
+
 <a name="1.0.0"></a>
 # [1.0.0](https://github.com/martinroob/ngx-i18nsupport-lib/compare/v1.0.0...v0.1.3) (2017-05-18)
 
