@@ -52,6 +52,15 @@ export class ParsedMessage implements INormalizedMessage {
     }
 
     /**
+     * Create a new normalized message from a native xml string as a translation of this one.
+     * @param nativeString xml string in the format of the underlying file format.
+     * Throws an error if native string is not acceptable.
+     */
+    translateNativeString(nativeString: string): INormalizedMessage {
+        return this._parser.createNormalizedMessageFromXMLString(nativeString, this);
+    }
+
+    /**
      * normalized message as string.
      * @param format optional way to determine the exact syntax.
      * Allowed formats are defined as constants NORMALIZATION_FORMAT...

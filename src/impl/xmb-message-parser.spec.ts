@@ -27,8 +27,7 @@ describe('message parse XMB test spec', () => {
      */
     function parsedMessageFromXML(xmlContent: string, sourceMessage?: ParsedMessage): ParsedMessage {
         let parser = new XmbMessageParser();
-        let doc = new DOMParser().parseFromString(xmlContent, 'text/xml');
-        return parser.createNormalizedMessageFromXML(<Element> doc.childNodes.item(0), sourceMessage);
+        return parser.createNormalizedMessageFromXMLString(xmlContent, sourceMessage);
     }
 
     /**
@@ -103,28 +102,28 @@ describe('message parse XMB test spec', () => {
     describe('xml to normalized message', () => {
 
         it('should parse simple text content', () => {
-           let parsedMessage = parsedMessageFromXML('<source>a simple content</source>');
+           let parsedMessage = parsedMessageFromXML('a simple content');
            expect(parsedMessage.asDisplayString()).toBe('a simple content');
         });
 
         it('should parse strange tag with placeholder content', () => {
-            let parsedMessage = parsedMessageFromXML('<source>Diese Nachricht ist <ph name="START_TAG_STRANGE"><ex>&lt;strange></ex></ph><ph name="INTERPOLATION"><ex>INTERPOLATION</ex></ph><ph name="CLOSE_TAG_STRANGE"><ex>&lt;/strange></ex></ph></source>');
+            let parsedMessage = parsedMessageFromXML('Diese Nachricht ist <ph name="START_TAG_STRANGE"><ex>&lt;strange></ex></ph><ph name="INTERPOLATION"><ex>INTERPOLATION</ex></ph><ph name="CLOSE_TAG_STRANGE"><ex>&lt;/strange></ex></ph>');
             expect(parsedMessage.asDisplayString()).toBe('Diese Nachricht ist <strange>{{0}}</strange>');
         });
 
         it('should parse embedded tags', () => {
-            let parsedMessage = parsedMessageFromXML('<source>Diese Nachricht ist <ph name="START_BOLD_TEXT"><ex>&lt;b></ex></ph><ph name="START_TAG_STRANGE"><ex>&lt;strange></ex></ph>SEHR WICHTIG<ph name="CLOSE_TAG_STRANGE"><ex>&lt;/strange></ex></ph><ph name="CLOSE_BOLD_TEXT"><ex>&lt;/b></ex></ph></source>');
+            let parsedMessage = parsedMessageFromXML('Diese Nachricht ist <ph name="START_BOLD_TEXT"><ex>&lt;b></ex></ph><ph name="START_TAG_STRANGE"><ex>&lt;strange></ex></ph>SEHR WICHTIG<ph name="CLOSE_TAG_STRANGE"><ex>&lt;/strange></ex></ph><ph name="CLOSE_BOLD_TEXT"><ex>&lt;/b></ex></ph>');
             expect(parsedMessage.asDisplayString()).toBe('Diese Nachricht ist <b><strange>SEHR WICHTIG</strange></b>');
         });
 
         it('should parse complex message with embedded placeholder', () => {
-            let parsedMessage = parsedMessageFromXML('<source><ph name="START_LINK"><ex>&lt;a></ex></ph>link1 with placeholder <ph name="INTERPOLATION"><ex>INTERPOLATION</ex></ph><ph name="CLOSE_LINK"><ex>&lt;/a></ex></ph></source>');
+            let parsedMessage = parsedMessageFromXML('<ph name="START_LINK"><ex>&lt;a></ex></ph>link1 with placeholder <ph name="INTERPOLATION"><ex>INTERPOLATION</ex></ph><ph name="CLOSE_LINK"><ex>&lt;/a></ex></ph>');
             expect(parsedMessage.asDisplayString()).toBe('<a>link1 with placeholder {{0}}</a>');
         });
 
         it('should throw an error due to not well formed elements <b><strange></b>', () => {
             try {
-                let parsedMessage = parsedMessageFromXML('<source>Diese Nachricht ist falsch geschachtelt: <ph name="START_BOLD_TEXT"><ex>&lt;b></ex></ph><ph name="START_TAG_STRANGE"><ex>&lt;strange></ex></ph>FALSCH<x id="CLOSE_BOLD_TEXT" ctype="x-b"/></ph><ph name="CLOSE_BOLD_TEXT"><ex>&lt;/b></ex></ph></source>');
+                let parsedMessage = parsedMessageFromXML('Diese Nachricht ist falsch geschachtelt: <ph name="START_BOLD_TEXT"><ex>&lt;b></ex></ph><ph name="START_TAG_STRANGE"><ex>&lt;strange></ex></ph>FALSCH<x id="CLOSE_BOLD_TEXT" ctype="x-b"/></ph><ph name="CLOSE_BOLD_TEXT"><ex>&lt;/b></ex></ph>');
                 expect('parsedMessage').toBe('should throw an error');
             } catch (e) {
                 expect(e.message).toBe('unexpected close tag b');

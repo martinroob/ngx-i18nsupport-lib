@@ -37,6 +37,18 @@ export abstract class AbstractMessageParser implements IMessageParser {
     }
 
     /**
+     * Parse XML string to ParsedMessage.
+     * @param xmlString the xml representation without root element, e.g. this is <ph x></ph> an example.
+     * @param sourceMessage optional original message that will be translated by normalized new one
+     * Throws an error if normalized xml is not well formed.
+     */
+    createNormalizedMessageFromXMLString(xmlString: string, sourceMessage: ParsedMessage): ParsedMessage {
+        let doc: Document = new DOMParser().parseFromString('<dummy>' + xmlString + '</dummy>', 'text/xml');
+        let xmlElement: Element = <Element> doc.childNodes.item(0);
+        return this.createNormalizedMessageFromXML(xmlElement, sourceMessage);
+    }
+
+    /**
      * recursively run through a node and add all identified parts to the message.
      * @param node
      * @param message message to be generated.

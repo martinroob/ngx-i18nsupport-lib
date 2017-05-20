@@ -27,8 +27,7 @@ describe('message parse XLIFF 2.0 test spec', () => {
      */
     function parsedMessageFromXML(xmlContent: string, sourceMessage?: ParsedMessage): ParsedMessage {
         let parser = new Xliff2MessageParser();
-        let doc = new DOMParser().parseFromString(xmlContent, 'text/xml');
-        return parser.createNormalizedMessageFromXML(<Element> doc.childNodes.item(0), sourceMessage);
+        return parser.createNormalizedMessageFromXMLString(xmlContent, sourceMessage);
     }
 
     /**
@@ -102,23 +101,28 @@ describe('message parse XLIFF 2.0 test spec', () => {
     describe('xml to normalized message', () => {
 
         it('should parse simple text content', () => {
-           let parsedMessage = parsedMessageFromXML('<source>a simple content</source>');
+           let parsedMessage = parsedMessageFromXML('a simple content');
            expect(parsedMessage.asDisplayString()).toBe('a simple content');
         });
 
         it('should parse strange tag with placeholder content', () => {
-            let parsedMessage = parsedMessageFromXML('<source>Diese Nachricht ist <pc id="0" equivStart="START_TAG_STRANGE" equivEnd="CLOSE_TAG_STRANGE" type="other" dispStart="&lt;strange&gt;" dispEnd="&lt;/strange&gt;"><ph id="1" equiv="INTERPOLATION" disp="{{strangeness}}"/></pc></source>');
+            let parsedMessage = parsedMessageFromXML('Diese Nachricht ist <pc id="0" equivStart="START_TAG_STRANGE" equivEnd="CLOSE_TAG_STRANGE" type="other" dispStart="&lt;strange&gt;" dispEnd="&lt;/strange&gt;"><ph id="1" equiv="INTERPOLATION" disp="{{strangeness}}"/></pc>');
             expect(parsedMessage.asDisplayString()).toBe('Diese Nachricht ist <strange>{{0}}</strange>');
         });
 
         it('should parse embedded tags', () => {
-            let parsedMessage = parsedMessageFromXML('<source>Diese Nachricht ist <pc id="0" equivStart="START_BOLD_TEXT" equivEnd="CLOSE_BOLD_TEXT" type="fmt" dispStart="&lt;b&gt;" dispEnd="&lt;/b&gt;"><pc id="1" equivStart="START_TAG_STRONG" equivEnd="CLOSE_TAG_STRONG" type="other" dispStart="&lt;strong&gt;" dispEnd="&lt;/strong&gt;">SEHR WICHTIG</pc></pc></source>');
+            let parsedMessage = parsedMessageFromXML('Diese Nachricht ist <pc id="0" equivStart="START_BOLD_TEXT" equivEnd="CLOSE_BOLD_TEXT" type="fmt" dispStart="&lt;b&gt;" dispEnd="&lt;/b&gt;"><pc id="1" equivStart="START_TAG_STRONG" equivEnd="CLOSE_TAG_STRONG" type="other" dispStart="&lt;strong&gt;" dispEnd="&lt;/strong&gt;">SEHR WICHTIG</pc></pc>');
             expect(parsedMessage.asDisplayString()).toBe('Diese Nachricht ist <b><strong>SEHR WICHTIG</strong></b>');
         });
 
         it('should parse complex message with embedded placeholder', () => {
-            let parsedMessage = parsedMessageFromXML('<source><pc id="0" equivStart="START_LINK" equivEnd="CLOSE_LINK" type="link" dispStart="&lt;a>" dispEnd="&lt;/a>">link1 with placeholder <ph id="1" equiv="INTERPOLATION" disp="{{placeholder}}"/></pc></source>');
+            let parsedMessage = parsedMessageFromXML('<pc id="0" equivStart="START_LINK" equivEnd="CLOSE_LINK" type="link" dispStart="&lt;a>" dispEnd="&lt;/a>">link1 with placeholder <ph id="1" equiv="INTERPOLATION" disp="{{placeholder}}"/></pc>');
             expect(parsedMessage.asDisplayString()).toBe('<a>link1 with placeholder {{0}}</a>');
+        });
+
+        it('should report an error when xml string is not correct (TODO, does not work)', () => {
+            let parsedMessage = parsedMessageFromXML('</dummy></dummy>');
+            expect(parsedMessage.asDisplayString()).toBe(''); // TODO xmldoc does not report any error
         });
 
     });
