@@ -151,6 +151,21 @@ describe('ngx-i18nsupport-lib xmb test spec', () => {
             expect(tu.sourceReferences()[0].linenumber).toBe(7);
         });
 
+        it('should set source references', () => {
+            const file: ITranslationMessagesFile = readFile(MASTER1SRC);
+            const tu: ITransUnit = file.transUnitWithId(ID_TO_MERGE);
+            expect(tu).toBeTruthy();
+            expect(tu.sourceReferences().length).toBe(0);
+            tu.setSourceReference([{sourcefile: 'x', linenumber: 10}, {sourcefile: 'y', linenumber: 20}]);
+            const file2: ITranslationMessagesFile = TranslationMessagesFileFactory.fromUnknownFormatFileContent(file.editedContent(), null, null);
+            const tu2: ITransUnit = file2.transUnitWithId(ID_TO_MERGE);
+            expect(tu2.sourceReferences().length).toBe(2);
+            expect(tu2.sourceReferences()[0].sourcefile).toBe('x');
+            expect(tu2.sourceReferences()[0].linenumber).toBe(10);
+            expect(tu2.sourceReferences()[1].sourcefile).toBe('y');
+            expect(tu2.sourceReferences()[1].linenumber).toBe(20);
+        });
+
         it ('should run through 3 different states while translating', () => {
             const file: ITranslationMessagesFile = readXmbWithMaster(MASTER_EN_XMB, MASTER_DE_XMB);
             const tu: ITransUnit = file.transUnitWithId(ID_MY_FIRST);

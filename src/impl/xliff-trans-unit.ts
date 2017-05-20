@@ -140,9 +140,9 @@ export class XliffTransUnit extends AbstractTransUnit implements ITransUnit {
      * This is set when using Angular 4.0 or greater.
      * Otherwise it just returns an empty array.
      */
-    public sourceReferences(): {sourcefile: string, linenumber}[] {
+    public sourceReferences(): {sourcefile: string, linenumber: Number}[] {
         let sourceElements = this._element.getElementsByTagName('context-group');
-        let sourceRefs: { sourcefile: string, linenumber }[] = [];
+        let sourceRefs: { sourcefile: string, linenumber: Number }[] = [];
         for (let i = 0; i < sourceElements.length; i++) {
             const elem = sourceElements.item(i);
             if (elem.getAttribute('purpose') === 'location') {
@@ -162,6 +162,29 @@ export class XliffTransUnit extends AbstractTransUnit implements ITransUnit {
             }
         }
         return sourceRefs;
+    }
+
+    /**
+     * Set source ref elements in the transunit.
+     * Normally, this is done by ng-extract.
+     * Method only exists to allow xliffmerge to merge missing source refs.
+     * @param string
+     * @param linenumber
+     */
+    public setSourceReference(sourceRefs: {sourcefile: string, linenumber: Number}[]) {
+        sourceRefs.forEach((ref) => {
+            let contextGroup = this._element.ownerDocument.createElement('context-group');
+            contextGroup.setAttribute('purpose', 'location');
+            let contextSource = this._element.ownerDocument.createElement('context');
+            contextSource.setAttribute('context-type', 'sourcefile');
+            contextSource.appendChild(this._element.ownerDocument.createTextNode(ref.sourcefile));
+            let contextLine = this._element.ownerDocument.createElement('context');
+            contextLine.setAttribute('context-type', 'linenumber');
+            contextLine.appendChild(this._element.ownerDocument.createTextNode(ref.linenumber.toString(10)));
+            contextGroup.appendChild(contextSource);
+            contextGroup.appendChild(contextLine);
+            this._element.appendChild(contextGroup);
+        });
     }
 
     /**

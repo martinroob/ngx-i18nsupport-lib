@@ -119,7 +119,16 @@ export abstract class AbstractTransUnit implements ITransUnit {
      * This is set when using Angular 4.0 or greater.
      * Otherwise it just returns an empty array.
      */
-    abstract sourceReferences(): {sourcefile: string, linenumber}[];
+    abstract sourceReferences(): {sourcefile: string, linenumber: Number}[];
+
+    /**
+     * Set source ref elements in the transunit.
+     * Normally, this is done by ng-extract.
+     * Method only exists to allow xliffmerge to merge missing source refs.
+     * @param string
+     * @param linenumber
+     */
+    abstract setSourceReference(sourceRefs: {sourcefile: string, linenumber: Number}[]);
 
     /**
      * The description set in the template as value of the i18n-attribute.
