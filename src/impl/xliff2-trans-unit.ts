@@ -128,11 +128,11 @@ export class Xliff2TransUnit extends AbstractTransUnit  implements ITransUnit {
      * This is set when using Angular 4.0 or greater.
      * Otherwise it just returns an empty array.
      */
-    public sourceReferences(): {sourcefile: string, linenumber}[] {
+    public sourceReferences(): {sourcefile: string, linenumber: Number}[] {
         // TODO in the moment there is no source ref written in XLIFF 2.0
         // so this code is just a guess, expect source as <file>:<line> in <note category="location">...
         let noteElements = this._element.getElementsByTagName('note');
-        let sourceRefs: { sourcefile: string, linenumber }[] = [];
+        let sourceRefs: { sourcefile: string, linenumber: Number }[] = [];
         for (let i = 0; i < noteElements.length; i++) {
             const noteElem = noteElements.item(i);
             if (noteElem.getAttribute('category') === 'location') {
@@ -142,6 +142,17 @@ export class Xliff2TransUnit extends AbstractTransUnit  implements ITransUnit {
             }
         }
         return sourceRefs;
+    }
+
+    /**
+     * Set source ref elements in the transunit.
+     * Normally, this is done by ng-extract.
+     * Method only exists to allow xliffmerge to merge missing source refs.
+     * @param string
+     * @param linenumber
+     */
+    public setSourceReference(sourceRefs: {sourcefile: string, linenumber: Number}[]) {
+        // currently not supported in XLIFF 2.0
     }
 
     /**

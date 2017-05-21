@@ -116,15 +116,33 @@ export class XmbTransUnit extends AbstractTransUnit implements ITransUnit {
      * This is set when using Angular 4.0 or greater.
      * Otherwise it just returns an empty array.
      */
-    public sourceReferences(): { sourcefile: string, linenumber }[] {
+    public sourceReferences(): { sourcefile: string, linenumber: Number }[] {
         let sourceElements = this._element.getElementsByTagName('source');
-        let sourceRefs: { sourcefile: string, linenumber }[] = [];
+        let sourceRefs: { sourcefile: string, linenumber: Number }[] = [];
         for (let i = 0; i < sourceElements.length; i++) {
             let elem = sourceElements.item(i);
             const sourceAndPos: string = DOMUtilities.getPCDATA(elem);
             sourceRefs.push(this.parseSourceAndPos(sourceAndPos));
         }
         return sourceRefs;
+    }
+
+    /**
+     * Set source ref elements in the transunit.
+     * Normally, this is done by ng-extract.
+     * Method only exists to allow xliffmerge to merge missing source refs.
+     * @param string
+     * @param linenumber
+     */
+    public setSourceReference(sourceRefs: {sourcefile: string, linenumber: Number}[]) {
+        let insertPosition = this._element.childNodes.item(0);
+        for (let i = sourceRefs.length - 1; i >= 0; i--) {
+            let ref = sourceRefs[i];
+            let source = this._element.ownerDocument.createElement('source');
+            source.appendChild(this._element.ownerDocument.createTextNode(ref.sourcefile + ':' + ref.linenumber.toString(10)));
+            this._element.insertBefore(source, insertPosition);
+            insertPosition = source;
+        }
     }
 
     /**

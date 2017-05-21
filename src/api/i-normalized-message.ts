@@ -47,4 +47,12 @@ export interface INormalizedMessage {
      * Throws an error if normalized string is not well formed.
      */
     translate(normalizedString: string): INormalizedMessage;
+
+    /**
+     * Create a new normalized message from a native xml string as a translation of this one.
+     * @param nativeString xml string in the format of the underlying file format.
+     * Throws an error if native string is not acceptable.
+     */
+    translateNativeString(nativeString: string): INormalizedMessage;
+
 }
