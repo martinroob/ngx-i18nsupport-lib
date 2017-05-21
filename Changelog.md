@@ -1,3 +1,12 @@
+<a name="1.1.0"></a>
+# [1.1.0](https://github.com/martinroob/ngx-i18nsupport-lib/compare/v1.1.0...v1.0.1) (2017-05-21)
+
+### Features
+
+* **API** add an API function to create normalized message from native xml ([#13](https://github.com/martinroob/ngx-i18nsupport-lib/issues/13)).
+
+* **API** add an API function to set sourceReferences ([#14](https://github.com/martinroob/ngx-i18nsupport-lib/issues/14)).
+
 <a name="1.0.1"></a>
 # [1.0.1](https://github.com/martinroob/ngx-i18nsupport-lib/compare/v1.0.1...v1.0.0) (2017-05-19)
 
