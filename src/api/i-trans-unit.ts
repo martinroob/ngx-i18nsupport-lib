@@ -68,7 +68,7 @@ export interface ITransUnit {
      * This is set when using Angular 4.0 or greater.
      * Otherwise it just returns an empty array.
      */
-    sourceReferences(): {sourcefile: string, linenumber: Number}[];
+    sourceReferences(): {sourcefile: string, linenumber: number}[];
 
     /**
      * Set source ref elements in the transunit.
@@ -77,7 +77,7 @@ export interface ITransUnit {
      * @param string
      * @param linenumber
      */
-    setSourceReference(sourceRefs: {sourcefile: string, linenumber: Number}[]);
+    setSourceReference(sourceRefs: {sourcefile: string, linenumber: number}[]);
 
     /**
      * The description set in the template as value of the i18n-attribute.

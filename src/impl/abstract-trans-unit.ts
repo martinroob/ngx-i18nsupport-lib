@@ -119,7 +119,7 @@ export abstract class AbstractTransUnit implements ITransUnit {
      * This is set when using Angular 4.0 or greater.
      * Otherwise it just returns an empty array.
      */
-    abstract sourceReferences(): {sourcefile: string, linenumber: Number}[];
+    abstract sourceReferences(): {sourcefile: string, linenumber: number}[];
 
     /**
      * Set source ref elements in the transunit.
@@ -128,7 +128,7 @@ export abstract class AbstractTransUnit implements ITransUnit {
      * @param string
      * @param linenumber
      */
-    abstract setSourceReference(sourceRefs: {sourcefile: string, linenumber: Number}[]);
+    abstract setSourceReference(sourceRefs: {sourcefile: string, linenumber: number}[]);
 
     /**
      * The description set in the template as value of the i18n-attribute.
