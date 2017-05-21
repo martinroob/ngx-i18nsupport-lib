@@ -116,9 +116,9 @@ export class XmbTransUnit extends AbstractTransUnit implements ITransUnit {
      * This is set when using Angular 4.0 or greater.
      * Otherwise it just returns an empty array.
      */
-    public sourceReferences(): { sourcefile: string, linenumber: Number }[] {
+    public sourceReferences(): { sourcefile: string, linenumber: number }[] {
         let sourceElements = this._element.getElementsByTagName('source');
-        let sourceRefs: { sourcefile: string, linenumber: Number }[] = [];
+        let sourceRefs: { sourcefile: string, linenumber: number }[] = [];
         for (let i = 0; i < sourceElements.length; i++) {
             let elem = sourceElements.item(i);
             const sourceAndPos: string = DOMUtilities.getPCDATA(elem);
@@ -134,7 +134,7 @@ export class XmbTransUnit extends AbstractTransUnit implements ITransUnit {
      * @param string
      * @param linenumber
      */
-    public setSourceReference(sourceRefs: {sourcefile: string, linenumber: Number}[]) {
+    public setSourceReference(sourceRefs: {sourcefile: string, linenumber: number}[]) {
         let insertPosition = this._element.childNodes.item(0);
         for (let i = sourceRefs.length - 1; i >= 0; i--) {
             let ref = sourceRefs[i];

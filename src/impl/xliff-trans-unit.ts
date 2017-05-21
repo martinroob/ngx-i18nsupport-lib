@@ -140,9 +140,9 @@ export class XliffTransUnit extends AbstractTransUnit implements ITransUnit {
      * This is set when using Angular 4.0 or greater.
      * Otherwise it just returns an empty array.
      */
-    public sourceReferences(): {sourcefile: string, linenumber: Number}[] {
+    public sourceReferences(): {sourcefile: string, linenumber: number}[] {
         let sourceElements = this._element.getElementsByTagName('context-group');
-        let sourceRefs: { sourcefile: string, linenumber: Number }[] = [];
+        let sourceRefs: { sourcefile: string, linenumber: number }[] = [];
         for (let i = 0; i < sourceElements.length; i++) {
             const elem = sourceElements.item(i);
             if (elem.getAttribute('purpose') === 'location') {
@@ -171,7 +171,7 @@ export class XliffTransUnit extends AbstractTransUnit implements ITransUnit {
      * @param string
      * @param linenumber
      */
-    public setSourceReference(sourceRefs: {sourcefile: string, linenumber: Number}[]) {
+    public setSourceReference(sourceRefs: {sourcefile: string, linenumber: number}[]) {
         sourceRefs.forEach((ref) => {
             let contextGroup = this._element.ownerDocument.createElement('context-group');
             contextGroup.setAttribute('purpose', 'location');

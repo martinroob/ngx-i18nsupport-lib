@@ -1,3 +1,10 @@
+<a name="1.1.1"></a>
+# [1.1.1](https://github.com/martinroob/ngx-i18nsupport-lib/compare/v1.1.1...v1.1.0) (2017-05-21)
+
+### Bug Fixes
+
+* Type Number should be number in sourceRef-API
+
 <a name="1.1.0"></a>
 # [1.1.0](https://github.com/martinroob/ngx-i18nsupport-lib/compare/v1.1.0...v1.0.1) (2017-05-21)
 
