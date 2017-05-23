@@ -156,7 +156,7 @@ describe('ngx-i18nsupport-lib xmb test spec', () => {
             const tu: ITransUnit = file.transUnitWithId(ID_TO_MERGE);
             expect(tu).toBeTruthy();
             expect(tu.sourceReferences().length).toBe(0);
-            tu.setSourceReference([{sourcefile: 'x', linenumber: 10}, {sourcefile: 'y', linenumber: 20}]);
+            tu.setSourceReferences([{sourcefile: 'x', linenumber: 10}, {sourcefile: 'y', linenumber: 20}]);
             const file2: ITranslationMessagesFile = TranslationMessagesFileFactory.fromUnknownFormatFileContent(file.editedContent(), null, null);
             const tu2: ITransUnit = file2.transUnitWithId(ID_TO_MERGE);
             expect(tu2.sourceReferences().length).toBe(2);
@@ -164,6 +164,19 @@ describe('ngx-i18nsupport-lib xmb test spec', () => {
             expect(tu2.sourceReferences()[0].linenumber).toBe(10);
             expect(tu2.sourceReferences()[1].sourcefile).toBe('y');
             expect(tu2.sourceReferences()[1].linenumber).toBe(20);
+        });
+
+        it('should override source references', () => {
+            const file: ITranslationMessagesFile = readFile(MASTER1SRC);
+            const tu: ITransUnit = file.transUnitWithId(ID_WITH_TWO_SOURCEREFS);
+            expect(tu).toBeTruthy();
+            expect(tu.sourceReferences().length).toBe(2);
+            tu.setSourceReferences([{sourcefile: 'x:komisch', linenumber: 10}]);
+            const file2: ITranslationMessagesFile = TranslationMessagesFileFactory.fromUnknownFormatFileContent(file.editedContent(), null, null);
+            const tu2: ITransUnit = file2.transUnitWithId(ID_WITH_TWO_SOURCEREFS);
+            expect(tu2.sourceReferences().length).toBe(1);
+            expect(tu2.sourceReferences()[0].sourcefile).toBe('x:komisch');
+            expect(tu2.sourceReferences()[0].linenumber).toBe(10);
         });
 
         it ('should run through 3 different states while translating', () => {

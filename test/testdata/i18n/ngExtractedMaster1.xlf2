@@ -14,6 +14,7 @@
     <unit id="7499557905529977371">
       <notes>
         <note category="description">Beschreibung der Anwendung</note>
+        <note category="location">S:/experimente/sampleapp41/src/app/app.component.ts:10</note>
       </notes>
       <segment>
         <source>Diese Anwendung ist eine reine Demonstration und hat keine wirklich nutzbare Funktion.</source>
@@ -23,6 +24,8 @@
       <notes>
         <note category="description">sampleapp.appdescription</note>
         <note category="meaning">ngx-translate</note>
+        <note category="location">S:/experimente/sampleapp41/src/app/app.component.ts:20</note>
+        <note category="location">S:/experimente/sampleapp41/src/app/app.component.ts:21</note>
       </notes>
       <segment>
         <source>Diese Anwendung ist eine reine Demonstration und hat keine wirklich nutzbare Funktion.</source>

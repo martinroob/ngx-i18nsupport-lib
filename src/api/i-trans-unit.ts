@@ -74,10 +74,9 @@ export interface ITransUnit {
      * Set source ref elements in the transunit.
      * Normally, this is done by ng-extract.
      * Method only exists to allow xliffmerge to merge missing source refs.
-     * @param string
-     * @param linenumber
+     * @param sourceRefs the sourcerefs to set. Old ones are removed.
      */
-    setSourceReference(sourceRefs: {sourcefile: string, linenumber: number}[]);
+    setSourceReferences(sourceRefs: {sourcefile: string, linenumber: number}[]);
 
     /**
      * The description set in the template as value of the i18n-attribute.

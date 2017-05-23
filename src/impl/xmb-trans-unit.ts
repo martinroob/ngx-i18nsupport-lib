@@ -131,10 +131,10 @@ export class XmbTransUnit extends AbstractTransUnit implements ITransUnit {
      * Set source ref elements in the transunit.
      * Normally, this is done by ng-extract.
      * Method only exists to allow xliffmerge to merge missing source refs.
-     * @param string
-     * @param linenumber
+     * @param sourceRefs the sourcerefs to set. Old ones are removed.
      */
-    public setSourceReference(sourceRefs: {sourcefile: string, linenumber: number}[]) {
+    public setSourceReferences(sourceRefs: {sourcefile: string, linenumber: number}[]) {
+        this.removeAllSourceReferences();
         let insertPosition = this._element.childNodes.item(0);
         for (let i = sourceRefs.length - 1; i >= 0; i--) {
             let ref = sourceRefs[i];
@@ -143,6 +143,16 @@ export class XmbTransUnit extends AbstractTransUnit implements ITransUnit {
             this._element.insertBefore(source, insertPosition);
             insertPosition = source;
         }
+    }
+
+    private removeAllSourceReferences() {
+        let sourceElements = this._element.getElementsByTagName('source');
+        let toBeRemoved = [];
+        for (let i = 0; i < sourceElements.length; i++) {
+            let elem = sourceElements.item(i);
+            toBeRemoved.push(elem);
+        }
+        toBeRemoved.forEach((elem) => {elem.parentNode.removeChild(elem);});
     }
 
     /**
