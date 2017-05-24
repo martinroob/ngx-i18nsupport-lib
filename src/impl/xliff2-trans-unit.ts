@@ -254,7 +254,20 @@ export class Xliff2TransUnit extends AbstractTransUnit  implements ITransUnit {
 
     /**
      * Copy source to target to use it as dummy translation.
-     * (better than missing value)
+     * Returns a changed copy of this trans unit.
+     * receiver is not changed.
+     * (internal usage only, a client should call importNewTransUnit on ITranslationMessageFile)
+     */
+    public cloneWithSourceAsTarget(isDefaultLang: boolean, copyContent: boolean): AbstractTransUnit {
+        let element = <Element> this._element.cloneNode(true);
+        let clone = new Xliff2TransUnit(element, this._id, this._translationMessagesFile);
+        clone.useSourceAsTarget(isDefaultLang, copyContent);
+        return clone;
+    }
+
+    /**
+     * Copy source to target to use it as dummy translation.
+     * (internal usage only, a client should call createTranslationFileForLang on ITranslationMessageFile)
      */
     public useSourceAsTarget(isDefaultLang: boolean, copyContent: boolean) {
         let source = DOMUtilities.getFirstElementByTagName(this._element, 'source');

@@ -45,14 +45,14 @@ describe('ngx-i18nsupport-lib API test spec', () => {
      * Helper function to read Xmb from 2 Files, the xmb and the master
      * @type {string}
      */
-    function readXmbWithMaster(path: string, masterPath: string): ITranslationMessagesFile {
+    function readXtbWithMaster(path: string, masterPath: string): ITranslationMessagesFile {
         const content = fs.readFileSync(path, ENCODING);
         if (masterPath) {
             const masterContent = fs.readFileSync(masterPath, ENCODING);
             let optionalMaster = {xmlContent: masterContent, path: masterPath, encoding: ENCODING};
-            return TranslationMessagesFileFactory.fromFileContent('xmb', content, path, ENCODING, optionalMaster);
+            return TranslationMessagesFileFactory.fromFileContent('xtb', content, path, ENCODING, optionalMaster);
         } else {
-            return TranslationMessagesFileFactory.fromFileContent('xmb', content, path, ENCODING);
+            return TranslationMessagesFileFactory.fromFileContent('xtb', content, path, ENCODING);
         }
     }
 
@@ -77,7 +77,7 @@ describe('ngx-i18nsupport-lib API test spec', () => {
         let TRANSLATED_FILE_SRC_XLIFF = SRCDIR + 'translatedFile.xlf';
         let MASTER1SRC_XMB = SRCDIR + 'ngExtractedMaster1.xmb';
         let MASTER_DE_XMB = SRCDIR + 'ngExtractedMaster1.de.xmb';
-        let MASTER_EN_XMB = SRCDIR + 'ngExtractedMaster1.en.xmb';
+        let MASTER_EN_XTB = SRCDIR + 'ngExtractedMaster1.en.xtb';
 
         it('should read xlf file', () => {
             const file: ITranslationMessagesFile = readXliff(MASTER1SRC_XLIFF);
@@ -97,10 +97,10 @@ describe('ngx-i18nsupport-lib API test spec', () => {
             expect(file.fileType()).toBe('XMB');
         });
 
-        it('should read xmb file with master', () => {
-            const file: ITranslationMessagesFile = readXmbWithMaster(MASTER_EN_XMB, MASTER_DE_XMB);
+        it('should read xtb file with master', () => {
+            const file: ITranslationMessagesFile = readXtbWithMaster(MASTER_EN_XTB, MASTER_DE_XMB);
             expect(file).toBeTruthy();
-            expect(file.fileType()).toBe('XMB');
+            expect(file.fileType()).toBe('XTB');
             expect(file.sourceLanguage()).toBe('de');
             expect(file.targetLanguage()).toBe('en');
         });
@@ -112,9 +112,9 @@ describe('ngx-i18nsupport-lib API test spec', () => {
             const file2: ITranslationMessagesFile = readFile(MASTER1SRC_XMB);
             expect(file2).toBeTruthy();
             expect(file2.fileType()).toBe('XMB');
-            const file3: ITranslationMessagesFile = readFile(MASTER_DE_XMB, MASTER_EN_XMB);
+            const file3: ITranslationMessagesFile = readFile(MASTER_EN_XTB, MASTER1SRC_XMB);
             expect(file3).toBeTruthy();
-            expect(file3.fileType()).toBe('XMB');
+            expect(file3.fileType()).toBe('XTB');
             const file4: ITranslationMessagesFile = readFile(MASTER1SRC_XLIFF2);
             expect(file4).toBeTruthy();
             expect(file4.fileType()).toBe('XLIFF 2.0');
@@ -124,7 +124,7 @@ describe('ngx-i18nsupport-lib API test spec', () => {
            try {
                TranslationMessagesFileFactory.fromUnknownFormatFileContent('schrott', 'dummyfile', 'UTF-X');
            }  catch (error) {
-               expect(error.toString()).toBe('Error: could not identify file format, it is neiter XLIFF (1.2 or 2.0) nor XMB');
+               expect(error.toString()).toBe('Error: could not identify file format, it is neiter XLIFF (1.2 or 2.0) nor XMB/XTB');
                return;
            }
            fail('expected error not received');

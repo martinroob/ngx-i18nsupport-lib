@@ -9,6 +9,7 @@
 export const FORMAT_XLIFF12: string = 'xlf';
 export const FORMAT_XLIFF20: string = 'xlf2';
 export const FORMAT_XMB: string = 'xmb';
+export const FORMAT_XTB: string = 'xtb';
 
 /**
  * File types
@@ -17,6 +18,7 @@ export const FORMAT_XMB: string = 'xmb';
 export const FILETYPE_XLIFF12: string = 'XLIFF 1.2';
 export const FILETYPE_XLIFF20: string = 'XLIFF 2.0';
 export const FILETYPE_XMB: string = 'XMB';
+export const FILETYPE_XTB: string = 'XTB';
 
 /**
  * abstract state value.

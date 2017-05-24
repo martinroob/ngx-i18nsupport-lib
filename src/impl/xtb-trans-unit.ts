@@ -7,14 +7,17 @@ import {XmbMessageParser} from './xmb-message-parser';
 import {ParsedMessage} from './parsed-message';
 import {AbstractMessageParser} from './abstract-message-parser';
 /**
- * Created by martin on 01.05.2017.
- * A Translation Unit in an XMB file.
+ * Created by martin on 23.05.2017.
+ * A Translation Unit in an XTB file.
  */
 
-export class XmbTransUnit extends AbstractTransUnit implements ITransUnit {
+export class XtbTransUnit extends AbstractTransUnit implements ITransUnit {
 
-    constructor(_element: Element, _id: string, _translationMessagesFile: ITranslationMessagesFile) {
+    private _sourceTransUnitFromMaster: AbstractTransUnit;
+
+    constructor(_element: Element, _id: string, _translationMessagesFile: ITranslationMessagesFile, _sourceTransUnitFromMaster: AbstractTransUnit) {
         super(_element, _id, _translationMessagesFile);
+        this._sourceTransUnitFromMaster = _sourceTransUnitFromMaster;
     }
 
     /**
@@ -23,32 +26,36 @@ export class XmbTransUnit extends AbstractTransUnit implements ITransUnit {
      * @return {string}
      */
     public sourceContent(): string {
-        let msgContent = DOMUtilities.getXMLContent(this._element);
-        let reSourceElem: RegExp = /<source>.*<\/source>/g;
-        msgContent = msgContent.replace(reSourceElem, '');
-        return msgContent;
+        if (this._sourceTransUnitFromMaster) {
+            return this._sourceTransUnitFromMaster.sourceContent();
+        } else {
+            return null;
+        }
     }
 
     /**
      * Return a parser used for normalized messages.
      */
     protected messageParser(): AbstractMessageParser {
-        return new XmbMessageParser();
+        return new XmbMessageParser(); // no typo!, Same as for Xmb
     }
 
     /**
      * The original text value, that is to be translated, as normalized message.
      */
     public createSourceContentNormalized(): ParsedMessage {
-        return this.messageParser().createNormalizedMessageFromXML(this._element, null);
+        if (this._sourceTransUnitFromMaster) {
+            return this._sourceTransUnitFromMaster.createSourceContentNormalized();
+        } else {
+            return null;
+        }
     }
 
     /**
      * the translated value (containing all markup, depends on the concrete format used).
      */
     public targetContent(): string {
-        // in fact, target and source are just the same in xmb
-        return this.sourceContent();
+        return DOMUtilities.getXMLContent(this._element);
     }
 
     /**
@@ -56,14 +63,23 @@ export class XmbTransUnit extends AbstractTransUnit implements ITransUnit {
      * and all embedded html is replaced by direct html markup.
      */
     targetContentNormalized(): INormalizedMessage {
-        return new XmbMessageParser().createNormalizedMessageFromXML(this._element, this.sourceContentNormalized());
+        return this.messageParser().createNormalizedMessageFromXML(this._element, this.sourceContentNormalized());
     }
 
     /**
      * State of the translation.
      * (not supported in xmb)
+     * If we have a master, we assumed it is translated if the content is not the same as the masters one.
      */
     public nativeTargetState(): string {
+        if (this._sourceTransUnitFromMaster) {
+            let sourceContent = this._sourceTransUnitFromMaster.sourceContent();
+            if (!sourceContent || sourceContent === this.targetContent()) {
+                return 'new';
+            } else {
+                return 'final';
+            }
+        }
         return null; // not supported in xmb
     }
 
@@ -93,7 +109,7 @@ export class XmbTransUnit extends AbstractTransUnit implements ITransUnit {
      * @param nativeState
      */
     protected setNativeTargetState(nativeState: string) {
-        // not supported for xmb
+        // TODO some logic to store it anywhere
     }
 
     /**
@@ -105,14 +121,11 @@ export class XmbTransUnit extends AbstractTransUnit implements ITransUnit {
      * Otherwise it just returns an empty array.
      */
     public sourceReferences(): { sourcefile: string, linenumber: number }[] {
-        let sourceElements = this._element.getElementsByTagName('source');
-        let sourceRefs: { sourcefile: string, linenumber: number }[] = [];
-        for (let i = 0; i < sourceElements.length; i++) {
-            let elem = sourceElements.item(i);
-            const sourceAndPos: string = DOMUtilities.getPCDATA(elem);
-            sourceRefs.push(XmbTransUnit.parseSourceAndPos(sourceAndPos));
+        if (this._sourceTransUnitFromMaster) {
+            return this._sourceTransUnitFromMaster.sourceReferences();
+        } else {
+            return [];
         }
-        return sourceRefs;
     }
 
     /**
@@ -122,68 +135,34 @@ export class XmbTransUnit extends AbstractTransUnit implements ITransUnit {
      * @param sourceRefs the sourcerefs to set. Old ones are removed.
      */
     public setSourceReferences(sourceRefs: {sourcefile: string, linenumber: number}[]) {
-        this.removeAllSourceReferences();
-        let insertPosition = this._element.childNodes.item(0);
-        for (let i = sourceRefs.length - 1; i >= 0; i--) {
-            let ref = sourceRefs[i];
-            let source = this._element.ownerDocument.createElement('source');
-            source.appendChild(this._element.ownerDocument.createTextNode(ref.sourcefile + ':' + ref.linenumber.toString(10)));
-            this._element.insertBefore(source, insertPosition);
-            insertPosition = source;
-        }
-    }
-
-    private removeAllSourceReferences() {
-        let sourceElements = this._element.getElementsByTagName('source');
-        let toBeRemoved = [];
-        for (let i = 0; i < sourceElements.length; i++) {
-            let elem = sourceElements.item(i);
-            toBeRemoved.push(elem);
-        }
-        toBeRemoved.forEach((elem) => {elem.parentNode.removeChild(elem);});
-    }
-
-    /**
-     * Parses something like 'c:\xxx:7' and returns source and linenumber.
-     * @param sourceAndPos something like 'c:\xxx:7', last colon is the separator
-     * @return {{sourcefile: string, linenumber: number}}
-     */
-    private static parseSourceAndPos(sourceAndPos: string): { sourcefile: string, linenumber } {
-        let index = sourceAndPos.lastIndexOf(':');
-        if (index < 0) {
-            return {
-                sourcefile: sourceAndPos,
-                linenumber: 0
-            }
-        } else {
-            return {
-                sourcefile: sourceAndPos.substring(0, index),
-                linenumber: XmbTransUnit.parseLineNumber(sourceAndPos.substring(index + 1))
-            }
-        }
-    }
-
-    private static parseLineNumber(lineNumberString: string): number {
-        return Number.parseInt(lineNumberString);
+        // xtb has no source refs, they are part of the master
     }
 
     /**
      * The description set in the template as value of the i18n-attribute.
      * e.g. i18n="mydescription".
-     * In xmb this is stored in the attribute "desc".
+     * In xtb only the master stores it.
      */
     public description(): string {
-        return this._element.getAttribute('desc');
+        if (this._sourceTransUnitFromMaster) {
+            return this._sourceTransUnitFromMaster.description();
+        } else {
+            return null;
+        }
     }
 
     /**
      * The meaning (intent) set in the template as value of the i18n-attribute.
      * This is the part in front of the | symbol.
      * e.g. i18n="meaning|mydescription".
-     * In xmb this is stored in the attribute "meaning".
+     * In xtb only the master stores it.
      */
     public meaning(): string {
-        return this._element.getAttribute('meaning');
+        if (this._sourceTransUnitFromMaster) {
+            return this._sourceTransUnitFromMaster.meaning();
+        } else {
+            return null;
+        }
     }
 
     /**
@@ -191,7 +170,7 @@ export class XmbTransUnit extends AbstractTransUnit implements ITransUnit {
      * Returns a changed copy of this trans unit.
      * receiver is not changed.
      * (internal usage only, a client should call importNewTransUnit on ITranslationMessageFile)
-     * In xmb there is nothing to do, because there is only a target, no source.
+     * In xtb there is nothing to do, because there is only a target, no source.
      */
     public cloneWithSourceAsTarget(isDefaultLang: boolean, copyContent: boolean): AbstractTransUnit {
         return this;
@@ -211,23 +190,10 @@ export class XmbTransUnit extends AbstractTransUnit implements ITransUnit {
      */
     protected translateNative(translation: string) {
         let target = this._element;
-        // reconvert source refs to html part in translation message
-        let sourceRefsHtml = this.sourceRefsToHtml();
         if (isNullOrUndefined(translation)) {
             translation = '';
         }
-        DOMUtilities.replaceContentWithXMLContent(target, sourceRefsHtml + translation);
+        DOMUtilities.replaceContentWithXMLContent(target, translation);
     }
 
-    /**
-     * convert the source refs to html.
-     * Result is something like <source>c:\x:93</source>
-     */
-    private sourceRefsToHtml(): string {
-        let result: string = '';
-        this.sourceReferences().forEach((sourceRef) => {
-            result = result + '<source>' + sourceRef.sourcefile + ':' + sourceRef.linenumber + '</source>';
-        });
-        return result;
-    }
 }

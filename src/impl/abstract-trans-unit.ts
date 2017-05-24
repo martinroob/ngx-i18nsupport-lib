@@ -153,7 +153,15 @@ export abstract class AbstractTransUnit implements ITransUnit {
 
     /**
      * Copy source to target to use it as dummy translation.
-     * (internal usage only, a client should call useSourceAsTarget on ITranslationMessageFile)
+     * Returns a changed copy of this trans unit.
+     * receiver is not changed.
+     * (internal usage only, a client should call importNewTransUnit on ITranslationMessageFile)
+     */
+    abstract cloneWithSourceAsTarget(isDefaultLang: boolean, copyContent: boolean): AbstractTransUnit;
+
+    /**
+     * Copy source to target to use it as dummy translation.
+     * (internal usage only, a client should call createTranslationFileForLang on ITranslationMessageFile)
      */
     abstract useSourceAsTarget(isDefaultLang: boolean, copyContent: boolean);
 

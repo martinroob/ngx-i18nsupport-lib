@@ -159,10 +159,21 @@ export abstract class AbstractTranslationMessagesFile implements ITranslationMes
     /**
      * Add a new trans-unit to this file.
      * The trans unit stems from another file.
+     * It copies the source content of the tu to the target content too,
+     * depending on the values of isDefaultLang and copyContent.
+     * So the source can be used as a dummy translation.
      * (used by xliffmerge)
-     * @param transUnit
+     * @param transUnit the trans unit to be imported.
+     * @param isDefaultLang Flag, wether file contains the default language.
+     * Then source and target are just equal.
+     * The content will be copied.
+     * State will be final.
+     * @param copyContent Flag, wether to copy content or leave it empty.
+     * Wben true, content will be copied from source.
+     * When false, content will be left empty (if it is not the default language).
+     * @throws an error if trans-unit with same id already is in the file.
      */
-    abstract addNewTransUnit(transUnit: ITransUnit);
+    abstract importNewTransUnit(transUnit: ITransUnit, isDefaultLang: boolean, copyContent: boolean);
 
     /**
      * Remove the trans-unit with the given id.
@@ -176,22 +187,6 @@ export abstract class AbstractTranslationMessagesFile implements ITranslationMes
             this.transUnits = this.transUnits.filter((tu) => tu.id !== id);
             this.countNumbers();
         }
-    }
-
-    /**
-     * Copy source to target to use it as dummy translation.
-     * (better than missing value)
-     * @param transUnit the trans unit to be used.
-     * @param isDefaultLang Flag, wether file contains the default language.
-     * Then source and target are just equal.
-     * The content will be copied.
-     * State will be final.
-     * @param copyContent Flag, wether to copy content or leave it empty.
-     * Wben true, content will be copied from source.
-     * When false, content will be left empty (if it is not the default language).
-     */
-    public useSourceAsTarget(transUnit: ITransUnit, isDefaultLang: boolean, copyContent: boolean) {
-        (<AbstractTransUnit> transUnit).useSourceAsTarget(isDefaultLang, copyContent);
     }
 
     /**
@@ -214,4 +209,20 @@ export abstract class AbstractTranslationMessagesFile implements ITranslationMes
     public editedContent(): string {
         return new XMLSerializer().serializeToString(this._parsedDocument);
     }
+
+    /**
+     * Create a new translation file for this file for a given language.
+     * Normally, this is just a copy of the original one.
+     * But for XMB the translation file has format 'XTB'.
+     * @param lang Language code
+     * @param filename expected filename to store file
+     * @param isDefaultLang Flag, wether file contains the default language.
+     * Then source and target are just equal.
+     * The content will be copied.
+     * State will be final.
+     * @param copyContent Flag, wether to copy content or leave it empty.
+     * Wben true, content will be copied from source.
+     * When false, content will be left empty (if it is not the default language).
+     */
+    abstract createTranslationFileForLang(lang: string, filename: string, isDefaultLang: boolean, copyContent: boolean): ITranslationMessagesFile;
 }

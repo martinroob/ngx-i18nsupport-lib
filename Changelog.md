@@ -46,7 +46,7 @@
 
 ### Bug Fixes
 
-* **XLIFF 2.0:** fixed "useSourceAsTarget in XLIFF 2.0 does not work". ([#4](https://github.com/martinroob/ngx-i18nsupport-lib/issues/4)).
+* **XLIFF 2.0:** fixed "cloneWithSourceAsTarget in XLIFF 2.0 does not work". ([#4](https://github.com/martinroob/ngx-i18nsupport-lib/issues/4)).
 
 * **all formats** wrong error message when trans unit contains no ID
 

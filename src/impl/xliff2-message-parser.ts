@@ -1,6 +1,5 @@
 import {AbstractMessageParser} from './abstract-message-parser';
 import {ParsedMessage} from './parsed-message';
-import {FORMAT_XLIFF20} from '../api/constants';
 import {ParsedMessagePartStartTag} from './parsed-message-part-start-tag';
 import {ParsedMessagePartEndTag} from './parsed-message-part-end-tag';
 import {ParsedMessagePartPlaceholder} from './parsed-message-part-placeholder';
@@ -12,15 +11,6 @@ import {TagMapping} from './tag-mapping';
  * A message parser for XLIFF 2.0
  */
 export class Xliff2MessageParser extends AbstractMessageParser {
-
-    /**
-     * Format of the translation file.
-     * xmb xliff xliff2
-     * Returns one of the constants FORMAT_..
-     */
-    public i18nFormat(): string {
-        return FORMAT_XLIFF20;
-    }
 
     /**
      * Handle this element node.

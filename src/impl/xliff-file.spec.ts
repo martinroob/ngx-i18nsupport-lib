@@ -245,8 +245,7 @@ describe('ngx-i18nsupport-lib xliff 1.2 test spec', () => {
             expect(tu.targetContent()).toBeFalsy();
             let isDefaultLang: boolean = true;
             let copyContent: boolean = false;
-            file.useSourceAsTarget(tu, isDefaultLang, copyContent);
-            const file2: ITranslationMessagesFile = TranslationMessagesFileFactory.fromUnknownFormatFileContent(file.editedContent(), null, null);
+            const file2: ITranslationMessagesFile = file.createTranslationFileForLang('xy', null, isDefaultLang, copyContent);
             const tu2: ITransUnit = file2.transUnitWithId(ID_UNTRANSLATED_DESCRIPTION);
             expect(tu2.targetContentNormalized().asDisplayString()).toBe('Beschreibung zu {{0}} ({{1}})');
         });
@@ -258,8 +257,7 @@ describe('ngx-i18nsupport-lib xliff 1.2 test spec', () => {
             expect(tu.targetContent()).toBeFalsy();
             let isDefaultLang: boolean = false;
             let copyContent: boolean = true;
-            file.useSourceAsTarget(tu, isDefaultLang, copyContent);
-            const file2: ITranslationMessagesFile = TranslationMessagesFileFactory.fromUnknownFormatFileContent(file.editedContent(), null, null);
+            const file2: ITranslationMessagesFile = file.createTranslationFileForLang('xy', null, isDefaultLang, copyContent);
             const tu2: ITransUnit = file2.transUnitWithId(ID_UNTRANSLATED_DESCRIPTION);
             expect(tu2.targetContentNormalized().asDisplayString()).toBe('Beschreibung zu {{0}} ({{1}})');
         });
@@ -271,8 +269,7 @@ describe('ngx-i18nsupport-lib xliff 1.2 test spec', () => {
             expect(tu.targetContent()).toBeFalsy();
             let isDefaultLang: boolean = false;
             let copyContent: boolean = false;
-            file.useSourceAsTarget(tu, isDefaultLang, copyContent);
-            const file2: ITranslationMessagesFile = TranslationMessagesFileFactory.fromUnknownFormatFileContent(file.editedContent(), null, null);
+            const file2: ITranslationMessagesFile = file.createTranslationFileForLang('xy', null, isDefaultLang, copyContent);
             const tu2: ITransUnit = file2.transUnitWithId(ID_UNTRANSLATED_DESCRIPTION);
             expect(tu2.targetContent()).toBeFalsy();
         });
@@ -283,7 +280,7 @@ describe('ngx-i18nsupport-lib xliff 1.2 test spec', () => {
             expect(tu).toBeTruthy();
             const targetFile: ITranslationMessagesFile = readFile(TRANSLATED_FILE_SRC);
             expect(targetFile.transUnitWithId(ID_TO_MERGE)).toBeFalsy();
-            targetFile.addNewTransUnit(tu);
+            targetFile.importNewTransUnit(tu, false, true);
             expect(targetFile.transUnitWithId(ID_TO_MERGE)).toBeTruthy();
             let changedTargetFile = TranslationMessagesFileFactory.fromUnknownFormatFileContent(targetFile.editedContent(), null, null);
             let targetTu = changedTargetFile.transUnitWithId(ID_TO_MERGE);
