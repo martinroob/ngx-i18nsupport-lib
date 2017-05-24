@@ -15,13 +15,6 @@ import {IMessageParser} from './i-message-parser';
 export abstract class AbstractMessageParser implements IMessageParser {
 
     /**
-     * Format of the translation file.
-     * xmb xliff xliff2
-     * Returns one of the constants FORMAT_..
-     */
-    abstract i18nFormat(): string;
-
-    /**
      * Parse XML to ParsedMessage.
      * @param xmlElement the xml representation
      * @param sourceMessage optional original message that will be translated by normalized new one

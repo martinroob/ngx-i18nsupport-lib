@@ -1,9 +1,9 @@
 import {DOMParser} from "xmldom";
 import {ITranslationMessagesFile, ITransUnit, FORMAT_XMB, FILETYPE_XMB} from '../api';
 import {format} from 'util';
-import {DOMUtilities} from './dom-utilities';
 import {XmbTransUnit} from './xmb-trans-unit';
 import {AbstractTranslationMessagesFile} from './abstract-translation-messages-file';
+import {XTB_DOCTYPE, XtbFile} from './xtb-file';
 /**
  * Created by martin on 10.03.2017.
  * xmb-File access.
@@ -11,37 +11,27 @@ import {AbstractTranslationMessagesFile} from './abstract-translation-messages-f
 
 export class XmbFile extends AbstractTranslationMessagesFile implements ITranslationMessagesFile {
 
-    // attached master file, if any
-    // used as source to determine state ...
-    private _masterFile: XmbFile;
-
     /**
      * Create an xmb-File from source.
      * @param xmlString file content
      * @param path Path to file
      * @param encoding optional encoding of the xml.
      * This is read from the file, but if you know it before, you can avoid reading the file twice.
-     * @param optionalMaster in case of xmb the master file, that contains the original texts.
-     * (this is used to support state infos, that are based on comparing original with translated version)
      * @return {XmbFile}
      */
-    constructor(xmlString: string, path: string, encoding: string, optionalMaster?: { xmlContent: string, path: string, encoding: string }) {
+    constructor(xmlString: string, path: string, encoding: string) {
         super();
         this._warnings = [];
         this._numberOfTransUnitsWithMissingId = 0;
-        this.initializeFromContent(xmlString, path, encoding, optionalMaster);
+        this.initializeFromContent(xmlString, path, encoding);
     }
 
-    private initializeFromContent(xmlString: string, path: string, encoding: string, optionalMaster?: { xmlContent: string, path: string, encoding: string }): XmbFile {
+    private initializeFromContent(xmlString: string, path: string, encoding: string): XmbFile {
         this._filename = path;
         this._encoding = encoding;
         this._parsedDocument = new DOMParser().parseFromString(xmlString, 'text/xml');
         if (this._parsedDocument.getElementsByTagName('messagebundle').length !== 1) {
             throw new Error(format('File "%s" seems to be no xmb file (should contain a messagebundle element)', path));
-        }
-        if (optionalMaster) {
-            this._masterFile = new XmbFile(optionalMaster.xmlContent, optionalMaster.path, optionalMaster.encoding);
-            // TODO check, wether this can be the master ...
         }
         return this;
     }
@@ -55,11 +45,7 @@ export class XmbFile extends AbstractTranslationMessagesFile implements ITransla
             if (!id) {
                 this._warnings.push(format('oops, msg without "id" found in master, please check file %s', this._filename));
             }
-            let masterUnit: ITransUnit = null;
-            if (this._masterFile) {
-                masterUnit = this._masterFile.transUnitWithId(id);
-            }
-            this.transUnits.push(new XmbTransUnit(msg, id, this, masterUnit));
+            this.transUnits.push(new XmbTransUnit(msg, id, this));
         }
     }
 
@@ -98,15 +84,11 @@ export class XmbFile extends AbstractTranslationMessagesFile implements ITransla
     /**
      * Get source language.
      * Unsupported in xmb.
-     * Try to guess it from master filename if any..
+     * Try to guess it from filename if any..
      * @return {string}
      */
     public sourceLanguage(): string {
-        if (this._masterFile) {
-            return this._masterFile.guessLanguageFromFilename();
-        } else {
-            return null;
-        }
+        return this.guessLanguageFromFilename();
     }
 
     /**
@@ -138,17 +120,48 @@ export class XmbFile extends AbstractTranslationMessagesFile implements ITransla
     }
 
     /**
-     * Add a new trans-unit.
-     * @param transUnit
+     * Add a new trans-unit to this file.
+     * The trans unit stems from another file.
+     * It copies the source content of the tu to the target content too,
+     * depending on the values of isDefaultLang and copyContent.
+     * So the source can be used as a dummy translation.
+     * (used by xliffmerge)
+     * @param transUnit the trans unit to be imported.
+     * @param isDefaultLang Flag, wether file contains the default language.
+     * Then source and target are just equal.
+     * The content will be copied.
+     * State will be final.
+     * @param copyContent Flag, wether to copy content or leave it empty.
+     * Wben true, content will be copied from source.
+     * When false, content will be left empty (if it is not the default language).
+     * @throws an error if trans-unit with same id already is in the file.
      */
-    public addNewTransUnit(transUnit: ITransUnit) {
-        let messagebundleElement = DOMUtilities.getFirstElementByTagName(this._parsedDocument, 'messagebundle');
-        if (messagebundleElement) {
-            messagebundleElement.appendChild(<Node>(<XmbTransUnit> transUnit).asXmlElement());
-            this.lazyInitializeTransUnits();
-            this.transUnits.push(transUnit);
-            this.countNumbers();
-        }
+    public importNewTransUnit(transUnit: ITransUnit, isDefaultLang: boolean, copyContent: boolean) {
+        throw Error('xmb file cannot be used to store translations, use xtb file');
+    }
+
+    /**
+     * Create a new translation file for this file for a given language.
+     * Normally, this is just a copy of the original one.
+     * But for XMB the translation file has format 'XTB'.
+     * @param lang Language code
+     * @param filename expected filename to store file
+     * @param isDefaultLang Flag, wether file contains the default language.
+     * Then source and target are just equal.
+     * The content will be copied.
+     * State will be final.
+     * @param copyContent Flag, wether to copy content or leave it empty.
+     * Wben true, content will be copied from source.
+     * When false, content will be left empty (if it is not the default language).
+     */
+    public createTranslationFileForLang(lang: string, filename: string, isDefaultLang: boolean, copyContent: boolean): ITranslationMessagesFile {
+        let translationbundleXMLSource = '<?xml version="1.0" encoding="UTF-8"?>\n' + XTB_DOCTYPE + '\n<translationbundle>\n</translationbundle>';
+        let translationFile = new XtbFile(translationbundleXMLSource, filename, this.encoding(), {xmlContent: this.editedContent(), path: this.filename(), encoding: this.encoding()});
+        translationFile.setTargetLanguage(lang);
+        this.forEachTransUnit((tu) => {
+            translationFile.importNewTransUnit(tu, isDefaultLang, copyContent);
+        });
+        return translationFile;
     }
 
 }

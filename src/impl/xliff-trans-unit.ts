@@ -168,10 +168,10 @@ export class XliffTransUnit extends AbstractTransUnit implements ITransUnit {
      * Set source ref elements in the transunit.
      * Normally, this is done by ng-extract.
      * Method only exists to allow xliffmerge to merge missing source refs.
-     * @param string
-     * @param linenumber
+     * @param sourceRefs the sourcerefs to set. Old ones are removed.
      */
-    public setSourceReference(sourceRefs: {sourcefile: string, linenumber: number}[]) {
+    public setSourceReferences(sourceRefs: {sourcefile: string, linenumber: number}[]) {
+        this.removeAllSourceReferences();
         sourceRefs.forEach((ref) => {
             let contextGroup = this._element.ownerDocument.createElement('context-group');
             contextGroup.setAttribute('purpose', 'location');
@@ -185,6 +185,18 @@ export class XliffTransUnit extends AbstractTransUnit implements ITransUnit {
             contextGroup.appendChild(contextLine);
             this._element.appendChild(contextGroup);
         });
+    }
+
+    private removeAllSourceReferences() {
+        let sourceElements = this._element.getElementsByTagName('context-group');
+        let toBeRemoved = [];
+        for (let i = 0; i < sourceElements.length; i++) {
+            let elem = sourceElements.item(i);
+            if (elem.getAttribute('purpose') === 'location') {
+                toBeRemoved.push(elem);
+            }
+        }
+        toBeRemoved.forEach((elem) => {elem.parentNode.removeChild(elem);});
     }
 
     /**
@@ -228,7 +240,7 @@ export class XliffTransUnit extends AbstractTransUnit implements ITransUnit {
         let target = DOMUtilities.getFirstElementByTagName(this._element, 'target');
         if (!target) {
             let source = DOMUtilities.getFirstElementByTagName(this._element, 'source');
-            target = source.parentElement.appendChild(this._element.ownerDocument.createElement('target'));
+            target = source.parentNode.appendChild(this._element.ownerDocument.createElement('target'));
         }
         DOMUtilities.replaceContentWithXMLContent(target, <string> translation);
         this.setTargetState(STATE_TRANSLATED);
@@ -236,13 +248,26 @@ export class XliffTransUnit extends AbstractTransUnit implements ITransUnit {
 
     /**
      * Copy source to target to use it as dummy translation.
-     * (better than missing value)
+     * Returns a changed copy of this trans unit.
+     * receiver is not changed.
+     * (internal usage only, a client should call importNewTransUnit on ITranslationMessageFile)
+     */
+    public cloneWithSourceAsTarget(isDefaultLang: boolean, copyContent: boolean): AbstractTransUnit {
+        let element = <Element> this._element.cloneNode(true);
+        let clone = new XliffTransUnit(element, this._id, this._translationMessagesFile);
+        clone.useSourceAsTarget(isDefaultLang, copyContent);
+        return clone;
+    }
+
+    /**
+     * Copy source to target to use it as dummy translation.
+     * (internal usage only, a client should call createTranslationFileForLang on ITranslationMessageFile)
      */
     public useSourceAsTarget(isDefaultLang: boolean, copyContent: boolean) {
         let source = DOMUtilities.getFirstElementByTagName(this._element, 'source');
         let target = DOMUtilities.getFirstElementByTagName(this._element, 'target');
         if (!target) {
-            target = source.parentElement.appendChild(this._element.ownerDocument.createElement('target'));
+            target = source.parentNode.appendChild(this._element.ownerDocument.createElement('target'));
         }
         if (isDefaultLang || copyContent) {
             DOMUtilities.replaceContentWithXMLContent(target, DOMUtilities.getXMLContent(source));
@@ -255,5 +280,4 @@ export class XliffTransUnit extends AbstractTransUnit implements ITransUnit {
             target.setAttribute('state', 'new');
         }
     }
-
 }

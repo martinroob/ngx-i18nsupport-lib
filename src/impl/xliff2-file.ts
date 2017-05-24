@@ -4,6 +4,7 @@ import {ITranslationMessagesFile, ITransUnit, FORMAT_XLIFF20, FILETYPE_XLIFF20} 
 import {DOMUtilities} from './dom-utilities';
 import {Xliff2TransUnit} from './xliff2-trans-unit';
 import {AbstractTranslationMessagesFile} from './abstract-translation-messages-file';
+import {AbstractTransUnit} from './abstract-trans-unit';
 /**
  * Created by martin on 04.05.2017.
  * An XLIFF 2.0 file read from a source file.
@@ -125,19 +126,58 @@ export class Xliff2File extends AbstractTranslationMessagesFile implements ITran
     }
 
     /**
-     * Add a new trans-unit.
-     * @param transUnit
+     * Add a new trans-unit to this file.
+     * The trans unit stems from another file.
+     * It copies the source content of the tu to the target content too,
+     * depending on the values of isDefaultLang and copyContent.
+     * So the source can be used as a dummy translation.
+     * (used by xliffmerge)
+     * @param transUnit the trans unit to be imported.
+     * @param isDefaultLang Flag, wether file contains the default language.
+     * Then source and target are just equal.
+     * The content will be copied.
+     * State will be final.
+     * @param copyContent Flag, wether to copy content or leave it empty.
+     * Wben true, content will be copied from source.
+     * When false, content will be left empty (if it is not the default language).
+     * @throws an error if trans-unit with same id already is in the file.
      */
-    public addNewTransUnit(transUnit: ITransUnit) {
+    public importNewTransUnit(transUnit: ITransUnit, isDefaultLang: boolean, copyContent: boolean) {
+        if (this.transUnitWithId(transUnit.id)) {
+            throw new Error(format('tu with id %s already exists in file, cannot import it', transUnit.id));
+        }
+        let newTu = (<AbstractTransUnit> transUnit).cloneWithSourceAsTarget(isDefaultLang, copyContent);
         let fileElement = DOMUtilities.getFirstElementByTagName(this._parsedDocument, 'file');
         if (fileElement) {
-            fileElement.appendChild(<Node>(<Xliff2TransUnit> transUnit).asXmlElement());
+            fileElement.appendChild(newTu.asXmlElement());
             this.lazyInitializeTransUnits();
-            this.transUnits.push(transUnit);
+            this.transUnits.push(newTu);
             this.countNumbers();
         } else {
             throw new Error(format('File "%s" seems to be no xliff 2.0 file (should contain a file element)', this._filename));
         }
     }
 
+    /**
+     * Create a new translation file for this file for a given language.
+     * Normally, this is just a copy of the original one.
+     * But for XMB the translation file has format 'XTB'.
+     * @param lang Language code
+     * @param filename expected filename to store file
+     * @param isDefaultLang Flag, wether file contains the default language.
+     * Then source and target are just equal.
+     * The content will be copied.
+     * State will be final.
+     * @param copyContent Flag, wether to copy content or leave it empty.
+     * Wben true, content will be copied from source.
+     * When false, content will be left empty (if it is not the default language).
+     */
+    public createTranslationFileForLang(lang: string, filename: string, isDefaultLang: boolean, copyContent: boolean): ITranslationMessagesFile {
+        let translationFile = new Xliff2File(this.editedContent(), filename, this.encoding());
+        translationFile.setTargetLanguage(lang);
+        translationFile.forEachTransUnit((transUnit: ITransUnit) => {
+            (<AbstractTransUnit> transUnit).useSourceAsTarget(isDefaultLang, copyContent);
+        });
+        return translationFile;
+    }
 }

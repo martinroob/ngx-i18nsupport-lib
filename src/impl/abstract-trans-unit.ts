@@ -125,10 +125,9 @@ export abstract class AbstractTransUnit implements ITransUnit {
      * Set source ref elements in the transunit.
      * Normally, this is done by ng-extract.
      * Method only exists to allow xliffmerge to merge missing source refs.
-     * @param string
-     * @param linenumber
+     * @param sourceRefs the sourcerefs to set. Old ones are removed.
      */
-    abstract setSourceReference(sourceRefs: {sourcefile: string, linenumber: number}[]);
+    abstract setSourceReferences(sourceRefs: {sourcefile: string, linenumber: number}[]);
 
     /**
      * The description set in the template as value of the i18n-attribute.
@@ -154,7 +153,15 @@ export abstract class AbstractTransUnit implements ITransUnit {
 
     /**
      * Copy source to target to use it as dummy translation.
-     * (internal usage only, a client should call useSourceAsTarget on ITranslationMessageFile)
+     * Returns a changed copy of this trans unit.
+     * receiver is not changed.
+     * (internal usage only, a client should call importNewTransUnit on ITranslationMessageFile)
+     */
+    abstract cloneWithSourceAsTarget(isDefaultLang: boolean, copyContent: boolean): AbstractTransUnit;
+
+    /**
+     * Copy source to target to use it as dummy translation.
+     * (internal usage only, a client should call createTranslationFileForLang on ITranslationMessageFile)
      */
     abstract useSourceAsTarget(isDefaultLang: boolean, copyContent: boolean);
 

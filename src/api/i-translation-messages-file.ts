@@ -12,14 +12,14 @@ export interface ITranslationMessagesFile {
 
     /**
      * File format as it is used in config files.
-     * Currently 'xlf', 'xmb', 'xmb2'
+     * Currently 'xlf', 'xlf2', 'xmb', 'xtb'
      * Returns one of the constants FORMAT_..
      */
     i18nFormat(): string;
 
     /**
      * File type as displayable, human readable string.
-     * Currently 'XLIFF 1.2', 'XLIFF 2.0' or 'XMB'
+     * Currently 'XLIFF 1.2', 'XLIFF 2.0' or 'XMB' / 'XTB'
      * Returns one of the constants FILETYPE_..
      */
     fileType(): string;
@@ -94,21 +94,11 @@ export interface ITranslationMessagesFile {
     /**
      * Add a new trans-unit to this file.
      * The trans unit stems from another file.
+     * It copies the source content of the tu to the target content too,
+     * depending on the values of isDefaultLang and copyContent.
+     * So the source can be used as a dummy translation.
      * (used by xliffmerge)
-     * @param transUnit
-     */
-    addNewTransUnit(transUnit: ITransUnit);
-
-    /**
-     * Remove the trans-unit with the given id.
-     * @param id
-     */
-    removeTransUnitWithId(id: string);
-
-    /**
-     * Copy source to target to use it as dummy translation.
-     * (better than missing value)
-     * @param transUnit the trans unit to be used.
+     * @param foreignTransUnit the trans unit to be imported.
      * @param isDefaultLang Flag, wether file contains the default language.
      * Then source and target are just equal.
      * The content will be copied.
@@ -116,8 +106,15 @@ export interface ITranslationMessagesFile {
      * @param copyContent Flag, wether to copy content or leave it empty.
      * Wben true, content will be copied from source.
      * When false, content will be left empty (if it is not the default language).
+     * @throws an error if trans-unit with same id already is in the file.
      */
-    useSourceAsTarget(transUnit: ITransUnit, isDefaultLang: boolean, copyContent: boolean);
+    importNewTransUnit(foreignTransUnit: ITransUnit, isDefaultLang: boolean, copyContent: boolean);
+
+    /**
+     * Remove the trans-unit with the given id.
+     * @param id
+     */
+    removeTransUnitWithId(id: string);
 
     /**
      * The filename where the data is read from.
@@ -134,4 +131,19 @@ export interface ITranslationMessagesFile {
      */
     editedContent(): string;
 
+    /**
+     * Create a new translation file for this file for a given language.
+     * Normally, this is just a copy of the original one.
+     * But for XMB the translation file has format 'XTB'.
+     * @param lang Language code
+     * @param filename expected filename to store file
+     * @param isDefaultLang Flag, wether file contains the default language.
+     * Then source and target are just equal.
+     * The content will be copied.
+     * State will be final.
+     * @param copyContent Flag, wether to copy content or leave it empty.
+     * Wben true, content will be copied from source.
+     * When false, content will be left empty (if it is not the default language).
+     */
+    createTranslationFileForLang(lang: string, filename: string, isDefaultLang: boolean, copyContent: boolean): ITranslationMessagesFile;
 }

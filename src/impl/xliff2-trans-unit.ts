@@ -5,6 +5,7 @@ import {INormalizedMessage} from '../api/i-normalized-message';
 import {AbstractTransUnit} from './abstract-trans-unit';
 import {Xliff2MessageParser} from './xliff2-message-parser';
 import {AbstractMessageParser} from './abstract-message-parser';
+import {isNullOrUndefined} from 'util';
 /**
  * Created by martin on 04.05.2017.
  * A Translation Unit in an XLIFF 2.0 file.
@@ -129,30 +130,79 @@ export class Xliff2TransUnit extends AbstractTransUnit  implements ITransUnit {
      * Otherwise it just returns an empty array.
      */
     public sourceReferences(): {sourcefile: string, linenumber: number}[] {
-        // TODO in the moment there is no source ref written in XLIFF 2.0
-        // so this code is just a guess, expect source as <file>:<line> in <note category="location">...
+        // Source is found as <file>:<line> in <note category="location">...
         let noteElements = this._element.getElementsByTagName('note');
         let sourceRefs: { sourcefile: string, linenumber: number }[] = [];
         for (let i = 0; i < noteElements.length; i++) {
             const noteElem = noteElements.item(i);
             if (noteElem.getAttribute('category') === 'location') {
-                let sourcefile = DOMUtilities.getPCDATA(noteElem); // TODO parse it, wait for concrete syntax here
-                let linenumber = 0;
-                sourceRefs.push({sourcefile: sourcefile, linenumber: linenumber});
+                const sourceAndPos: string = DOMUtilities.getPCDATA(noteElem);
+                sourceRefs.push(this.parseSourceAndPos(sourceAndPos));
             }
         }
         return sourceRefs;
     }
 
     /**
+     * Parses something like 'c:\xxx:7' and returns source and linenumber.
+     * @param sourceAndPos something like 'c:\xxx:7', last colon is the separator
+     * @return {{sourcefile: string, linenumber: number}}
+     */
+    private parseSourceAndPos(sourceAndPos: string): { sourcefile: string, linenumber } {
+        let index = sourceAndPos.lastIndexOf(':');
+        if (index < 0) {
+            return {
+                sourcefile: sourceAndPos,
+                linenumber: 0
+            }
+        } else {
+            return {
+                sourcefile: sourceAndPos.substring(0, index),
+                linenumber: this.parseLineNumber(sourceAndPos.substring(index + 1))
+            }
+        }
+    }
+
+    private parseLineNumber(lineNumberString: string): number {
+        return Number.parseInt(lineNumberString);
+    }
+
+    /**
      * Set source ref elements in the transunit.
      * Normally, this is done by ng-extract.
      * Method only exists to allow xliffmerge to merge missing source refs.
-     * @param string
-     * @param linenumber
+     * @param sourceRefs the sourcerefs to set. Old ones are removed.
      */
-    public setSourceReference(sourceRefs: {sourcefile: string, linenumber: number}[]) {
-        // currently not supported in XLIFF 2.0
+    public setSourceReferences(sourceRefs: {sourcefile: string, linenumber: number}[]) {
+        this.removeAllSourceReferences();
+        let notesElement = DOMUtilities.getFirstElementByTagName(this._element, 'notes');
+        if (sourceRefs.length === 0 && !isNullOrUndefined(notesElement) && notesElement.childNodes.length === 0) {
+            // remove empty notes element
+            notesElement.parentNode.removeChild(notesElement);
+            return;
+        }
+        if (isNullOrUndefined(notesElement)) {
+            notesElement = this._element.ownerDocument.createElement('notes');
+            this._element.insertBefore(notesElement, this._element.childNodes.item(0));
+        }
+        sourceRefs.forEach((ref) => {
+            let note = this._element.ownerDocument.createElement('note');
+            note.setAttribute('category', 'location');
+            note.appendChild(this._element.ownerDocument.createTextNode(ref.sourcefile + ':' + ref.linenumber.toString(10)));
+            notesElement.appendChild(note);
+        });
+    }
+
+    private removeAllSourceReferences() {
+        let noteElements = this._element.getElementsByTagName('note');
+        let toBeRemoved = [];
+        for (let i = 0; i < noteElements.length; i++) {
+            let elem = noteElements.item(i);
+            if (elem.getAttribute('category') === 'location') {
+                toBeRemoved.push(elem);
+            }
+        }
+        toBeRemoved.forEach((elem) => {elem.parentNode.removeChild(elem);});
     }
 
     /**
@@ -204,7 +254,20 @@ export class Xliff2TransUnit extends AbstractTransUnit  implements ITransUnit {
 
     /**
      * Copy source to target to use it as dummy translation.
-     * (better than missing value)
+     * Returns a changed copy of this trans unit.
+     * receiver is not changed.
+     * (internal usage only, a client should call importNewTransUnit on ITranslationMessageFile)
+     */
+    public cloneWithSourceAsTarget(isDefaultLang: boolean, copyContent: boolean): AbstractTransUnit {
+        let element = <Element> this._element.cloneNode(true);
+        let clone = new Xliff2TransUnit(element, this._id, this._translationMessagesFile);
+        clone.useSourceAsTarget(isDefaultLang, copyContent);
+        return clone;
+    }
+
+    /**
+     * Copy source to target to use it as dummy translation.
+     * (internal usage only, a client should call createTranslationFileForLang on ITranslationMessageFile)
      */
     public useSourceAsTarget(isDefaultLang: boolean, copyContent: boolean) {
         let source = DOMUtilities.getFirstElementByTagName(this._element, 'source');

@@ -1,3 +1,12 @@
+<a name="1.2.0"></a>
+# [1.2.0](https://github.com/martinroob/ngx-i18nsupport-lib/compare/v1.2.0...v1.1.1) (2017-05-24)
+
+### Features
+
+* **XMB** Add xtb format support as translation of xmb ([#19](https://github.com/martinroob/ngx-i18nsupport-lib/issues/19)).
+
+* **XLIFF 2.0** Add source ref support to XLIFF 2.0 format ([#18](https://github.com/martinroob/ngx-i18nsupport-lib/issues/18)).
+
 <a name="1.1.1"></a>
 # [1.1.1](https://github.com/martinroob/ngx-i18nsupport-lib/compare/v1.1.1...v1.1.0) (2017-05-21)
 
@@ -46,7 +55,7 @@
 
 ### Bug Fixes
 
-* **XLIFF 2.0:** fixed "useSourceAsTarget in XLIFF 2.0 does not work". ([#4](https://github.com/martinroob/ngx-i18nsupport-lib/issues/4)).
+* **XLIFF 2.0:** fixed "cloneWithSourceAsTarget in XLIFF 2.0 does not work". ([#4](https://github.com/martinroob/ngx-i18nsupport-lib/issues/4)).
 
 * **all formats** wrong error message when trans unit contains no ID
 

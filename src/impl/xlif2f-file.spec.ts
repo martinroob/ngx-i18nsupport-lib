@@ -30,8 +30,8 @@ describe('ngx-i18nsupport-lib XLIFF 2.0 test spec', () => {
         let ID_WITH_REPEATED_PLACEHOLDER = '7049669989298349710';
         let ID_WITH_MEANING_AND_DESCRIPTION = '6830980354990918030';
         let ID_WITH_NO_SOURCEREFS = '4371668001355139802'; // an ID with no source elements
-        let ID_WITH_ONE_SOURCEREF = 'TODO';
-        let ID_WITH_TWO_SOURCEREFS = 'TODO'; // an ID with 2 source elements
+        let ID_WITH_ONE_SOURCEREF = '7499557905529977371';
+        let ID_WITH_TWO_SOURCEREFS = '3274258156935474372'; // an ID with 2 source elements
         let ID_WITH_TAGS = '7609655310648429098';
         let ID_WITH_STRANGE_TAG = '7610784844464920497';
         let ID_TO_MERGE = 'unittomerge';
@@ -111,30 +111,55 @@ describe('ngx-i18nsupport-lib XLIFF 2.0 test spec', () => {
         });
 
         it('should return source reference', () => {
-            // TODO wait for sourceref support
-/*            const file: ITranslationMessagesFile = readFile(MASTER1SRC);
+            const file: ITranslationMessagesFile = readFile(MASTER1SRC);
             const tu: ITransUnit = file.transUnitWithId(ID_WITH_ONE_SOURCEREF);
             expect(tu).toBeTruthy();
             expect(tu.sourceReferences().length).toBe(1);
             expect(tu.sourceReferences()[0].sourcefile).toBe('S:/experimente/sampleapp41/src/app/app.component.ts');
-            expect(tu.sourceReferences()[0].linenumber).toBe(10);*/
+            expect(tu.sourceReferences()[0].linenumber).toBe(10);
         });
 
         it('should return more than one source references', () => {
-            // TODO wait for sourceref support
-/*            const file: ITranslationMessagesFile = readFile(MASTER1SRC);
+            const file: ITranslationMessagesFile = readFile(MASTER1SRC);
             const tu: ITransUnit = file.transUnitWithId(ID_WITH_TWO_SOURCEREFS);
             expect(tu).toBeTruthy();
             expect(tu.sourceReferences().length).toBe(2);
             expect(tu.sourceReferences()[0].sourcefile).toBe('S:/experimente/sampleapp41/src/app/app.component.ts');
             expect(tu.sourceReferences()[0].linenumber).toBe(20);
             expect(tu.sourceReferences()[1].sourcefile).toBe('S:/experimente/sampleapp41/src/app/app.component.ts');
-            expect(tu.sourceReferences()[1].linenumber).toBe(21);*/
+            expect(tu.sourceReferences()[1].linenumber).toBe(21);
+        });
+
+        it('should set source references', () => {
+            const file: ITranslationMessagesFile = readFile(MASTER1SRC);
+            const tu: ITransUnit = file.transUnitWithId(ID_TO_MERGE);
+            expect(tu).toBeTruthy();
+            expect(tu.sourceReferences().length).toBe(0);
+            tu.setSourceReferences([{sourcefile: 'x', linenumber: 10}, {sourcefile: 'y', linenumber: 20}]);
+            const file2: ITranslationMessagesFile = TranslationMessagesFileFactory.fromUnknownFormatFileContent(file.editedContent(), null, null);
+            const tu2: ITransUnit = file2.transUnitWithId(ID_TO_MERGE);
+            expect(tu2.sourceReferences().length).toBe(2);
+            expect(tu2.sourceReferences()[0].sourcefile).toBe('x');
+            expect(tu2.sourceReferences()[0].linenumber).toBe(10);
+            expect(tu2.sourceReferences()[1].sourcefile).toBe('y');
+            expect(tu2.sourceReferences()[1].linenumber).toBe(20);
+        });
+
+        it('should override source references', () => {
+            const file: ITranslationMessagesFile = readFile(MASTER1SRC);
+            const tu: ITransUnit = file.transUnitWithId(ID_WITH_TWO_SOURCEREFS);
+            expect(tu).toBeTruthy();
+            expect(tu.sourceReferences().length).toBe(2);
+            tu.setSourceReferences([{sourcefile: 'x:komisch', linenumber: 10}]);
+            const file2: ITranslationMessagesFile = TranslationMessagesFileFactory.fromUnknownFormatFileContent(file.editedContent(), null, null);
+            const tu2: ITransUnit = file2.transUnitWithId(ID_WITH_TWO_SOURCEREFS);
+            expect(tu2.sourceReferences().length).toBe(1);
+            expect(tu2.sourceReferences()[0].sourcefile).toBe('x:komisch');
+            expect(tu2.sourceReferences()[0].linenumber).toBe(10);
         });
 
         it('should not change source reference when translating', () => {
-            // TODO wait for sourceref support
-/*            const file: ITranslationMessagesFile = readFile(MASTER1SRC);
+            const file: ITranslationMessagesFile = readFile(MASTER1SRC);
             const tu: ITransUnit = file.transUnitWithId(ID_WITH_TWO_SOURCEREFS);
             expect(tu).toBeTruthy();
             expect(tu.sourceReferences().length).toBe(2);
@@ -146,7 +171,7 @@ describe('ngx-i18nsupport-lib XLIFF 2.0 test spec', () => {
             expect(tu2.sourceReferences()[0].sourcefile).toBe('S:/experimente/sampleapp41/src/app/app.component.ts');
             expect(tu2.sourceReferences()[0].linenumber).toBe(20);
             expect(tu2.sourceReferences()[1].sourcefile).toBe('S:/experimente/sampleapp41/src/app/app.component.ts');
-            expect(tu2.sourceReferences()[1].linenumber).toBe(21);*/
+            expect(tu2.sourceReferences()[1].linenumber).toBe(21);
         });
 
         it ('should run through 3 different states while translating', () => {
@@ -220,8 +245,7 @@ describe('ngx-i18nsupport-lib XLIFF 2.0 test spec', () => {
             expect(tu.targetContent()).toBeFalsy();
             let isDefaultLang: boolean = true;
             let copyContent: boolean = false;
-            file.useSourceAsTarget(tu, isDefaultLang, copyContent);
-            const file2: ITranslationMessagesFile = TranslationMessagesFileFactory.fromUnknownFormatFileContent(file.editedContent(), null, null);
+            const file2: ITranslationMessagesFile = file.createTranslationFileForLang('xy', null, isDefaultLang, copyContent);
             const tu2: ITransUnit = file2.transUnitWithId(ID_WITH_PLACEHOLDER);
             expect(tu2.targetContentNormalized().asDisplayString()).toBe('Eintrag {{0}} von {{1}} hinzugefügt.');
         });
@@ -233,8 +257,7 @@ describe('ngx-i18nsupport-lib XLIFF 2.0 test spec', () => {
             expect(tu.targetContent()).toBeFalsy();
             let isDefaultLang: boolean = false;
             let copyContent: boolean = true;
-            file.useSourceAsTarget(tu, isDefaultLang, copyContent);
-            const file2: ITranslationMessagesFile = TranslationMessagesFileFactory.fromUnknownFormatFileContent(file.editedContent(), null, null);
+            const file2: ITranslationMessagesFile = file.createTranslationFileForLang('xy', null, isDefaultLang, copyContent);
             const tu2: ITransUnit = file2.transUnitWithId(ID_WITH_PLACEHOLDER);
             expect(tu2.targetContentNormalized().asDisplayString()).toBe('Eintrag {{0}} von {{1}} hinzugefügt.');
         });
@@ -246,8 +269,7 @@ describe('ngx-i18nsupport-lib XLIFF 2.0 test spec', () => {
             expect(tu.targetContent()).toBeFalsy();
             let isDefaultLang: boolean = false;
             let copyContent: boolean = false;
-            file.useSourceAsTarget(tu, isDefaultLang, copyContent);
-            const file2: ITranslationMessagesFile = TranslationMessagesFileFactory.fromUnknownFormatFileContent(file.editedContent(), null, null);
+            const file2: ITranslationMessagesFile = file.createTranslationFileForLang('xy', null, isDefaultLang, copyContent);
             const tu2: ITransUnit = file2.transUnitWithId(ID_WITH_PLACEHOLDER);
             expect(tu2.targetContent()).toBeFalsy();
         });
@@ -258,7 +280,7 @@ describe('ngx-i18nsupport-lib XLIFF 2.0 test spec', () => {
             expect(tu).toBeTruthy();
             const targetFile: ITranslationMessagesFile = readFile(TRANSLATED_FILE_SRC);
             expect(targetFile.transUnitWithId(ID_TO_MERGE)).toBeFalsy();
-            targetFile.addNewTransUnit(tu);
+            targetFile.importNewTransUnit(tu, false, true);
             expect(targetFile.transUnitWithId(ID_TO_MERGE)).toBeTruthy();
             let changedTargetFile = TranslationMessagesFileFactory.fromUnknownFormatFileContent(targetFile.editedContent(), null, null);
             let targetTu = changedTargetFile.transUnitWithId(ID_TO_MERGE);
