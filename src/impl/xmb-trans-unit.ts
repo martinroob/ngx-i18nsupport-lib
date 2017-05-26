@@ -207,16 +207,12 @@ export class XmbTransUnit extends AbstractTransUnit implements ITransUnit {
 
     /**
      * Set the translation to a given string (including markup).
+     * In fact, xmb cannot be translated.
+     * So this throws an error.
      * @param translation
      */
     protected translateNative(translation: string) {
-        let target = this._element;
-        // reconvert source refs to html part in translation message
-        let sourceRefsHtml = this.sourceRefsToHtml();
-        if (isNullOrUndefined(translation)) {
-            translation = '';
-        }
-        DOMUtilities.replaceContentWithXMLContent(target, sourceRefsHtml + translation);
+        throw new Error('You cannot translate xmb files, use xtb instead.');
     }
 
     /**

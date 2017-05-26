@@ -161,22 +161,6 @@ describe('ngx-i18nsupport-lib xmb test spec', () => {
             expect(tu2.sourceReferences()[0].linenumber).toBe(10);
         });
 
-        it('should not change source reference when translating', () => {
-            const file: ITranslationMessagesFile = readFile(MASTER1SRC);
-            const tu: ITransUnit = file.transUnitWithId(ID_WITH_TWO_SOURCEREFS);
-            expect(tu).toBeTruthy();
-            expect(tu.sourceReferences().length).toBe(2);
-            tu.translate('a translated value');
-            const file2: ITranslationMessagesFile = TranslationMessagesFileFactory.fromUnknownFormatFileContent(file.editedContent(), null, null);
-            const tu2: ITransUnit = file2.transUnitWithId(ID_WITH_TWO_SOURCEREFS);
-            expect(tu2.targetContent()).toBe('a translated value');
-            expect(tu2.sourceReferences().length).toBe(2);
-            expect(tu2.sourceReferences()[0].sourcefile).toBe('S:/experimente/sampleapp41/src/app/app.component.ts');
-            expect(tu2.sourceReferences()[0].linenumber).toBe(2);
-            expect(tu2.sourceReferences()[1].sourcefile).toBe('S:/experimente/sampleapp41/src/app/app.component.ts');
-            expect(tu2.sourceReferences()[1].linenumber).toBe(3);
-        });
-
         it('should normalize placeholders to {{0}} etc', () => {
             const file: ITranslationMessagesFile = readFile(MASTER1SRC);
             const tu: ITransUnit = file.transUnitWithId(ID_WITH_PLACEHOLDER);
@@ -220,18 +204,19 @@ describe('ngx-i18nsupport-lib xmb test spec', () => {
             expect(targetTu.targetContent()).toBe('Test for merging units');
         });
 
-        it ('should translate using NormalizedMessage (plain text case, no placeholders, no markup)', () => {
+        it ('should not be translatable at all', () => {
             const file: ITranslationMessagesFile = readFile(MASTER1SRC);
             const tu: ITransUnit = file.transUnitWithId(ID_MY_FIRST);
             expect(tu).toBeTruthy();
             const translationString = 'Anwendung läuft';
-            // first translate
-            let translation: INormalizedMessage = tu.sourceContentNormalized().translate(translationString);
-            tu.translate(translation);
-            expect(tu.targetContent()).toBe(translationString);
-            const file2: ITranslationMessagesFile = TranslationMessagesFileFactory.fromUnknownFormatFileContent(file.editedContent(), null, null);
-            const tu2: ITransUnit = file2.transUnitWithId(ID_MY_FIRST);
-            expect(tu2.targetContentNormalized().asDisplayString()).toBe(translationString);
+            // try to translate
+            try {
+                let translation: INormalizedMessage = tu.sourceContentNormalized().translate(translationString);
+                tu.translate(translation);
+                fail('expected error not thrown');
+            } catch (error) {
+                expect(error.toString()).toContain('cannot translate xmb files');
+            }
         });
 
     });
