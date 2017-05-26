@@ -1,3 +1,16 @@
+<a name="1.3.0"></a>
+# [1.3.0](https://github.com/martinroob/ngx-i18nsupport-lib/compare/v1.3.0...v1.2) (2017-05-26)
+
+### Features
+
+* **API** new API method supportsSetSourceReferences to check wether source refs can be written ([#23](https://github.com/martinroob/ngx-i18nsupport-lib/issues/23)).
+
+### Bug Fixes
+
+* **XMB** xmb files should not be translatable at all ([#22](https://github.com/martinroob/ngx-i18nsupport-lib/issues/22)).
+
+* **XTB** When reading xtb with wrong master xmb, the resulting error is confusing ([#21](https://github.com/martinroob/ngx-i18nsupport-lib/issues/21)).
+
 <a name="1.2.0"></a>
 # [1.2.0](https://github.com/martinroob/ngx-i18nsupport-lib/compare/v1.2.0...v1.1.1) (2017-05-24)
 
