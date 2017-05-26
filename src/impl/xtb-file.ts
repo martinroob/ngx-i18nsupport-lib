@@ -52,8 +52,12 @@ export class XtbFile extends AbstractTranslationMessagesFile implements ITransla
             throw new Error(format('File "%s" seems to be no xtb file (should contain a translationbundle element)', path));
         }
         if (optionalMaster) {
-            this._masterFile = new XmbFile(optionalMaster.xmlContent, optionalMaster.path, optionalMaster.encoding);
-            // TODO check, wether this can be the master ...
+            try {
+                this._masterFile = new XmbFile(optionalMaster.xmlContent, optionalMaster.path, optionalMaster.encoding);
+                // TODO check, wether this can be the master ...
+            } catch (error) {
+                throw new Error(format('File "%s" seems to be no xmb file. An xtb file needs xmb as master file.', optionalMaster.path));
+            }
         }
         return this;
     }
