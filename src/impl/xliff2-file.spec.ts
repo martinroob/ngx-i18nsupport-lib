@@ -149,6 +149,7 @@ describe('ngx-i18nsupport-lib XLIFF 2.0 test spec', () => {
             const file: ITranslationMessagesFile = readFile(MASTER1SRC);
             const tu: ITransUnit = file.transUnitWithId(ID_WITH_TWO_SOURCEREFS);
             expect(tu).toBeTruthy();
+            expect(tu.supportsSetSourceReferences()).toBeTruthy();
             expect(tu.sourceReferences().length).toBe(2);
             tu.setSourceReferences([{sourcefile: 'x:komisch', linenumber: 10}]);
             const file2: ITranslationMessagesFile = TranslationMessagesFileFactory.fromUnknownFormatFileContent(file.editedContent(), null, null);

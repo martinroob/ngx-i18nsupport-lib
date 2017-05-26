@@ -175,6 +175,24 @@ describe('ngx-i18nsupport-lib xtb test spec', () => {
             // expect(tu.targetState()).toBe(STATE_FINAL);
         });
 
+        it('should not change source reference, because it is not supported in xtb', () => {
+            const file: ITranslationMessagesFile = readFile(TRANSLATION_EN_XTB, MASTER_DE_XMB);
+            const tu: ITransUnit = file.transUnitWithId(ID_WITH_TWO_SOURCEREFS);
+            expect(tu).toBeTruthy();
+            expect(tu.sourceReferences().length).toBe(2);
+            expect(tu.supportsSetSourceReferences()).toBeFalsy();
+            tu.setSourceReferences([{sourcefile: 'x', linenumber: 1}]);
+            expect(tu.sourceReferences().length).toBe(2); // shall be unchanged
+            let masterContent = {xmlContent: fs.readFileSync(MASTER_DE_XMB, ENCODING), path: MASTER_DE_XMB, encoding: 'UTF-8'};
+            const file2: ITranslationMessagesFile = TranslationMessagesFileFactory.fromUnknownFormatFileContent(file.editedContent(), null, null, masterContent);
+            const tu2: ITransUnit = file2.transUnitWithId(ID_WITH_TWO_SOURCEREFS);
+            expect(tu2.sourceReferences().length).toBe(2);
+            expect(tu2.sourceReferences()[0].sourcefile).toBe('S:/experimente/sampleapp41/src/app/app.component.ts');
+            expect(tu2.sourceReferences()[0].linenumber).toBe(2);
+            expect(tu2.sourceReferences()[1].sourcefile).toBe('S:/experimente/sampleapp41/src/app/app.component.ts');
+            expect(tu2.sourceReferences()[1].linenumber).toBe(3);
+        });
+
         it('should not change source reference when translating', () => {
             const file: ITranslationMessagesFile = readFile(TRANSLATION_EN_XTB, MASTER_DE_XMB);
             const tu: ITransUnit = file.transUnitWithId(ID_WITH_TWO_SOURCEREFS);

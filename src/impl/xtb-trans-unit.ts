@@ -129,6 +129,15 @@ export class XtbTransUnit extends AbstractTransUnit implements ITransUnit {
     }
 
     /**
+     * Test, wether setting of source refs is supported.
+     * If not, setSourceReferences will do nothing.
+     * xtb does not support this, all other formats do.
+     */
+    public supportsSetSourceReferences(): boolean {
+        return false;
+    }
+
+    /**
      * Set source ref elements in the transunit.
      * Normally, this is done by ng-extract.
      * Method only exists to allow xliffmerge to merge missing source refs.
