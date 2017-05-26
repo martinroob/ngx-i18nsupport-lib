@@ -130,7 +130,7 @@ describe('ngx-i18nsupport-lib API test spec', () => {
            fail('expected error not received');
         });
 
-        it ('should should report wrong format as error', () => {
+        it ('should report wrong format as error', () => {
             try {
                 TranslationMessagesFileFactory.fromFileContent('schrott', 'schrott', 'dummyfile', 'UTF-X');
             }  catch (error) {
@@ -138,6 +138,15 @@ describe('ngx-i18nsupport-lib API test spec', () => {
                 return;
             }
             fail('expected error not received');
+        });
+
+        it('should detect error when reading xtb file with no xmb master', () => {
+            try {
+                const file: ITranslationMessagesFile = readXtbWithMaster(MASTER_EN_XTB, MASTER1SRC_XLIFF);
+                fail('expected error not received');
+            } catch (error) {
+                expect(error.toString()).toContain('An xtb file needs xmb as master file.');
+            }
         });
 
     });

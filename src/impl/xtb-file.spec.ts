@@ -73,6 +73,13 @@ describe('ngx-i18nsupport-lib xtb test spec', () => {
             expect(file.warnings()[0]).toContain('msg without "id"');
         });
 
+        it('should emit warnings, if master does not fit', () => {
+            const file: ITranslationMessagesFile = readUnknownFormatFile(TRANSLATION_EN_XTB, MASTER_1_XMB);
+            expect(file.warnings().length).toBe(2);
+            expect(file.warnings()[0]).toContain('msg without "id"');
+            expect(file.warnings()[1]).toContain('Check if it is the correct master');
+        });
+
         it('should count units', () => {
             const file: ITranslationMessagesFile = readFile(TRANSLATION_EN_XTB);
             expect(file.numberOfTransUnits()).toBe(11);
@@ -166,6 +173,24 @@ describe('ngx-i18nsupport-lib xtb test spec', () => {
             // expect(tu.targetState()).toBe(STATE_TRANSLATED);
             // tu.setTargetState(STATE_FINAL);
             // expect(tu.targetState()).toBe(STATE_FINAL);
+        });
+
+        it('should not change source reference, because it is not supported in xtb', () => {
+            const file: ITranslationMessagesFile = readFile(TRANSLATION_EN_XTB, MASTER_DE_XMB);
+            const tu: ITransUnit = file.transUnitWithId(ID_WITH_TWO_SOURCEREFS);
+            expect(tu).toBeTruthy();
+            expect(tu.sourceReferences().length).toBe(2);
+            expect(tu.supportsSetSourceReferences()).toBeFalsy();
+            tu.setSourceReferences([{sourcefile: 'x', linenumber: 1}]);
+            expect(tu.sourceReferences().length).toBe(2); // shall be unchanged
+            let masterContent = {xmlContent: fs.readFileSync(MASTER_DE_XMB, ENCODING), path: MASTER_DE_XMB, encoding: 'UTF-8'};
+            const file2: ITranslationMessagesFile = TranslationMessagesFileFactory.fromUnknownFormatFileContent(file.editedContent(), null, null, masterContent);
+            const tu2: ITransUnit = file2.transUnitWithId(ID_WITH_TWO_SOURCEREFS);
+            expect(tu2.sourceReferences().length).toBe(2);
+            expect(tu2.sourceReferences()[0].sourcefile).toBe('S:/experimente/sampleapp41/src/app/app.component.ts');
+            expect(tu2.sourceReferences()[0].linenumber).toBe(2);
+            expect(tu2.sourceReferences()[1].sourcefile).toBe('S:/experimente/sampleapp41/src/app/app.component.ts');
+            expect(tu2.sourceReferences()[1].linenumber).toBe(3);
         });
 
         it('should not change source reference when translating', () => {
