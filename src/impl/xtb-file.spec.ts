@@ -73,6 +73,13 @@ describe('ngx-i18nsupport-lib xtb test spec', () => {
             expect(file.warnings()[0]).toContain('msg without "id"');
         });
 
+        it('should emit warnings, if master does not fit', () => {
+            const file: ITranslationMessagesFile = readUnknownFormatFile(TRANSLATION_EN_XTB, MASTER_1_XMB);
+            expect(file.warnings().length).toBe(2);
+            expect(file.warnings()[0]).toContain('msg without "id"');
+            expect(file.warnings()[1]).toContain('Check if it is the correct master');
+        });
+
         it('should count units', () => {
             const file: ITranslationMessagesFile = readFile(TRANSLATION_EN_XTB);
             expect(file.numberOfTransUnits()).toBe(11);
