@@ -126,7 +126,7 @@ describe('message parse XLIFF 1.2 test spec', () => {
                 let parsedMessage = parsedMessageFromXML('Diese Nachricht ist falsch geschachtelt: <x id="START_BOLD_TEXT" ctype="x-b"/><x id="START_TAG_STRANGE" ctype="x-strange"/>FALSCH<x id="CLOSE_BOLD_TEXT" ctype="x-b"/><x id="CLOSE_TAG_STRANGE" ctype="x-strange"/>');
                 expect('parsedMessage').toBe('should throw an error');
             } catch (e) {
-                expect(e.message).toBe('unexpected close tag b');
+                expect(e.message).toContain('unexpected close tag b');
             }
         });
 

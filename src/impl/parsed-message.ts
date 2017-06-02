@@ -7,7 +7,7 @@ import {INormalizedMessage, ValidationErrors} from '../api/i-normalized-message'
 import {XMLSerializer} from 'xmldom';
 import {DOMUtilities} from './dom-utilities';
 import {IMessageParser} from './i-message-parser';
-import {isNullOrUndefined} from 'util';
+import {format, isNullOrUndefined} from 'util';
 /**
  * Created by martin on 05.05.2017.
  * A message text read from a translation file.
@@ -246,7 +246,7 @@ export class ParsedMessage implements INormalizedMessage {
         const openTag = this.calculateOpenTagName();
         if (!openTag || openTag !== tagname) {
             // oops, not well formed
-            throw new Error('unexpected close tag ' + tagname);
+            throw new Error(format('unexpected close tag %s (currently open is %s, native xml is "%s")', tagname, openTag, this.asNativeString()));
         }
         this._parts.push(new ParsedMessagePartEndTag(tagname));
     }
@@ -266,7 +266,8 @@ export class ParsedMessage implements INormalizedMessage {
                     const tagName = (<ParsedMessagePartEndTag> part).tagName();
                     if (openTags.length === 0 || openTags[openTags.length - 1] !== tagName) {
                         // oops, not well formed
-                        throw new Error('unexpected close tag ' + tagName);
+                        const openTag = (openTags.length === 0) ? 'nothing' : openTags[openTags.length - 1];
+                        throw new Error(format('unexpected close tag %s (currently open is %s, native xml is "%s")', tagName, openTag, this.asNativeString()));
                     }
                     openTags.pop();
             }

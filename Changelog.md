@@ -1,3 +1,10 @@
+<a name="1.3.1"></a>
+# [1.3.1](https://github.com/martinroob/ngx-i18nsupport-lib/compare/v1.3.1...v1.3.0) (2017-06-02)
+
+### Bug Fixes
+
+* **all formats** problems with parsing messages that contain same tag multiple times ([#26](https://github.com/martinroob/ngx-i18nsupport-lib/issues/26)).
+
 <a name="1.3.0"></a>
 # [1.3.0](https://github.com/martinroob/ngx-i18nsupport-lib/compare/v1.3.0...v1.2) (2017-05-26)
 
