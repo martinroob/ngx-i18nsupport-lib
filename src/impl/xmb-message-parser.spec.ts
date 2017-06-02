@@ -126,7 +126,7 @@ describe('message parse XMB test spec', () => {
                 let parsedMessage = parsedMessageFromXML('Diese Nachricht ist falsch geschachtelt: <ph name="START_BOLD_TEXT"><ex>&lt;b></ex></ph><ph name="START_TAG_STRANGE"><ex>&lt;strange></ex></ph>FALSCH<x id="CLOSE_BOLD_TEXT" ctype="x-b"/></ph><ph name="CLOSE_BOLD_TEXT"><ex>&lt;/b></ex></ph>');
                 expect('parsedMessage').toBe('should throw an error');
             } catch (e) {
-                expect(e.message).toBe('unexpected close tag b');
+                expect(e.message).toContain('unexpected close tag b');
             }
         });
 

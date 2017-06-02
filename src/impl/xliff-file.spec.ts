@@ -97,6 +97,15 @@ describe('ngx-i18nsupport-lib xliff 1.2 test spec', () => {
             expect(count).toBeGreaterThan(30);
         });
 
+        it('should normalize source of every trans units', () => {
+            const file: ITranslationMessagesFile = readFile(MASTER1SRC);
+            let count = 0;
+            file.forEachTransUnit((tu: ITransUnit) => {
+                expect(tu.sourceContentNormalized()).toBeTruthy();
+                count++;
+            });
+        });
+
         it('should read meaning and description of tu', () => {
             const file: ITranslationMessagesFile = readFile(MASTER1SRC);
             const tu: ITransUnit = file.transUnitWithId(ID_WITH_MEANING_AND_DESCRIPTION);

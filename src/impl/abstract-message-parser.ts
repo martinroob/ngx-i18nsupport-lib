@@ -7,6 +7,7 @@ import {ParsedMessagePartStartTag} from './parsed-message-part-start-tag';
 import {ParsedMessagePartPlaceholder} from './parsed-message-part-placeholder';
 import {ParsedMessagePartEndTag} from './parsed-message-part-end-tag';
 import {IMessageParser} from './i-message-parser';
+import {format} from 'util';
 /**
  * Created by roobm on 10.05.2017.
  * A message parser can parse the xml content of a translatable message.
@@ -100,7 +101,7 @@ export abstract class AbstractMessageParser implements IMessageParser {
         try {
             tokens = new ParsedMesageTokenizer().tokenize(normalizedString);
         } catch (error) {
-            throw new Error('unexpected error while parsing message: ' + error.message); // TODO error handling
+            throw new Error(format('unexpected error while parsing message: "%s" (parsed "%")', error.message, normalizedString));
         }
         tokens.forEach((token: Token) => {
             switch (token.type) {
@@ -115,7 +116,7 @@ export abstract class AbstractMessageParser implements IMessageParser {
                     message.addEndTag(token.value);
                     if (openTags.length === 0 || openTags[openTags.length - 1] !== token.value) {
                         // oops, not well formed
-                        throw new Error('unexpected close tag ' + token.value); // TODO error handling
+                        throw new Error(format('unexpected close tag "%s" (parsed "%s")', token.value, normalizedString));
                     }
                     openTags.pop();
                     break;
@@ -128,7 +129,7 @@ export abstract class AbstractMessageParser implements IMessageParser {
         });
         if (openTags.length > 0) {
             // oops, not well closed tags
-            throw new Error('missing close tag ' + openTags[openTags.length - 1]); // TODO error handling
+            throw new Error(format('missing close tag "%s" (parsed "%s")', openTags[openTags.length - 1], normalizedString));
         }
         message.setXmlRepresentation(this.createXmlRepresentation(message));
         return message;

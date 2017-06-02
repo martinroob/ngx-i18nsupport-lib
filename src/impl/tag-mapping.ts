@@ -55,9 +55,9 @@ export class TagMapping {
 
     public getTagnameFromStartTagPlaceholderName(placeholderName: string): string {
         if (placeholderName.startsWith('START_TAG_')) {
-            return placeholderName.substring('START_TAG_'.length).toLowerCase();
+            return this.stripCounter(placeholderName.substring('START_TAG_'.length)).toLowerCase();
         } else if (placeholderName.startsWith('START_')) {
-            const ph = placeholderName.substring('START_'.length);
+            const ph = this.stripCounter(placeholderName.substring('START_'.length));
             let matchKey = Object.keys(TAG_TO_PLACEHOLDER_NAMES).find((key) => TAG_TO_PLACEHOLDER_NAMES[key] === ph);
             return matchKey ? matchKey.toLowerCase() : null;
         }
@@ -66,12 +66,27 @@ export class TagMapping {
 
     public getTagnameFromCloseTagPlaceholderName(placeholderName: string): string {
         if (placeholderName.startsWith('CLOSE_TAG_')) {
-            return placeholderName.substring('CLOSE_TAG_'.length).toLowerCase();
+            return this.stripCounter(placeholderName.substring('CLOSE_TAG_'.length)).toLowerCase();
         } else if (placeholderName.startsWith('CLOSE_')) {
-            const ph = placeholderName.substring('CLOSE_'.length);
+            const ph = this.stripCounter(placeholderName.substring('CLOSE_'.length));
             let matchKey = Object.keys(TAG_TO_PLACEHOLDER_NAMES).find((key) => TAG_TO_PLACEHOLDER_NAMES[key] === ph);
             return matchKey ? matchKey.toLowerCase() : null;
         }
         return null;
+    }
+
+    /**
+     * If placeholder ends with _[0-9]+, strip that number.
+     * @param placeholderName
+     * @return placeholderName without counter at end.
+     */
+    private stripCounter(placeholderName: string): string {
+        if (placeholderName) {
+            const re = /(.*)_[0-9]+$/;
+            if (placeholderName.match(re)) {
+                return placeholderName.replace(re, '$1');
+            }
+        }
+        return placeholderName;
     }
 }
