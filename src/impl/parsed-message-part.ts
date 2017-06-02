@@ -8,7 +8,9 @@ export enum ParsedMessagePartType {
     TEXT,
     PLACEHOLDER,
     START_TAG,
-    END_TAG
+    END_TAG,
+    ICU_MESSAGE,
+    ICU_MESSAGE_REF
 }
 
 export abstract class ParsedMessagePart {

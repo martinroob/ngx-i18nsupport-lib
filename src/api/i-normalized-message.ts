@@ -1,3 +1,5 @@
+import {IICUMessage} from './i-icu-message';
+
 /**
  * Created by martin on 09.05.2017.
  * A normalized message is an abstraction of a translation containing some markup.
@@ -40,6 +42,13 @@ export interface INormalizedMessage {
      * Includes all format specific markup like <ph id="INTERPOLATION" ../> ..
      */
     asNativeString(): string;
+
+    /**
+     * If this message is an ICU message, returns its structure.
+     * Otherwise this method returns null.
+     * @return ICUMessage or null.
+     */
+    getICUMessage(): IICUMessage;
 
     /**
      * Create a new normalized message as a translation of this one.

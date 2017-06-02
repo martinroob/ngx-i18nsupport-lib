@@ -25,6 +25,8 @@ export class Xliff2MessageParser extends AbstractMessageParser {
             // placeholder are like <ph id="0" equiv="INTERPOLATION" disp="{{number()}}"/>
             // They contain the id and also a name (number in the example)
             // TODO make some use of the name (but it is not available in XLIFF 1.2)
+            // ICU message are handled with the same tag, but they do not have an equiv:
+            // e.g. <ph id="0"/>
             let equiv = elementNode.getAttribute('equiv');
             let indexString = '';
             if (!equiv || !equiv.startsWith('INTERPOLATION')) {
@@ -37,7 +39,11 @@ export class Xliff2MessageParser extends AbstractMessageParser {
                 }
             }
             let index = Number.parseInt(indexString);
-            message.addPlaceholder(index);
+            if (equiv) {
+                message.addPlaceholder(index);
+            } else {
+                message.addICUMessageRef(index);
+            }
         } else if (tagName === 'pc') {
             // pc example: <pc id="0" equivStart="START_BOLD_TEXT" equivEnd="CLOSE_BOLD_TEXT" type="fmt" dispStart="&lt;b&gt;" dispEnd="&lt;/b&gt;">IMPORTANT</pc>
             let embeddedTagName = this.tagNameFromPCElement(elementNode);

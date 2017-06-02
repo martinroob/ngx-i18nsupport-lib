@@ -8,6 +8,9 @@ import {XMLSerializer} from 'xmldom';
 import {DOMUtilities} from './dom-utilities';
 import {IMessageParser} from './i-message-parser';
 import {format, isNullOrUndefined} from 'util';
+import {IICUMessage} from '../api/i-icu-message';
+import {ParsedMessagePartICUMessage} from './parsed-message-part-icu-message';
+import {ParsedMessagePartICUMessageRef} from './parsed-message-part-icu-message-ref';
 /**
  * Created by martin on 05.05.2017.
  * A message text read from a translation file.
@@ -120,6 +123,21 @@ export class ParsedMessage implements INormalizedMessage {
         }
         return hasWarnings ? warnings : null;
     }
+
+    /**
+     * If this message is an ICU message, returns its structure.
+     * Otherwise this method returns null.
+     * @return ICUMessage or null.
+     */
+    public getICUMessage(): IICUMessage {
+        if (this.parts.length === 1 && this.parts[0].type === ParsedMessagePartType.ICU_MESSAGE) {
+            const icuPart = <ParsedMessagePartICUMessage> this.parts[0];
+            return icuPart.getICUMessage();
+        } else {
+            return null;
+        }
+    }
+
 
     /**
      * Check for added placeholder.
@@ -249,6 +267,14 @@ export class ParsedMessage implements INormalizedMessage {
             throw new Error(format('unexpected close tag %s (currently open is %s, native xml is "%s")', tagname, openTag, this.asNativeString()));
         }
         this._parts.push(new ParsedMessagePartEndTag(tagname));
+    }
+
+    addICUMessageRef(index: number) {
+        this._parts.push(new ParsedMessagePartICUMessageRef(index));
+    }
+
+    addICUMessage(text: string) {
+        this._parts.push(new ParsedMessagePartICUMessage(text));
     }
 
     /**

@@ -96,7 +96,7 @@ describe('message parse XLIFF 2.0 test spec', () => {
             checkToXmlAndBack(normalizedMessage);
         });
 
-    });
+     });
 
     describe('xml to normalized message', () => {
 
@@ -123,6 +123,16 @@ describe('message parse XLIFF 2.0 test spec', () => {
         it('should report an error when xml string is not correct (TODO, does not work)', () => {
             let parsedMessage = parsedMessageFromXML('</dummy></dummy>');
             expect(parsedMessage.asDisplayString()).toBe(''); // TODO xmldoc does not report any error
+        });
+
+        it('should parse message with embedded ICU message reference', () => {
+            let parsedMessage = parsedMessageFromXML('first: <ph id="0"/>');
+            expect(parsedMessage.asDisplayString()).toBe('first: <ICU-Message-Ref_0/>');
+        });
+
+        it('should parse message with 2 embedded ICU message reference', () => {
+            let parsedMessage = parsedMessageFromXML('first: <ph id="0"/>, second <ph id="1"/>');
+            expect(parsedMessage.asDisplayString()).toBe('first: <ICU-Message-Ref_0/>, second <ICU-Message-Ref_1/>');
         });
 
     });

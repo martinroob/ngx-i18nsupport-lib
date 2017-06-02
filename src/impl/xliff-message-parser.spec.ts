@@ -130,6 +130,16 @@ describe('message parse XLIFF 1.2 test spec', () => {
             }
         });
 
+        it('should parse message with embedded ICU message reference', () => {
+            let parsedMessage = parsedMessageFromXML('first: <x id="ICU"/>');
+            expect(parsedMessage.asDisplayString()).toBe('first: <ICU-Message-Ref_0/>');
+        });
+
+        it('should parse message with 2 embedded ICU message reference', () => {
+            let parsedMessage = parsedMessageFromXML('first: <x id="ICU"/>, second <x id="ICU_1"/>');
+            expect(parsedMessage.asDisplayString()).toBe('first: <ICU-Message-Ref_0/>, second <ICU-Message-Ref_1/>');
+        });
+
     });
 
 });

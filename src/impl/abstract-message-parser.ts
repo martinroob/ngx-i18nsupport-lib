@@ -8,6 +8,7 @@ import {ParsedMessagePartPlaceholder} from './parsed-message-part-placeholder';
 import {ParsedMessagePartEndTag} from './parsed-message-part-end-tag';
 import {IMessageParser} from './i-message-parser';
 import {format} from 'util';
+import {DOMUtilities} from './dom-utilities';
 /**
  * Created by roobm on 10.05.2017.
  * A message parser can parse the xml content of a translatable message.
@@ -61,13 +62,41 @@ export abstract class AbstractMessageParser implements IMessageParser {
         }
         if (processChildren) {
             const children = node.childNodes;
-            for (let i = 0; i < children.length; i++) {
-                this.addPartsOfNodeToMessage(children.item(i), message, true);
+            if (this.isChildListICUMessage(children)) {
+                message.addICUMessage(DOMUtilities.getXMLContent(<Element> node));
+            } else {
+                for (let i = 0; i < children.length; i++) {
+                    this.addPartsOfNodeToMessage(children.item(i), message, true);
+                }
             }
         }
         if (node.nodeType === node.ELEMENT_NODE) {
             this.processEndElement(<Element> node, message);
         }
+    }
+
+    /**
+     * Test, wether child list is an ICU Message.
+     * @param text
+     */
+    private isChildListICUMessage(children: NodeList): boolean {
+        if (children.length === 0) {
+            return false;
+        }
+        const firstChild = children.item(0);
+        if (firstChild.nodeType === firstChild.TEXT_NODE) {
+            return this.isICUMessageStart(firstChild.textContent);
+        } else {
+            return false;
+        }
+    }
+
+    /**
+     * Test, wether text is beginning of ICU Message.
+     * @param text
+     */
+    private isICUMessageStart(text: string): boolean {
+        return text.startsWith('{VAR_PLURAL') || text.startsWith('{VAR_SELECT');
     }
 
     /**

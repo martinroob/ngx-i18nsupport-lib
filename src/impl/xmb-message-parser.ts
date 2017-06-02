@@ -25,11 +25,15 @@ export class XmbMessageParser extends AbstractMessageParser {
             // or <ph name="INTERPOLATION_1"><ex>INTERPOLATION_1</ex></ph>
             let name = elementNode.getAttribute('name');
             if (!name) {
-                return; // should not happen
+                return true; // should not happen
             }
             if (name.startsWith('INTERPOLATION')) {
                 const index = this.parsePlaceholderIndexFromName(name);
                 message.addPlaceholder(index);
+                return false; // ignore children
+            } else if (name.startsWith('ICU')) {
+                const index = this.parseICUMessageIndexFromName(name);
+                message.addICUMessageRef(index);
                 return false; // ignore children
             } else if (name.startsWith('START_')) {
                 const tag = this.parseTagnameFromPhElement(elementNode);
@@ -73,6 +77,23 @@ export class XmbMessageParser extends AbstractMessageParser {
             indexString = '0';
         } else {
             indexString = name.substring('INTERPOLATION_'.length);
+        }
+        return Number.parseInt(indexString);
+    }
+
+    /**
+     * Parse id attribute of x element as ICU message ref index.
+     * id can be "ICU" or "ICU_n"
+     * @param name
+     * @return {number}
+     */
+    private parseICUMessageIndexFromName(name: string): number {
+        let indexString = '';
+
+        if (name === 'ICU') {
+            indexString = '0';
+        } else {
+            indexString = name.substring('ICU_'.length);
         }
         return Number.parseInt(indexString);
     }

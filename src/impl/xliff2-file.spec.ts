@@ -35,6 +35,11 @@ describe('ngx-i18nsupport-lib XLIFF 2.0 test spec', () => {
         let ID_WITH_TAGS = '7609655310648429098';
         let ID_WITH_STRANGE_TAG = '7610784844464920497';
         let ID_TO_MERGE = 'unittomerge';
+        let ID_ICU_PLURAL = '157616252019374389';
+        let ID_ICU_SELECT = '9140199138743662415';
+        let ID_ICU_EMBEDDED_TAGS = '6710804210857077393';
+        let ID_CONTAINS_ICU = '2747218257718409559';
+        let ID_CONTAINS_TWO_ICU = 'complextags.icuTwoICU';
 
         it('should read xlf file', () => {
             const file: ITranslationMessagesFile = readFile(MASTER1SRC);
@@ -53,7 +58,7 @@ describe('ngx-i18nsupport-lib XLIFF 2.0 test spec', () => {
 
         it('should count units', () => {
             const file: ITranslationMessagesFile = readFile(MASTER1SRC);
-            expect(file.numberOfTransUnits()).toBe(30);
+            expect(file.numberOfTransUnits()).toBe(35);
             expect(file.numberOfTransUnitsWithMissingId()).toBe(1);
             expect(file.numberOfUntranslatedTransUnits()).toBe(file.numberOfTransUnits());
             expect(file.numberOfReviewedTransUnits()).toBe(0);
@@ -300,6 +305,45 @@ describe('ngx-i18nsupport-lib XLIFF 2.0 test spec', () => {
             const file2: ITranslationMessagesFile = TranslationMessagesFileFactory.fromUnknownFormatFileContent(file.editedContent(), null, null);
             const tu2: ITransUnit = file2.transUnitWithId(ID_APP_RUNS);
             expect(tu2.targetContentNormalized().asDisplayString()).toBe(translationString);
+        });
+
+        it('should contain ICU reference in sourceContentNormalized', () => {
+            const file: ITranslationMessagesFile = readFile(MASTER1SRC);
+            const tu: ITransUnit = file.transUnitWithId(ID_CONTAINS_ICU);
+            expect(tu).toBeTruthy();
+            expect(tu.sourceContent()).toBe('Zum Wert <ph id="0" equiv="INTERPOLATION" disp="{{auswahl}}"/> gehört der Text <ph id="1"/>');
+            expect(tu.sourceContentNormalized().asDisplayString()).toBe('Zum Wert {{0}} gehört der Text <ICU-Message-Ref_1/>');
+        });
+
+        it('should contain 2 ICU references in sourceContentNormalized', () => {
+            const file: ITranslationMessagesFile = readFile(MASTER1SRC);
+            const tu: ITransUnit = file.transUnitWithId(ID_CONTAINS_TWO_ICU);
+            expect(tu).toBeTruthy();
+            expect(tu.sourceContent()).toBe('first: <ph id="0"/>, second <ph id="1"/>');
+            expect(tu.sourceContentNormalized().asDisplayString()).toBe('first: <ICU-Message-Ref_0/>, second <ICU-Message-Ref_1/>');
+        });
+
+        it('should handle plural ICU', () => {
+            const file: ITranslationMessagesFile = readFile(MASTER1SRC);
+            const tu: ITransUnit = file.transUnitWithId(ID_ICU_PLURAL);
+            expect(tu).toBeTruthy();
+            const normalizedMessage = tu.sourceContentNormalized();
+            expect(normalizedMessage.asDisplayString()).toBe('<ICU-Message/>');
+            const icuMessage = normalizedMessage.getICUMessage();
+            expect(icuMessage).toBeTruthy();
+            expect(icuMessage.getCategories().length).toBe(4);
+            // TODO add tests here
+        });
+
+        it('should handle ICU with embedded tags', () => {
+            const file: ITranslationMessagesFile = readFile(MASTER1SRC);
+            const tu: ITransUnit = file.transUnitWithId(ID_ICU_EMBEDDED_TAGS);
+            const normalizedMessage = tu.sourceContentNormalized();
+            expect(normalizedMessage.asDisplayString()).toBe('<ICU-Message/>');
+            const icuMessage = normalizedMessage.getICUMessage();
+            expect(icuMessage).toBeTruthy();
+            expect(icuMessage.getCategories().length).toBe(4);
+            // TODO add tests here
         });
 
     });

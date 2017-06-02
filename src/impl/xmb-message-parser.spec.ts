@@ -130,6 +130,16 @@ describe('message parse XMB test spec', () => {
             }
         });
 
+        it('should parse message with embedded ICU message reference', () => {
+            let parsedMessage = parsedMessageFromXML('first: <ph name="ICU"><ex>ICU</ex></ph>');
+            expect(parsedMessage.asDisplayString()).toBe('first: <ICU-Message-Ref_0/>');
+        });
+
+        it('should parse message with 2 embedded ICU message reference', () => {
+            let parsedMessage = parsedMessageFromXML('first: <ph name="ICU"><ex>ICU</ex></ph>, second <ph name="ICU_1"><ex>ICU</ex></ph>');
+            expect(parsedMessage.asDisplayString()).toBe('first: <ICU-Message-Ref_0/>, second <ICU-Message-Ref_1/>');
+        });
+
     });
 
 });
