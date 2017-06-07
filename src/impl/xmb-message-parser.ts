@@ -56,6 +56,30 @@ export class XmbMessageParser extends AbstractMessageParser {
     }
 
     /**
+     * Test, wether child list is an ICU Message.
+     * @param text
+     */
+    protected isChildListICUMessage(children: NodeList): boolean {
+        if (children.length === 0) {
+            return false;
+        }
+        let firstChild = null;
+        // find first child that is no source element.
+        for (let i = 0; i < children.length; i++) {
+            const child = children.item(i);
+            if (child.nodeType !== child.ELEMENT_NODE || (<Element> child).tagName !== 'source') {
+                firstChild = child;
+                break;
+            }
+        }
+        if (firstChild && firstChild.nodeType === firstChild.TEXT_NODE) {
+            return this.isICUMessageStart(firstChild.textContent);
+        } else {
+            return false;
+        }
+    }
+
+    /**
      * Handle end of this element node.
      * This is called after all children are processed.
      * @param elementNode

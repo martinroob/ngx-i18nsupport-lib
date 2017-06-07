@@ -274,7 +274,7 @@ export class ParsedMessage implements INormalizedMessage {
     }
 
     addICUMessage(text: string) {
-        this._parts.push(new ParsedMessagePartICUMessage(text));
+        this._parts.push(new ParsedMessagePartICUMessage(text, this._parser));
     }
 
     /**

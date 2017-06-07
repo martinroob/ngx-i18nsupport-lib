@@ -62,9 +62,18 @@ export abstract class AbstractMessageParser implements IMessageParser {
         }
         if (processChildren) {
             const children = node.childNodes;
-            if (this.isChildListICUMessage(children)) {
-                message.addICUMessage(DOMUtilities.getXMLContent(<Element> node));
-            } else {
+            let isICU: boolean = this.isChildListICUMessage(children);
+            if (isICU) {
+                const messageText = DOMUtilities.getXMLContent(<Element> node);
+                try {
+                    message.addICUMessage(messageText);
+                } catch (error) {
+                    // if it is not parsable, handle it as non ICU
+                    console.log('non ICU message: ', messageText, error)
+                    isICU = false;
+                }
+            }
+            if (!isICU) {
                 for (let i = 0; i < children.length; i++) {
                     this.addPartsOfNodeToMessage(children.item(i), message, true);
                 }
@@ -77,9 +86,9 @@ export abstract class AbstractMessageParser implements IMessageParser {
 
     /**
      * Test, wether child list is an ICU Message.
-     * @param text
+     * @param children
      */
-    private isChildListICUMessage(children: NodeList): boolean {
+    protected isChildListICUMessage(children: NodeList): boolean {
         if (children.length === 0) {
             return false;
         }
@@ -95,7 +104,7 @@ export abstract class AbstractMessageParser implements IMessageParser {
      * Test, wether text is beginning of ICU Message.
      * @param text
      */
-    private isICUMessageStart(text: string): boolean {
+    protected isICUMessageStart(text: string): boolean {
         return text.startsWith('{VAR_PLURAL') || text.startsWith('{VAR_SELECT');
     }
 
