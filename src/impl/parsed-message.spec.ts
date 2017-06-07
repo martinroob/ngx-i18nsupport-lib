@@ -97,7 +97,6 @@ describe('normalized message test spec', () => {
             expect(parsedMessage.validateWarnings()).toBeFalsy();
         });
 
-
     });
 
 });

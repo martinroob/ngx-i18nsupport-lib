@@ -1,5 +1,4 @@
 import {ParsedMessagePart, ParsedMessagePartType} from './parsed-message-part';
-import {NORMALIZATION_FORMAT_NGXTRANSLATE} from '../api/constants';
 import {IICUMessage} from '../api/i-icu-message';
 import {
     COMMA, CURLY_BRACE_CLOSE, CURLY_BRACE_OPEN, ICUMessageTokenizer, ICUToken, PLURAL, SELECT,
@@ -25,30 +24,32 @@ export class ParsedMessagePartICUMessage extends ParsedMessagePart {
 
     constructor(icuMessageText: string, private _parser: IMessageParser) {
         super(ParsedMessagePartType.ICU_MESSAGE);
-        this.parse(icuMessageText);
-        // TODO parse icu message text here
+        this.parseICUMessage(icuMessageText);
     }
 
     public asDisplayString(format?: string) {
         return '<ICU-Message/>';
     }
 
+    /**
+     * return the parsed message.
+     * @return {ICUMessage}
+     */
     public getICUMessage(): IICUMessage {
         return this._message;
     }
 
-    private parse(text: string) {
-        // TODO
-        console.log('Tokenize', text);
-        const tokens1 = new ICUMessageTokenizer().tokenize(text);
-        tokens1.forEach((token) => {
-            console.log('Token ', token.type, token.value);
-        });
+    /**
+     * Parse the message.
+     * @param text message text to parse
+     * @throws an error if the syntax is not ok in any way.
+     */
+    private parseICUMessage(text: string) {
         this._messageText = text;
         this._tokenizer = new ICUMessageTokenizer();
         this._tokenizer.input(text);
         this.expectNext(CURLY_BRACE_OPEN);
-        const varname = this.expectNext(TEXT).value;
+        this.expectNext(TEXT); // varname, not used currently, ng always used VAR_PLURAL or VAR_SELECT
         this.expectNext(COMMA);
         let token: ICUToken = this._tokenizer.next();
         if (token.type === PLURAL) {
@@ -59,17 +60,23 @@ export class ParsedMessagePartICUMessage extends ParsedMessagePart {
         this.expectNext(COMMA);
         token = this._tokenizer.peek();
         while (token.type !== CURLY_BRACE_CLOSE) {
-            let category = this.expectNext(TEXT).value;
+            let category = this.expectNext(TEXT).value.trim();
             this.expectNext(CURLY_BRACE_OPEN);
             let message = this.expectNext(TEXT).value;
-            this._message.addCategory(category, this.parseMessage(message));
+            this._message.addCategory(category, this.parseNativeSubMessage(message));
             this.expectNext(CURLY_BRACE_CLOSE);
             token = this._tokenizer.peek();
         }
         this.expectNext(CURLY_BRACE_CLOSE);
-        // TODO expect EOF
+        this.expectNext('EOF');
     }
 
+    /**
+     * Read next token and expect, that it is of the given type.
+     * @param tokentype expected type.
+     * @return {ICUToken} Token
+     * @throws error, if next token has wrong type.
+     */
     private expectNext(tokentype: string): ICUToken {
         const token = this._tokenizer.next();
         if (token.type !== tokentype) {
@@ -79,7 +86,12 @@ export class ParsedMessagePartICUMessage extends ParsedMessagePart {
         return token;
     }
 
-    private parseMessage(message: string): INormalizedMessage {
-        return this._parser.parseNormalizedString(message, null);
+    /**
+     * Parse XML text to normalozed message.
+     * @param message message in format dependent xml syntax.
+     * @return {INormalizedMessage}
+     */
+    private parseNativeSubMessage(message: string): INormalizedMessage {
+        return this._parser.createNormalizedMessageFromXMLString(message, null);
     }
 }

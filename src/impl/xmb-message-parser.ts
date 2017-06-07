@@ -56,16 +56,19 @@ export class XmbMessageParser extends AbstractMessageParser {
     }
 
     /**
-     * Test, wether child list is an ICU Message.
-     * @param text
+     * Return the ICU message content of the node, if it is an ICU Message.
+     * @param node
+     * @return message or null, if it is no ICU Message.
      */
-    protected isChildListICUMessage(children: NodeList): boolean {
+    protected getICUMessageText(node: Node): string {
+        const children = node.childNodes;
         if (children.length === 0) {
-            return false;
+            return null;
         }
         let firstChild = null;
         // find first child that is no source element.
-        for (let i = 0; i < children.length; i++) {
+        let i = 0;
+        for (i = 0; i < children.length; i++) {
             const child = children.item(i);
             if (child.nodeType !== child.ELEMENT_NODE || (<Element> child).tagName !== 'source') {
                 firstChild = child;
@@ -73,9 +76,20 @@ export class XmbMessageParser extends AbstractMessageParser {
             }
         }
         if (firstChild && firstChild.nodeType === firstChild.TEXT_NODE) {
-            return this.isICUMessageStart(firstChild.textContent);
+            if (this.isICUMessageStart(firstChild.textContent)) {
+                let messageText = DOMUtilities.getXMLContent(<Element> node);
+                if (i > 0) {
+                    // drop <source> elements
+                    let reSource: RegExp = new RegExp('<source[^>]*>.*</source>', 'g');
+                    return messageText.replace(reSource, '');
+                } else {
+                    return messageText;
+                }
+            } else {
+                return null;
+            }
         } else {
-            return false;
+            return null;
         }
     }
 

@@ -4,7 +4,6 @@ import {ParsedMessagePartPlaceholder} from './parsed-message-part-placeholder';
 import {ParsedMessagePartStartTag} from './parsed-message-part-start-tag';
 import {ParsedMessagePartEndTag} from './parsed-message-part-end-tag';
 import {INormalizedMessage, ValidationErrors} from '../api/i-normalized-message';
-import {XMLSerializer} from 'xmldom';
 import {DOMUtilities} from './dom-utilities';
 import {IMessageParser} from './i-message-parser';
 import {format, isNullOrUndefined} from 'util';
@@ -130,8 +129,8 @@ export class ParsedMessage implements INormalizedMessage {
      * @return ICUMessage or null.
      */
     public getICUMessage(): IICUMessage {
-        if (this.parts.length === 1 && this.parts[0].type === ParsedMessagePartType.ICU_MESSAGE) {
-            const icuPart = <ParsedMessagePartICUMessage> this.parts[0];
+        if (this._parts.length === 1 && this._parts[0].type === ParsedMessagePartType.ICU_MESSAGE) {
+            const icuPart = <ParsedMessagePartICUMessage> this._parts[0];
             return icuPart.getICUMessage();
         } else {
             return null;
@@ -144,7 +143,7 @@ export class ParsedMessage implements INormalizedMessage {
      * @return null or message, if fulfilled.
      */
     private checkPlaceholderAdded(): any {
-        let e;
+        let e = null;
         if (this.sourceMessage) {
             let sourcePlaceholders = this.sourceMessage.allPlaceholders();
             let myPlaceholders = this.allPlaceholders();
@@ -162,7 +161,7 @@ export class ParsedMessage implements INormalizedMessage {
      * @return null or message, if fulfilled.
      */
     private checkPlaceholderRemoved(): any {
-        let w;
+        let w = null;
         if (this.sourceMessage) {
             let sourcePlaceholders = this.sourceMessage.allPlaceholders();
             let myPlaceholders = this.allPlaceholders();
@@ -194,7 +193,7 @@ export class ParsedMessage implements INormalizedMessage {
      * @return null or message, if fulfilled.
      */
     private checkTagAdded(): any {
-        let e;
+        let e = null;
         if (this.sourceMessage) {
             let sourceTags = this.sourceMessage.allTags();
             let myTags = this.allTags();
@@ -212,7 +211,7 @@ export class ParsedMessage implements INormalizedMessage {
      * @return null or message, if fulfilled.
      */
     private checkTagRemoved(): any {
-        let w;
+        let w = null;
         if (this.sourceMessage) {
             let sourceTags = this.sourceMessage.allTags();
             let myTags = this.allTags();
