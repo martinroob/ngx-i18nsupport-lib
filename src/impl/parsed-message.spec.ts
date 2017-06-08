@@ -97,6 +97,27 @@ describe('normalized message test spec', () => {
             expect(parsedMessage.validateWarnings()).toBeFalsy();
         });
 
+        it('should report an error if you remove an ICU ref in the translation', () => {
+            let original = 'a text with <ICU-Message-Ref_0/>';
+            let translation = 'a text without icu-ref';
+            let sourceMessage = parsedMessageFor(original);
+            let translatedMessage = sourceMessage.translate(translation);
+            expect(translatedMessage.validateWarnings()).toBeFalsy();
+            const errors = translatedMessage.validate();
+            expect(errors).toBeTruthy();
+            expect(errors.icuMessageRefRemoved).toBe('removed ICU message reference 0 from original messages');
+        });
+
+        it('should report an error if you add an ICU ref in the translation', () => {
+            let original = 'a text with <ICU-Message-Ref_0/>';
+            let translation = 'a text with <ICU-Message-Ref_0/> and  <ICU-Message-Ref_1/>';
+            let sourceMessage = parsedMessageFor(original);
+            let translatedMessage = sourceMessage.translate(translation);
+            expect(translatedMessage.validateWarnings()).toBeFalsy();
+            const errors = translatedMessage.validate();
+            expect(errors).toBeTruthy();
+            expect(errors.icuMessageRefAdded).toBe('added ICU message reference 1, which is not in original message');
+        });
     });
 
 });

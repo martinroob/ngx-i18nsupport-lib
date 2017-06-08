@@ -10,6 +10,8 @@ export const TEXT = 'TEXT';
 export const START_TAG = 'START_TAG';
 export const END_TAG = 'END_TAG';
 export const PLACEHOLDER = 'PLACEHOLDER';
+export const ICU_MESSAGE_REF = 'ICU_MESSAGE_REF';
+export const ICU_MESSAGE = 'ICU_MESSAGE';
 
 export interface Token {
     type: string;
@@ -45,6 +47,14 @@ export class ParsedMesageTokenizer {
         lexer.rule(/{{([0-9]+)}}/, (ctx, match) => {
             ctx.accept(PLACEHOLDER, parseInt(match[1], 10));
         }, PLACEHOLDER);
+        // icu message ref
+        lexer.rule(/<ICU-Message-Ref_([0-9]+)\/>/, (ctx, match) => {
+            ctx.accept(ICU_MESSAGE_REF, parseInt(match[1], 10));
+        }, ICU_MESSAGE_REF);
+        // icu message
+        lexer.rule(/<ICU-Message\/>/, (ctx, match) => {
+            ctx.accept(ICU_MESSAGE, match[0]);
+        }, ICU_MESSAGE);
         // text
         lexer.rule(/./, (ctx, match) => {
             plaintext += match[0];

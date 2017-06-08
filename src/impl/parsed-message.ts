@@ -92,6 +92,16 @@ export class ParsedMessage implements INormalizedMessage {
             errors.placeholderAdded = e;
             hasErrors = true;
         }
+        e = this.checkICUMessageRefRemoved();
+        if (!isNullOrUndefined(e)) {
+            errors.icuMessageRefRemoved = e;
+            hasErrors = true;
+        }
+        e = this.checkICUMessageRefAdded();
+        if (!isNullOrUndefined(e)) {
+            errors.icuMessageRefAdded = e;
+            hasErrors = true;
+        }
         return hasErrors ? errors : null;
     }
 
@@ -175,6 +185,42 @@ export class ParsedMessage implements INormalizedMessage {
     }
 
     /**
+     * Check for added ICU Message Refs.
+     * @return null or message, if fulfilled.
+     */
+    private checkICUMessageRefAdded(): any {
+        let e = null;
+        if (this.sourceMessage) {
+            let sourceICURefs = this.sourceMessage.allICUMessageRefs();
+            let myICURefs = this.allICUMessageRefs();
+            myICURefs.forEach((index) => {
+                if (!sourceICURefs.has(index)) {
+                    e = 'added ICU message reference ' + index + ', which is not in original message';
+                }
+            });
+        }
+        return e;
+    }
+
+    /**
+     * Check for removed ICU Message Refs.
+     * @return null or message, if fulfilled.
+     */
+    private checkICUMessageRefRemoved(): any {
+        let e = null;
+        if (this.sourceMessage) {
+            let sourceICURefs = this.sourceMessage.allICUMessageRefs();
+            let myICURefs = this.allICUMessageRefs();
+            sourceICURefs.forEach((index) => {
+                if (!myICURefs.has(index)) {
+                    e = 'removed ICU message reference ' + index + ' from original messages';
+                }
+            });
+        }
+        return e;
+    }
+
+    /**
      * Get all indexes of placeholders used in the message.
      */
     private allPlaceholders(): Set<number> {
@@ -182,6 +228,20 @@ export class ParsedMessage implements INormalizedMessage {
         this.parts().forEach((part) => {
             if (part.type === ParsedMessagePartType.PLACEHOLDER) {
                 let index = (<ParsedMessagePartPlaceholder> part).index();
+                result.add(index);
+            }
+        });
+        return result;
+    }
+
+    /**
+     * Get all indexes of ICU message refs used in the message.
+     */
+    private allICUMessageRefs(): Set<number> {
+        let result = new Set<number>();
+        this.parts().forEach((part) => {
+            if (part.type === ParsedMessagePartType.ICU_MESSAGE_REF) {
+                let index = (<ParsedMessagePartICUMessageRef> part).index();
                 result.add(index);
             }
         });

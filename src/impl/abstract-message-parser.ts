@@ -1,5 +1,8 @@
 import {ParsedMessage} from './parsed-message';
-import {END_TAG, ParsedMesageTokenizer, PLACEHOLDER, START_TAG, TEXT, Token} from './parsed-message-tokenizer';
+import {
+    END_TAG, ICU_MESSAGE, ICU_MESSAGE_REF, ParsedMesageTokenizer, PLACEHOLDER, START_TAG, TEXT,
+    Token
+} from './parsed-message-tokenizer';
 import {ParsedMessagePart, ParsedMessagePartType} from './parsed-message-part';
 import {ParsedMessagePartText} from './parsed-message-part-text';
 import {DOMParser} from 'xmldom';
@@ -166,6 +169,13 @@ export abstract class AbstractMessageParser implements IMessageParser {
                     break;
                 case PLACEHOLDER:
                     message.addPlaceholder(token.value);
+                    break;
+                case ICU_MESSAGE_REF:
+                    message.addICUMessageRef(token.value);
+                    break;
+                case ICU_MESSAGE:
+                    // TODO
+                    message.addICUMessage(token.value);
                     break;
                 default:
                     break;
