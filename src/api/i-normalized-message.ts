@@ -1,4 +1,4 @@
-import {IICUMessage} from './i-icu-message';
+import {IICUMessage, IICUMessageTranslation} from './i-icu-message';
 
 /**
  * Created by martin on 09.05.2017.
@@ -52,10 +52,22 @@ export interface INormalizedMessage {
 
     /**
      * Create a new normalized message as a translation of this one.
-     * @param normalizedString
-     * Throws an error if normalized string is not well formed.
+     * @param normalizedString the translation in normalized form.
+     * If the message is an ICUMessage (getICUMessage returns a value), use translateICUMessage instead.
+     * @throws an error if normalized string is not well formed.
+     * Throws an error too, if this is an ICU message.
      */
     translate(normalizedString: string): INormalizedMessage;
+
+    /**
+     * Create a new normalized icu message as a translation of this one.
+     * @param icuTranslation the translation, this is the translation of the ICU message,
+     * which is not a string, but a collections of the translations of the different categories.
+     * The message must be an ICUMessage (getICUMessage returns a value)
+     * @throws an error if normalized string is not well formed.
+     * Throws an error too, if this is not an ICU message.
+     */
+    translateICUMessage(icuTranslation: IICUMessageTranslation): INormalizedMessage
 
     /**
      * Create a new normalized message from a native xml string as a translation of this one.

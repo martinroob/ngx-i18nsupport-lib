@@ -110,7 +110,7 @@ export class Xliff2MessageParser extends AbstractMessageParser {
                     let closeTagName = (<ParsedMessagePartEndTag> part).tagName();
                     if (stack.length <= 1 || stack[stack.length - 1].tagName !== closeTagName) {
                         // oops, not well formed
-                        throw new Error('unexpected close tag ' + closeTagName); // TODO error handling
+                        throw new Error('unexpected close tag ' + closeTagName);
                     }
                     stack.pop();
                     break;
@@ -118,7 +118,7 @@ export class Xliff2MessageParser extends AbstractMessageParser {
         });
         if (stack.length !== 1) {
             // oops, not well closed tags
-            throw new Error('missing close tag ' + stack[stack.length - 1].tagName); // TODO error handling
+            throw new Error('missing close tag ' + stack[stack.length - 1].tagName);
         }
     }
 

@@ -53,9 +53,9 @@ export class ParsedMessagePartICUMessage extends ParsedMessagePart {
         this.expectNext(COMMA);
         let token: ICUToken = this._tokenizer.next();
         if (token.type === PLURAL) {
-            this._message = new ICUMessage(true);
+            this._message = new ICUMessage(this._parser, true);
         } else if (token.type === SELECT) {
-            this._message = new ICUMessage(false);
+            this._message = new ICUMessage(this._parser, false);
         }
         this.expectNext(COMMA);
         token = this._tokenizer.peek();

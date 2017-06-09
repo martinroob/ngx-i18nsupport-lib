@@ -174,9 +174,7 @@ export abstract class AbstractMessageParser implements IMessageParser {
                     message.addICUMessageRef(token.value);
                     break;
                 case ICU_MESSAGE:
-                    // TODO
-                    message.addICUMessage(token.value);
-                    break;
+                    throw new Error(format('<ICUMessage/> not allowed here, use parseICUMessage instead (parsed "%")', normalizedString));
                 default:
                     break;
             }
@@ -186,6 +184,19 @@ export abstract class AbstractMessageParser implements IMessageParser {
             throw new Error(format('missing close tag "%s" (parsed "%s")', openTags[openTags.length - 1], normalizedString));
         }
         message.setXmlRepresentation(this.createXmlRepresentation(message));
+        return message;
+    }
+
+    /**
+     * Parse a string, that is an ICU message, to ParsedMessage.
+     * @param icuMessageString the message, like '{x, plural, =0 {nothing} =1 {one} other {many}}'.
+     * @param sourceMessage optional original message that will be translated by normalized new one
+     * @return a new parsed message.
+     * Throws an error if icuMessageString has not the correct syntax.
+     */
+    parseICUMessage(icuMessageString: string, sourceMessage: ParsedMessage): ParsedMessage {
+        const message: ParsedMessage = new ParsedMessage(this, sourceMessage);
+        message.addICUMessage(icuMessageString);
         return message;
     }
 

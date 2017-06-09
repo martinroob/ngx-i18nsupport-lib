@@ -30,4 +30,13 @@ export interface IMessageParser {
      * Throws an error if normalized string is not well formed.
      */
     parseNormalizedString(normalizedString: string, sourceMessage: INormalizedMessage): INormalizedMessage;
+
+    /**
+     * Parse a string, that is an ICU message, to ParsedMessage.
+     * @param icuMessageString the message, like '{x, plural, =0 {nothing} =1 {one} other {many}}'.
+     * @param sourceMessage optional original message that will be translated by normalized new one
+     * @return a new parsed message.
+     * Throws an error if icuMessageString has not the correct syntax.
+     */
+    parseICUMessage(icuMessageString: string, sourceMessage: INormalizedMessage): INormalizedMessage;
 }

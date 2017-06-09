@@ -6,10 +6,11 @@ import {ParsedMessagePartEndTag} from './parsed-message-part-end-tag';
 import {INormalizedMessage, ValidationErrors} from '../api/i-normalized-message';
 import {DOMUtilities} from './dom-utilities';
 import {IMessageParser} from './i-message-parser';
-import {format, isNullOrUndefined} from 'util';
-import {IICUMessage} from '../api/i-icu-message';
+import {format, isNullOrUndefined, isString} from 'util';
+import {IICUMessage, IICUMessageTranslation} from '../api/i-icu-message';
 import {ParsedMessagePartICUMessage} from './parsed-message-part-icu-message';
 import {ParsedMessagePartICUMessageRef} from './parsed-message-part-icu-message-ref';
+import {ICUMessage} from './icu-message';
 /**
  * Created by martin on 05.05.2017.
  * A message text read from a translation file.
@@ -47,10 +48,35 @@ export class ParsedMessage implements INormalizedMessage {
 
     /**
      * Create a new normalized message as a translation of this one.
-     * @param normalizedString
+     * @param normalizedString the translation in normalized form.
+     * If the message is an ICUMessage (getICUMessage returns a value), use translateICUMessage instead.
+     * @throws an error if normalized string is not well formed.
+     * Throws an error too, if this is an ICU message.
      */
-    public translate(normalizedString: string): INormalizedMessage {
-        return this._parser.parseNormalizedString(normalizedString, this);
+    translate(normalizedString: string): INormalizedMessage {
+        if (isNullOrUndefined(this.getICUMessage())) {
+            return this._parser.parseNormalizedString(<string> normalizedString, this);
+        } else {
+            throw new Error(format('cannot translate ICU message with simple string, use translateICUMessage() instead ("%s", "%s")', normalizedString, this.asNativeString()));
+        }
+    }
+
+    /**
+     * Create a new normalized icu message as a translation of this one.
+     * @param icuTranslation the translation, this is the translation of the ICU message,
+     * which is not a string, but a collections of the translations of the different categories.
+     * The message must be an ICUMessage (getICUMessage returns a value)
+     * @throws an error if normalized string is not well formed.
+     * Throws an error too, if this is not an ICU message.
+     */
+    translateICUMessage(icuTranslation: IICUMessageTranslation): INormalizedMessage {
+        const icuMessage: IICUMessage = this.getICUMessage();
+        if (isNullOrUndefined(icuMessage)) {
+            throw new Error(format('this is not an ICU message, use translate() instead ("%s", "%s")', icuTranslation,  this.asNativeString()));
+        } else {
+            const translatedICUMessage: IICUMessage = icuMessage.translate(icuTranslation);
+            return this._parser.parseICUMessage(translatedICUMessage.asNativeString(), this);
+        }
     }
 
     /**
@@ -76,7 +102,11 @@ export class ParsedMessage implements INormalizedMessage {
      * Includes all format specific markup like <ph id="INTERPOLATION" ../> ..
      */
     asNativeString(): string {
-        return DOMUtilities.getXMLContent(this._xmlRepresentation);
+        if (isNullOrUndefined(this.getICUMessage())) {
+            return DOMUtilities.getXMLContent(this._xmlRepresentation);
+        } else {
+            return this.getICUMessage().asNativeString();
+        }
     }
 
     /**
