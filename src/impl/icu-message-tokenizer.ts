@@ -18,6 +18,11 @@ export interface ICUToken {
     value: any;
 }
 
+// states: default normal in_message
+const STATE_DEFAULT = 'default';
+const STATE_NORMAL = 'normal';
+const STATE_IN_MESSAGE = 'in_message';
+
 export class ICUMessageTokenizer {
     private lexer: Tokenizr;
 
@@ -40,21 +45,43 @@ export class ICUMessageTokenizer {
             }
          });
         // curly brace
-        lexer.rule(/{/, (ctx, match) => {
+        lexer.rule(STATE_DEFAULT, /{/, (ctx, match) => {
             ctx.accept(CURLY_BRACE_OPEN, match[0]);
+            ctx.push(STATE_NORMAL);
         }, CURLY_BRACE_OPEN);
-        lexer.rule(/}/, (ctx, match) => {
+        lexer.rule(STATE_NORMAL, /{/, (ctx, match) => {
+            ctx.accept(CURLY_BRACE_OPEN, match[0]);
+            ctx.push(STATE_IN_MESSAGE);
+        }, CURLY_BRACE_OPEN);
+        lexer.rule(STATE_NORMAL, /}/, (ctx, match) => {
+            ctx.pop();
+            ctx.accept(CURLY_BRACE_CLOSE, match[0]);
+        }, CURLY_BRACE_CLOSE);
+        lexer.rule(STATE_IN_MESSAGE, /'{'/, (ctx, match) => {
+            plaintext += '{';
+            ctx.ignore();
+        }, TEXT);
+        lexer.rule(STATE_IN_MESSAGE, /'}'/, (ctx, match) => {
+            plaintext += '}';
+            ctx.ignore();
+        }, TEXT);
+        lexer.rule(STATE_IN_MESSAGE, /''/, (ctx, match) => {
+            plaintext += '\'';
+            ctx.ignore();
+        }, TEXT);
+        lexer.rule(STATE_IN_MESSAGE, /}/, (ctx, match) => {
+            ctx.pop();
             ctx.accept(CURLY_BRACE_CLOSE, match[0]);
         }, CURLY_BRACE_CLOSE);
         // comma
-        lexer.rule(/,/, (ctx, match) => {
+        lexer.rule(STATE_NORMAL, /,/, (ctx, match) => {
             ctx.accept(COMMA, match[0]);
         }, COMMA);
         // keywords plural and select
-        lexer.rule(/plural/, (ctx, match) => {
+        lexer.rule(STATE_NORMAL, /plural/, (ctx, match) => {
             ctx.accept(PLURAL, match[0]);
         }, PLURAL);
-        lexer.rule(/select/, (ctx, match) => {
+        lexer.rule(STATE_NORMAL, /select/, (ctx, match) => {
             ctx.accept(SELECT, match[0]);
         }, SELECT);
         // text
@@ -80,14 +107,12 @@ export class ICUMessageTokenizer {
 
     tokenize(normalizedMessage: string): ICUToken[] {
         const lexer: Tokenizr = this.getLexer();
-        lexer.reset();
         lexer.input(normalizedMessage);
         return lexer.tokens();
     }
 
     input(normalizedMessage: string) {
         this.lexer = this.getLexer();
-        this.lexer.reset();
         this.lexer.input(normalizedMessage);
     }
 

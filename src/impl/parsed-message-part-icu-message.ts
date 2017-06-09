@@ -45,6 +45,11 @@ export class ParsedMessagePartICUMessage extends ParsedMessagePart {
      * @throws an error if the syntax is not ok in any way.
      */
     private parseICUMessage(text: string) {
+        // console.log('message ', text);
+        // const tokens = new ICUMessageTokenizer().tokenize(text);
+        // tokens.forEach((tok) => {
+        //     console.log('Token', tok.type, tok.value);
+        // });
         this._messageText = text;
         this._tokenizer = new ICUMessageTokenizer();
         this._tokenizer.input(text);
