@@ -34,6 +34,11 @@ describe('ngx-i18nsupport-lib xmb test spec', () => {
         let ID_WITH_TAGS = '7609655310648429098';
         let ID_WITH_TAG_STRANGE = '7610784844464920497';
         let ID_TO_MERGE = 'unittomerge';
+        let ID_ICU_PLURAL = '157616252019374389';
+        let ID_ICU_SELECT = '4002068837191765530';
+        let ID_ICU_EMBEDDED_TAGS = '6710804210857077393';
+        let ID_CONTAINS_ICU = '2747218257718409559';
+        let ID_CONTAINS_TWO_ICU = 'complextags.icuTwoICU';
 
         it('should read xmb file', () => {
             const file: ITranslationMessagesFile = readFile(MASTER1SRC);
@@ -52,7 +57,7 @@ describe('ngx-i18nsupport-lib xmb test spec', () => {
 
         it('should count units', () => {
             const file: ITranslationMessagesFile = readFile(MASTER1SRC);
-            expect(file.numberOfTransUnits()).toBe(14);
+            expect(file.numberOfTransUnits()).toBe(19);
             expect(file.numberOfTransUnitsWithMissingId()).toBe(1);
             expect(file.numberOfUntranslatedTransUnits()).toBe(file.numberOfTransUnits());
             expect(file.numberOfReviewedTransUnits()).toBe(0);
@@ -218,6 +223,77 @@ describe('ngx-i18nsupport-lib xmb test spec', () => {
             } catch (error) {
                 expect(error.toString()).toContain('cannot translate xmb files');
             }
+        });
+
+        it('should contain ICU reference in sourceContentNormalized', () => {
+            const file: ITranslationMessagesFile = readFile(MASTER1SRC);
+            const tu: ITransUnit = file.transUnitWithId(ID_CONTAINS_ICU);
+            expect(tu).toBeTruthy();
+            expect(tu.sourceContent()).toBe('Zum Wert <ph name="INTERPOLATION"><ex>INTERPOLATION</ex></ph> gehört der Text <ph name="ICU"><ex>ICU</ex></ph>');
+            expect(tu.sourceContentNormalized().asDisplayString()).toBe('Zum Wert {{0}} gehört der Text <ICU-Message-Ref_0/>');
+        });
+
+        it('should contain 2 ICU references in sourceContentNormalized', () => {
+            const file: ITranslationMessagesFile = readFile(MASTER1SRC);
+            const tu: ITransUnit = file.transUnitWithId(ID_CONTAINS_TWO_ICU);
+            expect(tu).toBeTruthy();
+            expect(tu.sourceContent()).toBe('first: <ph name="ICU"><ex>ICU</ex></ph>, second <ph name="ICU_1"><ex>ICU_1</ex></ph>');
+            expect(tu.sourceContentNormalized().asDisplayString()).toBe('first: <ICU-Message-Ref_0/>, second <ICU-Message-Ref_1/>');
+        });
+
+        it('should handle plural ICU', () => {
+            const file: ITranslationMessagesFile = readFile(MASTER1SRC);
+            const tu: ITransUnit = file.transUnitWithId(ID_ICU_PLURAL);
+            expect(tu).toBeTruthy();
+            const normalizedMessage = tu.sourceContentNormalized();
+            expect(normalizedMessage.asDisplayString()).toBe('<ICU-Message/>');
+            const icuMessage = normalizedMessage.getICUMessage();
+            expect(icuMessage).toBeTruthy();
+            expect(icuMessage.isPluralMessage()).toBeTruthy();
+            expect(icuMessage.isSelectMessage()).toBeFalsy();
+            expect(icuMessage.getCategories().length).toBe(3);
+            expect(icuMessage.getCategories()[0].getCategory()).toBe('=0');
+            expect(icuMessage.getCategories()[0].getMessageNormalized().asDisplayString()).toBe('kein Schaf');
+            expect(icuMessage.getCategories()[1].getCategory()).toBe('=1');
+            expect(icuMessage.getCategories()[1].getMessageNormalized().asDisplayString()).toBe('1 Schaf');
+            expect(icuMessage.getCategories()[2].getCategory()).toBe('other');
+            expect(icuMessage.getCategories()[2].getMessageNormalized().asDisplayString()).toBe('x Schafe');
+        });
+
+        it('should handle select ICU message', () => {
+            const file: ITranslationMessagesFile = readFile(MASTER1SRC);
+            const tu: ITransUnit = file.transUnitWithId(ID_ICU_SELECT);
+            const normalizedMessage = tu.sourceContentNormalized();
+            expect(normalizedMessage.asDisplayString()).toBe('<ICU-Message/>');
+            const icuMessage = normalizedMessage.getICUMessage();
+            expect(icuMessage).toBeTruthy();
+            expect(icuMessage.isPluralMessage()).toBeFalsy();
+            expect(icuMessage.isSelectMessage()).toBeTruthy();
+            expect(icuMessage.getCategories().length).toBe(3);
+            expect(icuMessage.getCategories()[0].getCategory()).toBe('wert0');
+            expect(icuMessage.getCategories()[0].getMessageNormalized().asDisplayString()).toBe('wert0 wurde gewählt');
+            expect(icuMessage.getCategories()[1].getCategory()).toBe('wert1');
+            expect(icuMessage.getCategories()[1].getMessageNormalized().asDisplayString()).toBe('ein anderer Wert (wert1) wurde gewählt');
+            expect(icuMessage.getCategories()[2].getCategory()).toBe('wert2');
+            expect(icuMessage.getCategories()[2].getMessageNormalized().asDisplayString()).toBe('was ganz anderes wurde gewählt');
+        });
+
+        it('should handle ICU with embedded tags', () => {
+            const file: ITranslationMessagesFile = readFile(MASTER1SRC);
+            const tu: ITransUnit = file.transUnitWithId(ID_ICU_EMBEDDED_TAGS);
+            const normalizedMessage = tu.sourceContentNormalized();
+            expect(normalizedMessage.asDisplayString()).toBe('<ICU-Message/>');
+            const icuMessage = normalizedMessage.getICUMessage();
+            expect(icuMessage).toBeTruthy();
+            expect(icuMessage.isPluralMessage()).toBeFalsy();
+            expect(icuMessage.isSelectMessage()).toBeTruthy();
+            expect(icuMessage.getCategories().length).toBe(3);
+            expect(icuMessage.getCategories()[0].getCategory()).toBe('wert0');
+            expect(icuMessage.getCategories()[0].getMessageNormalized().asDisplayString()).toBe('wert0 ausgewählt');
+            expect(icuMessage.getCategories()[1].getCategory()).toBe('wert1');
+            expect(icuMessage.getCategories()[1].getMessageNormalized().asDisplayString()).toBe('ein <b>anderer</b> Wert (wert1) ausgewählt');
+            expect(icuMessage.getCategories()[2].getCategory()).toBe('wert2');
+            expect(icuMessage.getCategories()[2].getMessageNormalized().asDisplayString()).toBe('was <em>ganz anderes</em> wurde ausgewählt');
         });
 
     });

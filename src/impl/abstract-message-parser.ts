@@ -1,5 +1,8 @@
 import {ParsedMessage} from './parsed-message';
-import {END_TAG, ParsedMesageTokenizer, PLACEHOLDER, START_TAG, TEXT, Token} from './parsed-message-tokenizer';
+import {
+    END_TAG, ICU_MESSAGE, ICU_MESSAGE_REF, ParsedMesageTokenizer, PLACEHOLDER, START_TAG, TEXT,
+    Token
+} from './parsed-message-tokenizer';
 import {ParsedMessagePart, ParsedMessagePartType} from './parsed-message-part';
 import {ParsedMessagePartText} from './parsed-message-part-text';
 import {DOMParser} from 'xmldom';
@@ -7,10 +10,11 @@ import {ParsedMessagePartStartTag} from './parsed-message-part-start-tag';
 import {ParsedMessagePartPlaceholder} from './parsed-message-part-placeholder';
 import {ParsedMessagePartEndTag} from './parsed-message-part-end-tag';
 import {IMessageParser} from './i-message-parser';
-import {format} from 'util';
+import {format, isNullOrUndefined} from 'util';
+import {DOMUtilities} from './dom-utilities';
 /**
  * Created by roobm on 10.05.2017.
- * A message parser can parse the xml content of a translatable message.
+ * A message parser can parseICUMessage the xml content of a translatable message.
  * It generates a ParsedMessage from it.
  */
 export abstract class AbstractMessageParser implements IMessageParser {
@@ -60,14 +64,57 @@ export abstract class AbstractMessageParser implements IMessageParser {
             }
         }
         if (processChildren) {
-            const children = node.childNodes;
-            for (let i = 0; i < children.length; i++) {
-                this.addPartsOfNodeToMessage(children.item(i), message, true);
+            const icuMessageText = this.getICUMessageText(node);
+            let isICU = !isNullOrUndefined(icuMessageText);
+            if (isICU) {
+                try {
+                    message.addICUMessage(icuMessageText);
+                } catch (error) {
+                    // if it is not parsable, handle it as non ICU
+                    console.log('non ICU message: ', icuMessageText, error);
+                    isICU = false;
+                }
+            }
+            if (!isICU) {
+                const children = node.childNodes;
+                for (let i = 0; i < children.length; i++) {
+                    this.addPartsOfNodeToMessage(children.item(i), message, true);
+                }
             }
         }
         if (node.nodeType === node.ELEMENT_NODE) {
             this.processEndElement(<Element> node, message);
         }
+    }
+
+    /**
+     * Return the ICU message content of the node, if it is an ICU Message.
+     * @param node
+     * @return message or null, if it is no ICU Message.
+     */
+    protected getICUMessageText(node: Node): string {
+        const children = node.childNodes;
+        if (children.length === 0) {
+            return null;
+        }
+        const firstChild = children.item(0);
+        if (firstChild.nodeType === firstChild.TEXT_NODE) {
+            if (this.isICUMessageStart(firstChild.textContent)) {
+                return DOMUtilities.getXMLContent(<Element> node);
+            } else {
+                return null;
+            }
+        } else {
+            return null;
+        }
+    }
+
+    /**
+     * Test, wether text is beginning of ICU Message.
+     * @param text
+     */
+    protected isICUMessageStart(text: string): boolean {
+        return text.startsWith('{VAR_PLURAL') || text.startsWith('{VAR_SELECT');
     }
 
     /**
@@ -123,6 +170,11 @@ export abstract class AbstractMessageParser implements IMessageParser {
                 case PLACEHOLDER:
                     message.addPlaceholder(token.value);
                     break;
+                case ICU_MESSAGE_REF:
+                    message.addICUMessageRef(token.value);
+                    break;
+                case ICU_MESSAGE:
+                    throw new Error(format('<ICUMessage/> not allowed here, use parseICUMessage instead (parsed "%")', normalizedString));
                 default:
                     break;
             }
@@ -132,6 +184,19 @@ export abstract class AbstractMessageParser implements IMessageParser {
             throw new Error(format('missing close tag "%s" (parsed "%s")', openTags[openTags.length - 1], normalizedString));
         }
         message.setXmlRepresentation(this.createXmlRepresentation(message));
+        return message;
+    }
+
+    /**
+     * Parse a string, that is an ICU message, to ParsedMessage.
+     * @param icuMessageString the message, like '{x, plural, =0 {nothing} =1 {one} other {many}}'.
+     * @param sourceMessage optional original message that will be translated by normalized new one
+     * @return a new parsed message.
+     * Throws an error if icuMessageString has not the correct syntax.
+     */
+    parseICUMessage(icuMessageString: string, sourceMessage: ParsedMessage): ParsedMessage {
+        const message: ParsedMessage = new ParsedMessage(this, sourceMessage);
+        message.addICUMessage(icuMessageString);
         return message;
     }
 

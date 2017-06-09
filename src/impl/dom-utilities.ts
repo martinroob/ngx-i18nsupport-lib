@@ -70,7 +70,7 @@ export class DOMUtilities {
         while (element.firstChild) {
             element.removeChild(element.firstChild);
         }
-        // parse pcdata
+        // parseICUMessage pcdata
         let pcdataFragment: Document = new DOMParser().parseFromString('<fragment>' + pcdata + '</fragment>', 'application/xml');
         let newChildren = pcdataFragment.getElementsByTagName('fragment').item(0).childNodes;
         for (let j = 0; j < newChildren.length; j++) {

@@ -235,5 +235,40 @@
         <source><pc id="0" equivStart="START_LINK" equivEnd="CLOSE_LINK" type="link" dispStart="&lt;a>" dispEnd="&lt;/a>">link1 with placeholder <ph id="1" equiv="INTERPOLATION" disp="{{placeholder}}"/></pc></source>
       </segment>
     </unit>
+    <unit id="157616252019374389">
+      <segment state="new">
+        <source>{VAR_PLURAL, plural, =0 {kein Schaf} =1 {1 Schaf} other {x Schafe} }</source>
+        <target>{VAR_PLURAL, plural, =0 {kein Schaf} =1 {1 Schaf} other {x Schafe} }</target></segment>
+    </unit>
+    <unit id="9140199138743662415">
+      <segment state="new">
+        <source>Zum Wert <ph id="0" equiv="INTERPOLATION" disp="{{auswahl}}"/> gehört alternativ <ph id="1"/></source>
+        <target>Zum Wert <ph id="0" equiv="INTERPOLATION" disp="{{auswahl}}"/> gehört alternativ <ph id="1"/></target>
+      </segment>
+    </unit>
+    <unit id="6710804210857077393">
+      <segment state="new">
+        <source>{VAR_SELECT, select, wert0 {wert0 ausgewählt} wert1 {ein <pc id="0" equivStart="START_BOLD_TEXT" equivEnd="CLOSE_BOLD_TEXT" type="fmt" dispStart="&lt;b>" dispEnd="&lt;/b>">anderer</pc> Wert (wert1) ausgewählt} wert2 {was <pc id="1" equivStart="START_EMPHASISED_TEXT" equivEnd="CLOSE_EMPHASISED_TEXT" type="other" dispStart="&lt;em>" dispEnd="&lt;/em>">ganz anderes</pc> wurde ausgewählt} }</source>
+        <target>{VAR_SELECT, select, wert0 {wert0 ausgewählt} wert1 {ein <pc id="0" equivStart="START_BOLD_TEXT" equivEnd="CLOSE_BOLD_TEXT" type="fmt" dispStart="&lt;b>" dispEnd="&lt;/b>">anderer</pc> Wert (wert1) ausgewählt} wert2 {was <pc id="1" equivStart="START_EMPHASISED_TEXT" equivEnd="CLOSE_EMPHASISED_TEXT" type="other" dispStart="&lt;em>" dispEnd="&lt;/em>">ganz anderes</pc> wurde ausgewählt} }</target>
+      </segment>
+    </unit>
+    <unit id="6710804210857077394">
+      <segment state="new">
+        <source>{VAR_SELECT, select, wert0 {wert0 wurde gewählt} wert1 {ein anderer Wert (wert1) wurde gewählt} wert2 {was ganz anderes wurde gewählt} }</source>
+        <target>{VAR_SELECT, select, wert0 {wert0 wurde gewählt} wert1 {ein anderer Wert (wert1) wurde gewählt} wert2 {was ganz anderes wurde gewählt} }</target>
+      </segment>
+    </unit>
+    <unit id="2747218257718409559">
+      <segment state="new">
+        <source>Zum Wert <ph id="0" equiv="INTERPOLATION" disp="{{auswahl}}"/> gehört der Text <ph id="1"/></source>
+        <target>Zum Wert <ph id="0" equiv="INTERPOLATION" disp="{{auswahl}}"/> gehört der Text <ph id="1"/></target>
+      </segment>
+    </unit>
+    <unit id="complextags.icuTwoICU">
+      <segment state="new">
+        <source>first: <ph id="0"/>, second <ph id="1"/></source>
+        <target>first: <ph id="0"/>, second <ph id="1"/></target>
+      </segment>
+    </unit>
   </file>
 </xliff>

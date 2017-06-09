@@ -4,10 +4,13 @@ import {ParsedMessagePartPlaceholder} from './parsed-message-part-placeholder';
 import {ParsedMessagePartStartTag} from './parsed-message-part-start-tag';
 import {ParsedMessagePartEndTag} from './parsed-message-part-end-tag';
 import {INormalizedMessage, ValidationErrors} from '../api/i-normalized-message';
-import {XMLSerializer} from 'xmldom';
 import {DOMUtilities} from './dom-utilities';
 import {IMessageParser} from './i-message-parser';
-import {format, isNullOrUndefined} from 'util';
+import {format, isNullOrUndefined, isString} from 'util';
+import {IICUMessage, IICUMessageTranslation} from '../api/i-icu-message';
+import {ParsedMessagePartICUMessage} from './parsed-message-part-icu-message';
+import {ParsedMessagePartICUMessageRef} from './parsed-message-part-icu-message-ref';
+import {ICUMessage} from './icu-message';
 /**
  * Created by martin on 05.05.2017.
  * A message text read from a translation file.
@@ -45,10 +48,35 @@ export class ParsedMessage implements INormalizedMessage {
 
     /**
      * Create a new normalized message as a translation of this one.
-     * @param normalizedString
+     * @param normalizedString the translation in normalized form.
+     * If the message is an ICUMessage (getICUMessage returns a value), use translateICUMessage instead.
+     * @throws an error if normalized string is not well formed.
+     * Throws an error too, if this is an ICU message.
      */
-    public translate(normalizedString: string): INormalizedMessage {
-        return this._parser.parseNormalizedString(normalizedString, this);
+    translate(normalizedString: string): INormalizedMessage {
+        if (isNullOrUndefined(this.getICUMessage())) {
+            return this._parser.parseNormalizedString(<string> normalizedString, this);
+        } else {
+            throw new Error(format('cannot translate ICU message with simple string, use translateICUMessage() instead ("%s", "%s")', normalizedString, this.asNativeString()));
+        }
+    }
+
+    /**
+     * Create a new normalized icu message as a translation of this one.
+     * @param icuTranslation the translation, this is the translation of the ICU message,
+     * which is not a string, but a collections of the translations of the different categories.
+     * The message must be an ICUMessage (getICUMessage returns a value)
+     * @throws an error if normalized string is not well formed.
+     * Throws an error too, if this is not an ICU message.
+     */
+    translateICUMessage(icuTranslation: IICUMessageTranslation): INormalizedMessage {
+        const icuMessage: IICUMessage = this.getICUMessage();
+        if (isNullOrUndefined(icuMessage)) {
+            throw new Error(format('this is not an ICU message, use translate() instead ("%s", "%s")', icuTranslation,  this.asNativeString()));
+        } else {
+            const translatedICUMessage: IICUMessage = icuMessage.translate(icuTranslation);
+            return this._parser.parseICUMessage(translatedICUMessage.asNativeString(), this);
+        }
     }
 
     /**
@@ -74,7 +102,11 @@ export class ParsedMessage implements INormalizedMessage {
      * Includes all format specific markup like <ph id="INTERPOLATION" ../> ..
      */
     asNativeString(): string {
-        return DOMUtilities.getXMLContent(this._xmlRepresentation);
+        if (isNullOrUndefined(this.getICUMessage())) {
+            return DOMUtilities.getXMLContent(this._xmlRepresentation);
+        } else {
+            return this.getICUMessage().asNativeString();
+        }
     }
 
     /**
@@ -88,6 +120,16 @@ export class ParsedMessage implements INormalizedMessage {
         e = this.checkPlaceholderAdded();
         if (!isNullOrUndefined(e)) {
             errors.placeholderAdded = e;
+            hasErrors = true;
+        }
+        e = this.checkICUMessageRefRemoved();
+        if (!isNullOrUndefined(e)) {
+            errors.icuMessageRefRemoved = e;
+            hasErrors = true;
+        }
+        e = this.checkICUMessageRefAdded();
+        if (!isNullOrUndefined(e)) {
+            errors.icuMessageRefAdded = e;
             hasErrors = true;
         }
         return hasErrors ? errors : null;
@@ -122,11 +164,26 @@ export class ParsedMessage implements INormalizedMessage {
     }
 
     /**
+     * If this message is an ICU message, returns its structure.
+     * Otherwise this method returns null.
+     * @return ICUMessage or null.
+     */
+    public getICUMessage(): IICUMessage {
+        if (this._parts.length === 1 && this._parts[0].type === ParsedMessagePartType.ICU_MESSAGE) {
+            const icuPart = <ParsedMessagePartICUMessage> this._parts[0];
+            return icuPart.getICUMessage();
+        } else {
+            return null;
+        }
+    }
+
+
+    /**
      * Check for added placeholder.
      * @return null or message, if fulfilled.
      */
     private checkPlaceholderAdded(): any {
-        let e;
+        let e = null;
         if (this.sourceMessage) {
             let sourcePlaceholders = this.sourceMessage.allPlaceholders();
             let myPlaceholders = this.allPlaceholders();
@@ -144,7 +201,7 @@ export class ParsedMessage implements INormalizedMessage {
      * @return null or message, if fulfilled.
      */
     private checkPlaceholderRemoved(): any {
-        let w;
+        let w = null;
         if (this.sourceMessage) {
             let sourcePlaceholders = this.sourceMessage.allPlaceholders();
             let myPlaceholders = this.allPlaceholders();
@@ -155,6 +212,42 @@ export class ParsedMessage implements INormalizedMessage {
             });
         }
         return w;
+    }
+
+    /**
+     * Check for added ICU Message Refs.
+     * @return null or message, if fulfilled.
+     */
+    private checkICUMessageRefAdded(): any {
+        let e = null;
+        if (this.sourceMessage) {
+            let sourceICURefs = this.sourceMessage.allICUMessageRefs();
+            let myICURefs = this.allICUMessageRefs();
+            myICURefs.forEach((index) => {
+                if (!sourceICURefs.has(index)) {
+                    e = 'added ICU message reference ' + index + ', which is not in original message';
+                }
+            });
+        }
+        return e;
+    }
+
+    /**
+     * Check for removed ICU Message Refs.
+     * @return null or message, if fulfilled.
+     */
+    private checkICUMessageRefRemoved(): any {
+        let e = null;
+        if (this.sourceMessage) {
+            let sourceICURefs = this.sourceMessage.allICUMessageRefs();
+            let myICURefs = this.allICUMessageRefs();
+            sourceICURefs.forEach((index) => {
+                if (!myICURefs.has(index)) {
+                    e = 'removed ICU message reference ' + index + ' from original messages';
+                }
+            });
+        }
+        return e;
     }
 
     /**
@@ -172,11 +265,25 @@ export class ParsedMessage implements INormalizedMessage {
     }
 
     /**
+     * Get all indexes of ICU message refs used in the message.
+     */
+    private allICUMessageRefs(): Set<number> {
+        let result = new Set<number>();
+        this.parts().forEach((part) => {
+            if (part.type === ParsedMessagePartType.ICU_MESSAGE_REF) {
+                let index = (<ParsedMessagePartICUMessageRef> part).index();
+                result.add(index);
+            }
+        });
+        return result;
+    }
+
+    /**
      * Check for added tags.
      * @return null or message, if fulfilled.
      */
     private checkTagAdded(): any {
-        let e;
+        let e = null;
         if (this.sourceMessage) {
             let sourceTags = this.sourceMessage.allTags();
             let myTags = this.allTags();
@@ -194,7 +301,7 @@ export class ParsedMessage implements INormalizedMessage {
      * @return null or message, if fulfilled.
      */
     private checkTagRemoved(): any {
-        let w;
+        let w = null;
         if (this.sourceMessage) {
             let sourceTags = this.sourceMessage.allTags();
             let myTags = this.allTags();
@@ -249,6 +356,14 @@ export class ParsedMessage implements INormalizedMessage {
             throw new Error(format('unexpected close tag %s (currently open is %s, native xml is "%s")', tagname, openTag, this.asNativeString()));
         }
         this._parts.push(new ParsedMessagePartEndTag(tagname));
+    }
+
+    addICUMessageRef(index: number) {
+        this._parts.push(new ParsedMessagePartICUMessageRef(index));
+    }
+
+    addICUMessage(text: string) {
+        this._parts.push(new ParsedMessagePartICUMessage(text, this._parser));
     }
 
     /**

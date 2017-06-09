@@ -56,6 +56,11 @@ describe('ngx-i18nsupport-lib xtb test spec', () => {
         let ID_WITH_TAGS = '7609655310648429098';
         let ID_WITH_TAG_STRANGE = '7610784844464920497';
         let ID_TO_MERGE = 'unittomerge';
+        let ID_ICU_PLURAL = '157616252019374389';
+        let ID_ICU_SELECT = '4002068837191765530';
+        let ID_ICU_EMBEDDED_TAGS = '6710804210857077393';
+        let ID_CONTAINS_ICU = '2747218257718409559';
+        let ID_CONTAINS_TWO_ICU = 'complextags.icuTwoICU';
 
         it('should read xtb file', () => {
             const file: ITranslationMessagesFile = readFile(TRANSLATION_EN_XTB);
@@ -82,7 +87,7 @@ describe('ngx-i18nsupport-lib xtb test spec', () => {
 
         it('should count units', () => {
             const file: ITranslationMessagesFile = readFile(TRANSLATION_EN_XTB);
-            expect(file.numberOfTransUnits()).toBe(11);
+            expect(file.numberOfTransUnits()).toBe(16);
             expect(file.numberOfTransUnitsWithMissingId()).toBe(1);
             expect(file.numberOfUntranslatedTransUnits()).toBe(file.numberOfTransUnits());
             expect(file.numberOfReviewedTransUnits()).toBe(0);
@@ -263,6 +268,44 @@ describe('ngx-i18nsupport-lib xtb test spec', () => {
             const file2: ITranslationMessagesFile = TranslationMessagesFileFactory.fromUnknownFormatFileContent(file.editedContent(), null, null);
             const tu2: ITransUnit = file2.transUnitWithId(ID_MY_FIRST);
             expect(tu2.targetContentNormalized().asDisplayString()).toBe(translationString);
+        });
+
+        it('should translate plural ICU', () => {
+            const file: ITranslationMessagesFile = readFile(TRANSLATION_EN_XTB, MASTER_DE_XMB);
+            const tu: ITransUnit = file.transUnitWithId(ID_ICU_PLURAL);
+            expect(tu).toBeTruthy();
+            const normalizedMessage = tu.sourceContentNormalized();
+            expect(normalizedMessage.asDisplayString()).toBe('<ICU-Message/>');
+            const translatedMessage = normalizedMessage.translateICUMessage({'=0': 'nothing'});
+            tu.translate(translatedMessage);
+            const icuMessage = tu.targetContentNormalized().getICUMessage();
+            expect(icuMessage).toBeTruthy();
+            expect(icuMessage.isPluralMessage()).toBeTruthy();
+            expect(icuMessage.isSelectMessage()).toBeFalsy();
+            expect(icuMessage.getCategories().length).toBe(3);
+            expect(icuMessage.getCategories()[0].getCategory()).toBe('=0');
+            expect(icuMessage.getCategories()[0].getMessageNormalized().asDisplayString()).toBe('nothing');
+            expect(tu.targetContent()).toBe('{VAR_PLURAL, plural, =0 {nothing} =1 {1 Schaf} other {x Schafe}}');
+        });
+
+        it('should translate ICU with embedded tags', () => {
+            const file: ITranslationMessagesFile = readFile(TRANSLATION_EN_XTB, MASTER_DE_XMB);
+            const tu: ITransUnit = file.transUnitWithId(ID_ICU_EMBEDDED_TAGS);
+            const normalizedMessage = tu.sourceContentNormalized();
+            expect(normalizedMessage.asDisplayString()).toBe('<ICU-Message/>');
+            const translatedMessage = normalizedMessage.translateICUMessage({'wert1': '<em>changed</em>'});
+            tu.translate(translatedMessage);
+            const icuMessage = tu.targetContentNormalized().getICUMessage();
+            expect(icuMessage).toBeTruthy();
+            expect(icuMessage.isPluralMessage()).toBeFalsy();
+            expect(icuMessage.isSelectMessage()).toBeTruthy();
+            expect(icuMessage.getCategories().length).toBe(3);
+            expect(icuMessage.getCategories()[1].getCategory()).toBe('wert1');
+            expect(icuMessage.getCategories()[1].getMessageNormalized().asDisplayString()).toBe('<em>changed</em>');
+            expect(tu.targetContent()).toContain('wert1 {<ph name="START_EMPHASISED_TEXT"><ex>&lt;em></ex></ph>changed<ph name="CLOSE_EMPHASISED_TEXT"><ex>&lt;/em></ex></ph>}');
+            // TODO find warnings in embedded message, known limitation in the moment.
+            //            const warnings = icuMessage.getCategories()[1].getMessageNormalized().validateWarnings();
+            //            expect(warnings).toBeTruthy();
         });
 
     });

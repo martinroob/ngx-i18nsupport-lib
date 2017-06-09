@@ -114,6 +114,46 @@
           <context context-type="linenumber">21</context>
         </context-group>
       </trans-unit>
+      <trans-unit id="efec69fdcf74bd6d640b2a771558b7b09e271c28" datatype="html">
+        <source>{VAR_PLURAL, plural, =0 {kein Schaf} =1 {1 Schaf} other {x Schafe} }</source>
+        <target/>
+        <context-group purpose="location">
+          <context context-type="sourcefile">S:/experimente/sampleapp41/src/app/app.component.ts</context>
+          <context context-type="linenumber">14</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="1f3c670be000dbb6cbe05353d12ef62793d91fec" datatype="html">
+        <source>Zum Wert <x id="INTERPOLATION"/> gehört der Text <x id="ICU"/></source>
+        <target/>
+        <context-group purpose="location">
+          <context context-type="sourcefile">S:/experimente/sampleapp41/src/app/app.component.ts</context>
+          <context context-type="linenumber">16</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="complextags.icuTwoICU" datatype="html">
+        <source>first: <x id="ICU"/>, second <x id="ICU_1"/></source>
+        <target state="new">first: <x id="ICU"/>, second <x id="ICU_1"/></target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">S:/experimente/sampleapp41/src/app/ngx-translate-test-data/ngx-translate-test-data.component.ts</context>
+          <context context-type="linenumber">24</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="8967ef1e10bdf8ea6d8e65ba7ffe7fc69960d1da" datatype="html">
+        <source>{VAR_SELECT, select, wert0 {wert0 wurde gewählt} wert1 {ein anderer Wert (wert1) wurde gewählt} wert2 {was ganz anderes wurde gewählt} }</source>
+        <target/>
+        <context-group purpose="location">
+          <context context-type="sourcefile">S:/experimente/sampleapp41/src/app/app.component.ts</context>
+          <context context-type="linenumber">16</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="304b4d798bf51257538949844e121724110d37ed" datatype="html">
+        <source>{VAR_SELECT, select, wert0 {wert0 ausgewählt} wert1 {ein <x id="START_BOLD_TEXT" ctype="x-b"/>anderer<x id="CLOSE_BOLD_TEXT" ctype="x-b"/> Wert (wert1) ausgewählt} wert2 {was <x id="START_EMPHASISED_TEXT" ctype="x-em"/>ganz anderes<x id="CLOSE_EMPHASISED_TEXT" ctype="x-em"/> wurde ausgewählt} }</source>
+        <target state="new">{VAR_SELECT, select, wert0 {wert0 ausgewählt} wert1 {ein <x id="START_BOLD_TEXT" ctype="x-b"/>anderer<x id="CLOSE_BOLD_TEXT" ctype="x-b"/> Wert (wert1) ausgewählt} wert2 {was <x id="START_EMPHASISED_TEXT" ctype="x-em"/>ganz anderes<x id="CLOSE_EMPHASISED_TEXT" ctype="x-em"/> wurde ausgewählt} }</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">S:/experimente/sampleapp41/src/app/app.component.ts</context>
+          <context context-type="linenumber">17</context>
+        </context-group>
+      </trans-unit>
     </body>
   </file>
 </xliff>

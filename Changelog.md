@@ -1,3 +1,10 @@
+<a name="1.4.1"></a>
+# [1.4.1](https://github.com/martinroob/ngx-i18nsupport-lib/compare/v1.4.1...v1.3.1) (2017-06-09)
+
+### Features
+
+* **API** Add support for ICU message usage ([#25](https://github.com/martinroob/ngx-i18nsupport-lib/issues/25)).
+
 <a name="1.3.1"></a>
 # [1.3.1](https://github.com/martinroob/ngx-i18nsupport-lib/compare/v1.3.1...v1.3.0) (2017-06-02)
 

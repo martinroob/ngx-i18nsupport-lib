@@ -29,6 +29,9 @@ export class XliffMessageParser extends AbstractMessageParser {
             if (id.startsWith('INTERPOLATION')) {
                 const index = this.parsePlaceholderIndexFromId(id);
                 message.addPlaceholder(index);
+            } else if (id.startsWith('ICU')) {
+                const index = this.parseICUMessageRefIndexFromId(id);
+                message.addICUMessageRef(index);
             } else if (id.startsWith('START_')) {
                 let normalizedTagName = tagMapping.getTagnameFromStartTagPlaceholderName(id);
                 if (normalizedTagName) {
@@ -66,6 +69,23 @@ export class XliffMessageParser extends AbstractMessageParser {
             indexString = '0';
         } else {
             indexString = id.substring('INTERPOLATION_'.length);
+        }
+        return Number.parseInt(indexString);
+    }
+
+    /**
+     * Parse id attribute of x element as placeholder index.
+     * id can be "INTERPOLATION" or "INTERPOLATION_n"
+     * @param id
+     * @return {number}
+     */
+    private parseICUMessageRefIndexFromId(id: string): number {
+        let indexString = '';
+
+        if (id === 'ICU') {
+            indexString = '0';
+        } else {
+            indexString = id.substring('ICU_'.length);
         }
         return Number.parseInt(indexString);
     }
