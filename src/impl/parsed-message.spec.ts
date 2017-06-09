@@ -155,6 +155,28 @@ describe('normalized message test spec', () => {
             expect(sourceICUMessage.getICUMessage().asNativeString()).toBe('{VAR_SELECT, select, m {männlich} f {weiblich}}');
         });
 
+        it('should parse ICU select message with select or plural in message text', () => {
+            let original = '{VAR_SELECT, select, wert0 {value0 selected} wert1 {plural selected} wert2 {anything else selected} }';
+            let sourceICUMessage = parsedICUMessage(original);
+            expect(sourceICUMessage).toBeTruthy();
+            expect(sourceICUMessage.getICUMessage()).toBeTruthy();
+            expect(sourceICUMessage.getICUMessage().isPluralMessage()).toBeFalsy();
+            expect(sourceICUMessage.getICUMessage().getCategories().length).toBe(3);
+            expect(sourceICUMessage.getICUMessage().getCategories()[0].getCategory()).toBe('wert0');
+            expect(sourceICUMessage.getICUMessage().getCategories()[0].getMessageNormalized().asDisplayString()).toBe('value0 selected');
+        });
+
+        it('should parse ICU select message with masked } {', () => {
+            let original = '{VAR_SELECT, select, wert0 {value0 \'}\'\'\'\'{\'}}';
+            let sourceICUMessage = parsedICUMessage(original);
+            expect(sourceICUMessage).toBeTruthy();
+            expect(sourceICUMessage.getICUMessage()).toBeTruthy();
+            expect(sourceICUMessage.getICUMessage().isPluralMessage()).toBeFalsy();
+            expect(sourceICUMessage.getICUMessage().getCategories().length).toBe(1);
+            expect(sourceICUMessage.getICUMessage().getCategories()[0].getCategory()).toBe('wert0');
+            expect(sourceICUMessage.getICUMessage().getCategories()[0].getMessageNormalized().asDisplayString()).toBe('value0 }\'{');
+        });
+
         it('should translate ICU plural message', () => {
             let original = '{n, plural, =0 {kein Schaf} =1 {ein Schaf} other {Schafe}}';
             let sourceICUMessage: INormalizedMessage = parsedICUMessage(original);
