@@ -9,6 +9,7 @@ export enum ParsedMessagePartType {
     PLACEHOLDER,
     START_TAG,
     END_TAG,
+    EMPTY_TAG,
     ICU_MESSAGE,
     ICU_MESSAGE_REF
 }

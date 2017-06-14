@@ -6,6 +6,7 @@ import {ParsedMessagePartPlaceholder} from './parsed-message-part-placeholder';
 import {ParsedMessagePartText} from './parsed-message-part-text';
 import {ParsedMessagePartType} from './parsed-message-part';
 import {TagMapping} from './tag-mapping';
+import {ParsedMessagePartEmptyTag} from './parsed-message-part-empty-tag';
 /**
  * Created by roobm on 10.05.2017.
  * A message parser for XLIFF 2.0
@@ -27,22 +28,40 @@ export class Xliff2MessageParser extends AbstractMessageParser {
             // TODO make some use of the name (but it is not available in XLIFF 1.2)
             // ICU message are handled with the same tag, but they do not have an equiv:
             // e.g. <ph id="0"/>
+            // and empty tags have equiv other then INTERPOLATION:
+            // e.g. <ph id="3" equiv="TAG_IMG" type="image" disp="&lt;img/>"/>
+            // or <ph equiv="LINE_BREAK" type="lb" disp="&lt;br/>"/>
+            let isInterpolation = false;
+            let isICU = false;
+            let isEmptyTag = false;
             let equiv = elementNode.getAttribute('equiv');
-            let indexString = '';
-            if (!equiv || !equiv.startsWith('INTERPOLATION')) {
+            let indexString = null;
+            let index = 0;
+            let emptyTagName = null;
+            if (!equiv) {
+                isICU = true;
                 indexString = elementNode.getAttribute('id')
-            } else {
+                index = Number.parseInt(indexString);
+            } else if (equiv.startsWith('INTERPOLATION')) {
+                isInterpolation = true;
                 if (equiv === 'INTERPOLATION') {
                     indexString = '0';
                 } else {
                     indexString = equiv.substring('INTERPOLATION_'.length);
                 }
-            }
-            let index = Number.parseInt(indexString);
-            if (equiv) {
-                message.addPlaceholder(index);
+                index = Number.parseInt(indexString);
+            } else if (new TagMapping().isEmptyTagPlaceholderName(equiv)) {
+                isEmptyTag = true;
+                emptyTagName = new TagMapping().getTagnameFromEmptyTagPlaceholderName(equiv);
             } else {
+                return true;
+            }
+            if (isInterpolation) {
+                message.addPlaceholder(index);
+            } else if (isICU) {
                 message.addICUMessageRef(index);
+            } else {
+                message.addEmptyTag(emptyTagName);
             }
         } else if (tagName === 'pc') {
             // pc example: <pc id="0" equivStart="START_BOLD_TEXT" equivEnd="CLOSE_BOLD_TEXT" type="fmt" dispStart="&lt;b&gt;" dispEnd="&lt;/b&gt;">IMPORTANT</pc>
@@ -114,6 +133,11 @@ export class Xliff2MessageParser extends AbstractMessageParser {
                     }
                     stack.pop();
                     break;
+                case ParsedMessagePartType.EMPTY_TAG:
+                    let emptyTagElem = this.createXmlRepresentationOfEmptyTagPart(<ParsedMessagePartEmptyTag> part, rootElem, tagIdCounter);
+                    tagIdCounter++;
+                    stack[stack.length - 1].element.appendChild(emptyTagElem);
+                    break;
             }
         });
         if (stack.length !== 1) {
@@ -155,6 +179,24 @@ export class Xliff2MessageParser extends AbstractMessageParser {
     protected createXmlRepresentationOfEndTagPart(part: ParsedMessagePartEndTag, rootElem: Element): Node {
         // not used
         return null;
+    }
+
+    /**
+     * the xml used for empty tag in the message.
+     * Returns an empty ph-Element.
+     * e.g. <ph id="3" equiv="TAG_IMG" type="image" disp="&lt;img/>"/>
+     * @param part
+     * @param rootElem
+     */
+    protected createXmlRepresentationOfEmptyTagPart(part: ParsedMessagePartEmptyTag, rootElem: Element, id?: number): Node {
+        const tagMapping = new TagMapping();
+        let phElem = rootElem.ownerDocument.createElement('ph');
+        let equiv = tagMapping.getEmptyTagPlaceholderName(part.tagName());
+        let disp = '<' + part.tagName() + '/>';
+        phElem.setAttribute('id', id.toString(10));
+        phElem.setAttribute('equiv', equiv);
+        phElem.setAttribute('disp', disp);
+        return phElem;
     }
 
     /**

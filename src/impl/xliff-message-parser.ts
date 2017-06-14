@@ -4,6 +4,7 @@ import {ParsedMessagePartStartTag} from './parsed-message-part-start-tag';
 import {ParsedMessagePartEndTag} from './parsed-message-part-end-tag';
 import {ParsedMessagePartPlaceholder} from './parsed-message-part-placeholder';
 import {TagMapping} from './tag-mapping';
+import {ParsedMessagePartEmptyTag} from './parsed-message-part-empty-tag';
 /**
  * Created by roobm on 10.05.2017.
  * A message parser for XLIFF 1.2
@@ -41,6 +42,11 @@ export class XliffMessageParser extends AbstractMessageParser {
                 let normalizedTagName = tagMapping.getTagnameFromCloseTagPlaceholderName(id);
                 if (normalizedTagName) {
                     message.addEndTag(normalizedTagName);
+                }
+            } else if (tagMapping.isEmptyTagPlaceholderName(id)) {
+                let normalizedTagName = tagMapping.getTagnameFromEmptyTagPlaceholderName(id);
+                if (normalizedTagName) {
+                    message.addEmptyTag(normalizedTagName);
                 }
             }
         }
@@ -100,7 +106,7 @@ export class XliffMessageParser extends AbstractMessageParser {
         let xElem = rootElem.ownerDocument.createElement('x');
         const tagMapping = new TagMapping();
         let idAttrib = tagMapping.getStartTagPlaceholderName(part.tagName());
-        let ctypeAttrib = 'x-' + part.tagName();
+        let ctypeAttrib = tagMapping.getCtypeForTag(part.tagName());
         xElem.setAttribute('id', idAttrib);
         xElem.setAttribute('ctype', ctypeAttrib);
         return xElem;
@@ -117,6 +123,22 @@ export class XliffMessageParser extends AbstractMessageParser {
         const tagMapping = new TagMapping();
         let idAttrib = tagMapping.getCloseTagPlaceholderName(part.tagName());
         let ctypeAttrib = 'x-' + part.tagName();
+        xElem.setAttribute('id', idAttrib);
+        xElem.setAttribute('ctype', ctypeAttrib);
+        return xElem;
+    }
+
+    /**
+     * the xml used for empty tag in the message.
+     * Returns an empty <x/>-Element with attributes id and ctype
+     * @param part
+     * @param rootElem
+     */
+    protected createXmlRepresentationOfEmptyTagPart(part: ParsedMessagePartEmptyTag, rootElem: Element, id?: number): Node {
+        let xElem = rootElem.ownerDocument.createElement('x');
+        const tagMapping = new TagMapping();
+        let idAttrib = tagMapping.getEmptyTagPlaceholderName(part.tagName());
+        let ctypeAttrib = tagMapping.getCtypeForTag(part.tagName());
         xElem.setAttribute('id', idAttrib);
         xElem.setAttribute('ctype', ctypeAttrib);
         return xElem;

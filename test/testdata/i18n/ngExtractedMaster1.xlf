@@ -154,6 +154,12 @@
           <context context-type="linenumber">17</context>
         </context-group>
       </trans-unit>
+      <trans-unit id="explicit_linebreaks" datatype="html">
+         <source>Explicit line break<x id="LINE_BREAK" ctype="lb"/>
+              Next line.<x id="LINE_BREAK" ctype="lb"/>
+              Third line.</source>
+         <target/>
+      </trans-unit>
     </body>
   </file>
 </xliff>

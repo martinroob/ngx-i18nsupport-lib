@@ -5,6 +5,7 @@ import {ParsedMessagePartStartTag} from './parsed-message-part-start-tag';
 import {ParsedMessagePartEndTag} from './parsed-message-part-end-tag';
 import {ParsedMessagePartPlaceholder} from './parsed-message-part-placeholder';
 import {TagMapping} from './tag-mapping';
+import {ParsedMessagePartEmptyTag} from './parsed-message-part-empty-tag';
 /**
  * Created by roobm on 10.05.2017.
  * A message parser for XMB
@@ -21,8 +22,15 @@ export class XmbMessageParser extends AbstractMessageParser {
     protected processStartElement(elementNode: Element, message: ParsedMessage): boolean {
         const tagName = elementNode.tagName;
         if (tagName === 'ph') {
-            // placeholders are like <ph name="INTERPOLATION"><ex>INTERPOLATION</ex></ph>
+            // There are 4 different usages of ph element:
+            // 1. placeholders are like <ph name="INTERPOLATION"><ex>INTERPOLATION</ex></ph>
             // or <ph name="INTERPOLATION_1"><ex>INTERPOLATION_1</ex></ph>
+            // 2. start tags:
+            // <ph name="START_LINK"><ex>&lt;a&gt;</ex></ph>
+            // 3. empty tags:
+            // <ph name="TAG_IMG"><ex>&lt;img&gt;</ex></ph>
+            // 4. ICU:
+            // <ph name="ICU"><ex>ICU</ex></ph>
             let name = elementNode.getAttribute('name');
             if (!name) {
                 return true; // should not happen
@@ -30,10 +38,6 @@ export class XmbMessageParser extends AbstractMessageParser {
             if (name.startsWith('INTERPOLATION')) {
                 const index = this.parsePlaceholderIndexFromName(name);
                 message.addPlaceholder(index);
-                return false; // ignore children
-            } else if (name.startsWith('ICU')) {
-                const index = this.parseICUMessageIndexFromName(name);
-                message.addICUMessageRef(index);
                 return false; // ignore children
             } else if (name.startsWith('START_')) {
                 const tag = this.parseTagnameFromPhElement(elementNode);
@@ -46,6 +50,14 @@ export class XmbMessageParser extends AbstractMessageParser {
                 if (tag) {
                     message.addEndTag(tag);
                 }
+                return false; // ignore children
+            } else if (new TagMapping().isEmptyTagPlaceholderName(name)) {
+                const emptyTagName = new TagMapping().getTagnameFromEmptyTagPlaceholderName(name);
+                message.addEmptyTag(emptyTagName);
+                return false; // ignore children
+            } else if (name.startsWith('ICU')) {
+                const index = this.parseICUMessageIndexFromName(name);
+                message.addICUMessageRef(index);
                 return false; // ignore children
             }
         } else if (tagName === 'source') {
@@ -190,6 +202,23 @@ export class XmbMessageParser extends AbstractMessageParser {
         phElem.setAttribute('name', nameAttrib);
         let exElem = rootElem.ownerDocument.createElement('ex');
         exElem.appendChild(rootElem.ownerDocument.createTextNode('</' + part.tagName() + '>'));
+        phElem.appendChild(exElem);
+        return phElem;
+    }
+
+    /**
+     * the xml used for empty tag in the message.
+     * Returns an <ph>-Element with attribute name and subelement ex
+     * @param part
+     * @param rootElem
+     */
+    protected createXmlRepresentationOfEmptyTagPart(part: ParsedMessagePartEmptyTag, rootElem: Element, id?: number): Node {
+        let phElem = rootElem.ownerDocument.createElement('ph');
+        const tagMapping = new TagMapping();
+        let nameAttrib = tagMapping.getEmptyTagPlaceholderName(part.tagName());
+        phElem.setAttribute('name', nameAttrib);
+        let exElem = rootElem.ownerDocument.createElement('ex');
+        exElem.appendChild(rootElem.ownerDocument.createTextNode('<' + part.tagName() + '>'));
         phElem.appendChild(exElem);
         return phElem;
     }

@@ -11,6 +11,7 @@ import {IICUMessage, IICUMessageTranslation} from '../api/i-icu-message';
 import {ParsedMessagePartICUMessage} from './parsed-message-part-icu-message';
 import {ParsedMessagePartICUMessageRef} from './parsed-message-part-icu-message-ref';
 import {ICUMessage} from './icu-message';
+import {ParsedMessagePartEmptyTag} from './parsed-message-part-empty-tag';
 /**
  * Created by martin on 05.05.2017.
  * A message text read from a translation file.
@@ -356,6 +357,10 @@ export class ParsedMessage implements INormalizedMessage {
             throw new Error(format('unexpected close tag %s (currently open is %s, native xml is "%s")', tagname, openTag, this.asNativeString()));
         }
         this._parts.push(new ParsedMessagePartEndTag(tagname));
+    }
+
+    addEmptyTag(tagname: string) {
+        this._parts.push(new ParsedMessagePartEmptyTag(tagname));
     }
 
     addICUMessageRef(index: number) {
