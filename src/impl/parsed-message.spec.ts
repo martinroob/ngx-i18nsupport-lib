@@ -157,11 +157,23 @@ describe('normalized message test spec', () => {
         });
 
         it('should find nothing wrong with text containing line breaks', () => {
+            let original = 'a text without\na line break';
             let translation = 'a text without\na line break';
-            let parsedMessage = parsedMessageFor(translation);
-            expect(parsedMessage.asDisplayString()).toBe(translation);
-            expect(parsedMessage.validate()).toBeFalsy();
-            expect(parsedMessage.validateWarnings()).toBeFalsy();
+            let sourceMessage = parsedMessageFor(original);
+            let translatedMessage = sourceMessage.translate(translation);
+            expect(translatedMessage.asDisplayString()).toBe(translation);
+            expect(translatedMessage.validate()).toBeFalsy();
+            expect(translatedMessage.validateWarnings()).toBeFalsy();
+        });
+
+        it('should find nothing wrong in complex nested tags', () => {
+            let original = '<span>a <b>bold</b> text</span> and <span>a <b>bold</b> text</span>';
+            let translation = '<span>a <b>bold</b> text</span> and <span>a <b>bold</b> text</span>';
+            let sourceMessage = parsedMessageFor(original);
+            let translatedMessage = sourceMessage.translate(translation);
+            expect(translatedMessage.asDisplayString()).toBe(translation);
+            expect(translatedMessage.validate()).toBeFalsy();
+            expect(translatedMessage.validateWarnings()).toBeFalsy();
         });
 
         it('should report an error if you remove an ICU ref in the translation', () => {

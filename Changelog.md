@@ -1,3 +1,10 @@
+<a name="1.4.4"></a>
+# [1.4.4](https://github.com/martinroob/ngx-i18nsupport-lib/compare/v1.4.4...v1.4.3) (2017-06-16)
+
+### Bug Fixes
+
+* **all formats** corrected wrong warning for removed tags, introduced in 1.4.3.
+
 <a name="1.4.3"></a>
 # [1.4.3](https://github.com/martinroob/ngx-i18nsupport-lib/compare/v1.4.3...v1.4.2) (2017-06-16)
 
