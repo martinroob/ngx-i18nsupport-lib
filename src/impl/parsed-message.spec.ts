@@ -56,7 +56,18 @@ describe('normalized message test spec', () => {
             expect(translatedMessage.validate()).toBeFalsy();
             const warnings = translatedMessage.validateWarnings();
             expect(warnings).toBeTruthy();
-            expect(warnings.placeholderRemoved).toBe('removed placeholder 0 from original messages');
+            expect(warnings.placeholderRemoved).toBe('removed placeholder 0 from original message');
+        });
+
+        it('should warn if you remove 2 placeholders in the translation', () => {
+            let original = 'a text with placeholders: {{0}} and {{1}}';
+            let translation = 'a text without anything special';
+            let sourceMessage = parsedMessageFor(original);
+            let translatedMessage = sourceMessage.translate(translation);
+            expect(translatedMessage.validate()).toBeFalsy();
+            const warnings = translatedMessage.validateWarnings();
+            expect(warnings).toBeTruthy();
+            expect(warnings.placeholderRemoved).toBe('removed placeholders 0, 1 from original message');
         });
 
         it('should report an error if you add a new placeholder in the translation', () => {
@@ -68,6 +79,17 @@ describe('normalized message test spec', () => {
             const errors = translatedMessage.validate();
             expect(errors).toBeTruthy();
             expect(errors.placeholderAdded).toBe('added placeholder 1, which is not in original message');
+        });
+
+        it('should report an error if you add 2 new placeholders in the translation', () => {
+            let original = 'a text with placeholder: {{0}}';
+            let translation = 'a text with 3 placeholders: {{0}} and {{1}} and {{2}}';
+            let sourceMessage = parsedMessageFor(original);
+            let translatedMessage = sourceMessage.translate(translation);
+            expect(translatedMessage.validateWarnings()).toBeFalsy();
+            const errors = translatedMessage.validate();
+            expect(errors).toBeTruthy();
+            expect(errors.placeholderAdded).toBe('added placeholders 1, 2, which are not in original message');
         });
 
         it('should not report an error if you duplicate a placeholder in the translation', () => {
@@ -87,7 +109,7 @@ describe('normalized message test spec', () => {
             expect(translatedMessage.validate()).toBeFalsy();
             const warnings = translatedMessage.validateWarnings();
             expect(warnings).toBeTruthy();
-            expect(warnings.tagRemoved).toBe('removed tag <b> from original messages');
+            expect(warnings.tagRemoved).toBe('removed tag <b> from original message');
         });
 
         it('should warn if you add a tag in the translation', () => {
@@ -99,6 +121,39 @@ describe('normalized message test spec', () => {
             const warnings = translatedMessage.validateWarnings();
             expect(warnings).toBeTruthy();
             expect(warnings.tagAdded).toBe('added tag <strange>, which is not in original message');
+        });
+
+        it('should warn if you remove an empty tag in the translation', () => {
+            let original = 'a text with <br/>line break and <img/>';
+            let translation = 'a text';
+            let sourceMessage = parsedMessageFor(original);
+            let translatedMessage = sourceMessage.translate(translation);
+            expect(translatedMessage.validate()).toBeFalsy();
+            const warnings = translatedMessage.validateWarnings();
+            expect(warnings).toBeTruthy();
+            expect(warnings.tagRemoved).toBe('removed tags <br>, <img> from original message');
+        });
+
+        it('should warn if you add an empty tag in the translation', () => {
+            let original = 'a normal text';
+            let translation = 'a normal text with <br/> line break';
+            let sourceMessage = parsedMessageFor(original);
+            let translatedMessage = sourceMessage.translate(translation);
+            expect(translatedMessage.validate()).toBeFalsy();
+            const warnings = translatedMessage.validateWarnings();
+            expect(warnings).toBeTruthy();
+            expect(warnings.tagAdded).toBe('added tag <br>, which is not in original message');
+        });
+
+        it('should warn if you add 2 empty tags in the translation', () => {
+            let original = 'a normal text';
+            let translation = 'a normal text with <br/> line break and <img/>';
+            let sourceMessage = parsedMessageFor(original);
+            let translatedMessage = sourceMessage.translate(translation);
+            expect(translatedMessage.validate()).toBeFalsy();
+            const warnings = translatedMessage.validateWarnings();
+            expect(warnings).toBeTruthy();
+            expect(warnings.tagAdded).toBe('added tags <br>, <img>, which are not in original message');
         });
 
         it('should find nothing wrong with text containing line breaks', () => {
@@ -117,7 +172,18 @@ describe('normalized message test spec', () => {
             expect(translatedMessage.validateWarnings()).toBeFalsy();
             const errors = translatedMessage.validate();
             expect(errors).toBeTruthy();
-            expect(errors.icuMessageRefRemoved).toBe('removed ICU message reference 0 from original messages');
+            expect(errors.icuMessageRefRemoved).toBe('removed ICU message reference 0 from original message');
+        });
+
+        it('should report an error if you remove 2 ICU refs in the translation', () => {
+            let original = 'a text with <ICU-Message-Ref_0/> and <ICU-Message-Ref_1/>';
+            let translation = 'a text without icu-ref';
+            let sourceMessage = parsedMessageFor(original);
+            let translatedMessage = sourceMessage.translate(translation);
+            expect(translatedMessage.validateWarnings()).toBeFalsy();
+            const errors = translatedMessage.validate();
+            expect(errors).toBeTruthy();
+            expect(errors.icuMessageRefRemoved).toBe('removed ICU message references 0, 1 from original message');
         });
 
         it('should report an error if you add an ICU ref in the translation', () => {
@@ -131,6 +197,20 @@ describe('normalized message test spec', () => {
             expect(errors.icuMessageRefAdded).toBe('added ICU message reference 1, which is not in original message');
         });
 
+        it('should report an error if you add 2 ICU refs in the translation', () => {
+            let original = 'a text with <ICU-Message-Ref_0/>';
+            let translation = 'a text with <ICU-Message-Ref_0/> and  <ICU-Message-Ref_1/> and  <ICU-Message-Ref_2/>';
+            let sourceMessage = parsedMessageFor(original);
+            let translatedMessage = sourceMessage.translate(translation);
+            expect(translatedMessage.validateWarnings()).toBeFalsy();
+            const errors = translatedMessage.validate();
+            expect(errors).toBeTruthy();
+            expect(errors.icuMessageRefAdded).toBe('added ICU message references 1, 2, which are not in original message');
+        });
+
+    });
+
+    describe('ICU test cases', () => {
         it('should parse ICU plural message', () => {
             let original = '{n, plural, =0 {kein Schaf} =1 {ein Schaf} other {Schafe}}';
             let sourceICUMessage = parsedICUMessage(original);
@@ -253,5 +333,4 @@ describe('normalized message test spec', () => {
         });
 
     });
-
 });
