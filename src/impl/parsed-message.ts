@@ -6,11 +6,12 @@ import {ParsedMessagePartEndTag} from './parsed-message-part-end-tag';
 import {INormalizedMessage, ValidationErrors} from '../api/i-normalized-message';
 import {DOMUtilities} from './dom-utilities';
 import {IMessageParser} from './i-message-parser';
-import {format, isNullOrUndefined, isString} from 'util';
+import {format, isNullOrUndefined} from 'util';
 import {IICUMessage, IICUMessageTranslation} from '../api/i-icu-message';
 import {ParsedMessagePartICUMessage} from './parsed-message-part-icu-message';
 import {ParsedMessagePartICUMessageRef} from './parsed-message-part-icu-message-ref';
 import {ICUMessage} from './icu-message';
+import {ParsedMessagePartEmptyTag} from './parsed-message-part-empty-tag';
 /**
  * Created by martin on 05.05.2017.
  * A message text read from a translation file.
@@ -184,14 +185,29 @@ export class ParsedMessage implements INormalizedMessage {
      */
     private checkPlaceholderAdded(): any {
         let e = null;
+        let suspiciousIndexes = [];
         if (this.sourceMessage) {
             let sourcePlaceholders = this.sourceMessage.allPlaceholders();
             let myPlaceholders = this.allPlaceholders();
             myPlaceholders.forEach((index) => {
                 if (!sourcePlaceholders.has(index)) {
-                    e = 'added placeholder ' + index + ', which is not in original message';
+                    suspiciousIndexes.push(index);
                 }
             });
+        }
+        if (suspiciousIndexes.length === 1) {
+            e = 'added placeholder ' + suspiciousIndexes[0] + ', which is not in original message';
+        } else if (suspiciousIndexes.length > 1) {
+            let allSuspiciousIndexes = '';
+            let first = true;
+            suspiciousIndexes.forEach((index) => {
+                if (!first) {
+                    allSuspiciousIndexes = allSuspiciousIndexes + ', ';
+                }
+                allSuspiciousIndexes = allSuspiciousIndexes + index;
+                first = false;
+            });
+            e = 'added placeholders ' + allSuspiciousIndexes + ', which are not in original message';
         }
         return e;
     }
@@ -202,14 +218,29 @@ export class ParsedMessage implements INormalizedMessage {
      */
     private checkPlaceholderRemoved(): any {
         let w = null;
+        let suspiciousIndexes = [];
         if (this.sourceMessage) {
             let sourcePlaceholders = this.sourceMessage.allPlaceholders();
             let myPlaceholders = this.allPlaceholders();
             sourcePlaceholders.forEach((index) => {
                 if (!myPlaceholders.has(index)) {
-                    w = 'removed placeholder ' + index + ' from original messages';
+                    suspiciousIndexes.push(index);
                 }
             });
+        }
+        if (suspiciousIndexes.length === 1) {
+            w = 'removed placeholder ' + suspiciousIndexes[0] + ' from original message';
+        } else if (suspiciousIndexes.length > 1) {
+            let allSuspiciousIndexes = '';
+            let first = true;
+            suspiciousIndexes.forEach((index) => {
+                if (!first) {
+                    allSuspiciousIndexes = allSuspiciousIndexes + ', ';
+                }
+                allSuspiciousIndexes = allSuspiciousIndexes + index;
+                first = false;
+            });
+            w = 'removed placeholders ' + allSuspiciousIndexes + ' from original message';
         }
         return w;
     }
@@ -220,14 +251,29 @@ export class ParsedMessage implements INormalizedMessage {
      */
     private checkICUMessageRefAdded(): any {
         let e = null;
+        let suspiciousIndexes = [];
         if (this.sourceMessage) {
             let sourceICURefs = this.sourceMessage.allICUMessageRefs();
             let myICURefs = this.allICUMessageRefs();
             myICURefs.forEach((index) => {
                 if (!sourceICURefs.has(index)) {
-                    e = 'added ICU message reference ' + index + ', which is not in original message';
+                    suspiciousIndexes.push(index);
                 }
             });
+        }
+        if (suspiciousIndexes.length === 1) {
+            e = 'added ICU message reference ' + suspiciousIndexes[0] + ', which is not in original message';
+        } else if (suspiciousIndexes.length > 1) {
+            let allSuspiciousIndexes = '';
+            let first = true;
+            suspiciousIndexes.forEach((index) => {
+                if (!first) {
+                    allSuspiciousIndexes = allSuspiciousIndexes + ', ';
+                }
+                allSuspiciousIndexes = allSuspiciousIndexes + index;
+                first = false;
+            });
+            e = 'added ICU message references ' + allSuspiciousIndexes + ', which are not in original message';
         }
         return e;
     }
@@ -238,14 +284,29 @@ export class ParsedMessage implements INormalizedMessage {
      */
     private checkICUMessageRefRemoved(): any {
         let e = null;
+        let suspiciousIndexes = [];
         if (this.sourceMessage) {
             let sourceICURefs = this.sourceMessage.allICUMessageRefs();
             let myICURefs = this.allICUMessageRefs();
             sourceICURefs.forEach((index) => {
                 if (!myICURefs.has(index)) {
-                    e = 'removed ICU message reference ' + index + ' from original messages';
+                    suspiciousIndexes.push(index);
                 }
             });
+        }
+        if (suspiciousIndexes.length === 1) {
+            e = 'removed ICU message reference ' + suspiciousIndexes[0] + ' from original message';
+        } else if (suspiciousIndexes.length > 1) {
+            let allSuspiciousIndexes = '';
+            let first = true;
+            suspiciousIndexes.forEach((index) => {
+                if (!first) {
+                    allSuspiciousIndexes = allSuspiciousIndexes + ', ';
+                }
+                allSuspiciousIndexes = allSuspiciousIndexes + index;
+                first = false;
+            });
+            e = 'removed ICU message references ' + allSuspiciousIndexes + ' from original message';
         }
         return e;
     }
@@ -284,14 +345,29 @@ export class ParsedMessage implements INormalizedMessage {
      */
     private checkTagAdded(): any {
         let e = null;
+        let suspiciousTags = [];
         if (this.sourceMessage) {
             let sourceTags = this.sourceMessage.allTags();
             let myTags = this.allTags();
             myTags.forEach((tagName) => {
                 if (!sourceTags.has(tagName)) {
-                    e = 'added tag <' + tagName + '>, which is not in original message';
+                    suspiciousTags.push(tagName);
                 }
             });
+        }
+        if (suspiciousTags.length === 1) {
+            e = 'added tag <' + suspiciousTags[0] + '>, which is not in original message';
+        } else if (suspiciousTags.length > 1) {
+            let allSuspiciousTags = '';
+            let first = true;
+            suspiciousTags.forEach((tag) => {
+                if (!first) {
+                    allSuspiciousTags = allSuspiciousTags + ', ';
+                }
+                allSuspiciousTags = allSuspiciousTags + '<' + tag + '>';
+                first = false;
+            });
+            e = 'added tags ' + allSuspiciousTags + ', which are not in original message';
         }
         return e;
     }
@@ -302,14 +378,26 @@ export class ParsedMessage implements INormalizedMessage {
      */
     private checkTagRemoved(): any {
         let w = null;
+        let suspiciousTags = [];
         if (this.sourceMessage) {
             let sourceTags = this.sourceMessage.allTags();
-            let myTags = this.allTags();
             sourceTags.forEach((tagName) => {
-                if (!myTags.has(tagName)) {
-                    w = 'removed tag <' + tagName + '> from original messages';
-                }
+                suspiciousTags.push(tagName);
             });
+        }
+        if (suspiciousTags.length === 1) {
+            w = 'removed tag <' + suspiciousTags[0] + '> from original message';
+        } else if (suspiciousTags.length > 1) {
+            let allSuspiciousTags = '';
+            let first = true;
+            suspiciousTags.forEach((tag) => {
+                if (!first) {
+                    allSuspiciousTags = allSuspiciousTags + ', ';
+                }
+                allSuspiciousTags = allSuspiciousTags + '<' + tag + '>';
+                first = false;
+            });
+            w = 'removed tags ' + allSuspiciousTags + ' from original message';
         }
         return w;
     }
@@ -320,7 +408,7 @@ export class ParsedMessage implements INormalizedMessage {
     private allTags(): Set<string> {
         let result = new Set<string>();
         this.parts().forEach((part) => {
-            if (part.type === ParsedMessagePartType.START_TAG) {
+            if (part.type === ParsedMessagePartType.START_TAG || part.type === ParsedMessagePartType.EMPTY_TAG) {
                 let tagName = (<ParsedMessagePartStartTag> part).tagName();
                 result.add(tagName);
             }
@@ -356,6 +444,10 @@ export class ParsedMessage implements INormalizedMessage {
             throw new Error(format('unexpected close tag %s (currently open is %s, native xml is "%s")', tagname, openTag, this.asNativeString()));
         }
         this._parts.push(new ParsedMessagePartEndTag(tagname));
+    }
+
+    addEmptyTag(tagname: string) {
+        this._parts.push(new ParsedMessagePartEmptyTag(tagname));
     }
 
     addICUMessageRef(index: number) {

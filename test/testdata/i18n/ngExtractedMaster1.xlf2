@@ -270,5 +270,15 @@
         <target>first: <ph id="0"/>, second <ph id="1"/></target>
       </segment>
     </unit>
+    <unit id="3944017551463298929">
+      <segment>
+        <source>Dieser Text enthält<ph id="0" equiv="LINE_BREAK" type="fmt" disp="&lt;br/&gt;"/>einen Zeilenumbruch per HTML-br-Element.</source>
+      </segment>
+    </unit>
+    <unit id="705837031073461246">
+      <segment>
+        <source>Dieser Text enthält ein Bild <ph id="0" equiv="TAG_IMG" type="image" disp="&lt;img/&gt;"/> mitt en in der Nachricht</source>
+      </segment>
+    </unit>
   </file>
 </xliff>

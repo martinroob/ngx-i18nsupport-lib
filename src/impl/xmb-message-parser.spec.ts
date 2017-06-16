@@ -6,7 +6,7 @@ import {DOMParser} from 'xmldom';
  * Testcases for parsing normalized messages to XMB format and vive versa.
  */
 
-describe('message parseICUMessage XMB test spec', () => {
+describe('message parse XMB test spec', () => {
 
     /**
      * Helperfunction to create a parsed message from normalized string.
@@ -42,14 +42,14 @@ describe('message parseICUMessage XMB test spec', () => {
 
     describe('normalized message to xml', () => {
 
-        it('should parseICUMessage plain text', () => {
+        it('should parse plain text', () => {
             let normalizedMessage = 'a text without anything special';
             let parsedMessage = parsedMessageFor(normalizedMessage);
             expect(parsedMessage.asDisplayString()).toBe(normalizedMessage);
             expect(parsedMessage.asNativeString()).toBe(normalizedMessage);
         });
 
-        it('should parseICUMessage text with placeholder', () => {
+        it('should parse text with placeholder', () => {
             let normalizedMessage = 'a placeholder: {{0}}';
             let parsedMessage = parsedMessageFor(normalizedMessage);
             expect(parsedMessage.asDisplayString()).toBe(normalizedMessage);
@@ -57,7 +57,7 @@ describe('message parseICUMessage XMB test spec', () => {
             checkToXmlAndBack(normalizedMessage);
         });
 
-        it('should parseICUMessage text with 2 placeholders', () => {
+        it('should parse text with 2 placeholders', () => {
             let normalizedMessage = '{{1}}: a placeholder: {{0}}';
             let parsedMessage = parsedMessageFor(normalizedMessage);
             expect(parsedMessage.asDisplayString()).toBe(normalizedMessage);
@@ -65,7 +65,7 @@ describe('message parseICUMessage XMB test spec', () => {
             checkToXmlAndBack(normalizedMessage);
         });
 
-        it('should parseICUMessage simple bold tag', () => {
+        it('should parse simple bold tag', () => {
             let normalizedMessage = 'a text <b>with</b> a bold text';
             let parsedMessage = parsedMessageFor(normalizedMessage);
             expect(parsedMessage.asDisplayString()).toBe(normalizedMessage);
@@ -73,7 +73,7 @@ describe('message parseICUMessage XMB test spec', () => {
             checkToXmlAndBack(normalizedMessage);
         });
 
-        it('should parseICUMessage simple italic tag', () => {
+        it('should parse simple italic tag', () => {
             let normalizedMessage = 'a text <i>with</i> emphasis';
             let parsedMessage = parsedMessageFor(normalizedMessage);
             expect(parsedMessage.asDisplayString()).toBe(normalizedMessage);
@@ -81,7 +81,7 @@ describe('message parseICUMessage XMB test spec', () => {
             checkToXmlAndBack(normalizedMessage);
         });
 
-        it('should parseICUMessage unknown tag', () => {
+        it('should parse unknown tag', () => {
             let normalizedMessage = 'a text with <strange>strange emphasis</strange>';
             let parsedMessage = parsedMessageFor(normalizedMessage);
             expect(parsedMessage.asDisplayString()).toBe(normalizedMessage);
@@ -89,7 +89,7 @@ describe('message parseICUMessage XMB test spec', () => {
             checkToXmlAndBack(normalizedMessage);
         });
 
-        it('should parseICUMessage embedded tags with placeholder inside', () => {
+        it('should parse embedded tags with placeholder inside', () => {
             let normalizedMessage = '<b><i><strange>Placeholder {{0}}</strange></i></b>';
             let parsedMessage = parsedMessageFor(normalizedMessage);
             expect(parsedMessage.asDisplayString()).toBe(normalizedMessage);
@@ -101,22 +101,22 @@ describe('message parseICUMessage XMB test spec', () => {
 
     describe('xml to normalized message', () => {
 
-        it('should parseICUMessage simple text content', () => {
+        it('should parse simple text content', () => {
            let parsedMessage = parsedMessageFromXML('a simple content');
            expect(parsedMessage.asDisplayString()).toBe('a simple content');
         });
 
-        it('should parseICUMessage strange tag with placeholder content', () => {
+        it('should parse strange tag with placeholder content', () => {
             let parsedMessage = parsedMessageFromXML('Diese Nachricht ist <ph name="START_TAG_STRANGE"><ex>&lt;strange></ex></ph><ph name="INTERPOLATION"><ex>INTERPOLATION</ex></ph><ph name="CLOSE_TAG_STRANGE"><ex>&lt;/strange></ex></ph>');
             expect(parsedMessage.asDisplayString()).toBe('Diese Nachricht ist <strange>{{0}}</strange>');
         });
 
-        it('should parseICUMessage embedded tags', () => {
+        it('should parse embedded tags', () => {
             let parsedMessage = parsedMessageFromXML('Diese Nachricht ist <ph name="START_BOLD_TEXT"><ex>&lt;b></ex></ph><ph name="START_TAG_STRANGE"><ex>&lt;strange></ex></ph>SEHR WICHTIG<ph name="CLOSE_TAG_STRANGE"><ex>&lt;/strange></ex></ph><ph name="CLOSE_BOLD_TEXT"><ex>&lt;/b></ex></ph>');
             expect(parsedMessage.asDisplayString()).toBe('Diese Nachricht ist <b><strange>SEHR WICHTIG</strange></b>');
         });
 
-        it('should parseICUMessage complex message with embedded placeholder', () => {
+        it('should parse complex message with embedded placeholder', () => {
             let parsedMessage = parsedMessageFromXML('<ph name="START_LINK"><ex>&lt;a></ex></ph>link1 with placeholder <ph name="INTERPOLATION"><ex>INTERPOLATION</ex></ph><ph name="CLOSE_LINK"><ex>&lt;/a></ex></ph>');
             expect(parsedMessage.asDisplayString()).toBe('<a>link1 with placeholder {{0}}</a>');
         });
@@ -130,14 +130,22 @@ describe('message parseICUMessage XMB test spec', () => {
             }
         });
 
-        it('should parseICUMessage message with embedded ICU message reference', () => {
+        it('should parse message with embedded ICU message reference', () => {
             let parsedMessage = parsedMessageFromXML('first: <ph name="ICU"><ex>ICU</ex></ph>');
             expect(parsedMessage.asDisplayString()).toBe('first: <ICU-Message-Ref_0/>');
         });
 
-        it('should parseICUMessage message with 2 embedded ICU message reference', () => {
+        it('should parse message with 2 embedded ICU message reference', () => {
             let parsedMessage = parsedMessageFromXML('first: <ph name="ICU"><ex>ICU</ex></ph>, second <ph name="ICU_1"><ex>ICU</ex></ph>');
             expect(parsedMessage.asDisplayString()).toBe('first: <ICU-Message-Ref_0/>, second <ICU-Message-Ref_1/>');
+        });
+
+        it('should parse empty tag like <br/>', () => {
+            let normalizedMessage = 'one line<br/>second line';
+            let parsedMessage = parsedMessageFor(normalizedMessage);
+            expect(parsedMessage.asDisplayString()).toBe(normalizedMessage);
+            expect(parsedMessage.asNativeString()).toBe('one line<ph name="LINE_BREAK"><ex>&lt;br></ex></ph>second line');
+            checkToXmlAndBack(normalizedMessage);
         });
 
     });

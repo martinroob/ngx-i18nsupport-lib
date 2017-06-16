@@ -1,3 +1,11 @@
+<a name="1.4.3"></a>
+# [1.4.3](https://github.com/martinroob/ngx-i18nsupport-lib/compare/v1.4.3...v1.4.2) (2017-06-16)
+
+### Bug Fixes
+
+* **all formats** Linebreaks are not handled in NormalizedMessage ([#31](https://github.com/martinroob/ngx-i18nsupport-lib/issues/31)).
+To fix this, empty tags like `<br/>` or `<img/>`are introduced.
+
 <a name="1.4.2"></a>
 # [1.4.2](https://github.com/martinroob/ngx-i18nsupport-lib/compare/v1.4.2...v1.4.1) (2017-06-09)
 

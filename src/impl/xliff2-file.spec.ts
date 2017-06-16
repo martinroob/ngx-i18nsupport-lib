@@ -40,6 +40,8 @@ describe('ngx-i18nsupport-lib XLIFF 2.0 test spec', () => {
         let ID_ICU_EMBEDDED_TAGS = '6710804210857077393';
         let ID_CONTAINS_ICU = '2747218257718409559';
         let ID_CONTAINS_TWO_ICU = 'complextags.icuTwoICU';
+        let ID_WITH_BR_TAG = '3944017551463298929';
+        let ID_WITH_IMG_TAG = '705837031073461246';
 
         it('should read xlf file', () => {
             const file: ITranslationMessagesFile = readFile(MASTER1SRC);
@@ -58,7 +60,7 @@ describe('ngx-i18nsupport-lib XLIFF 2.0 test spec', () => {
 
         it('should count units', () => {
             const file: ITranslationMessagesFile = readFile(MASTER1SRC);
-            expect(file.numberOfTransUnits()).toBe(36);
+            expect(file.numberOfTransUnits()).toBe(38);
             expect(file.numberOfTransUnitsWithMissingId()).toBe(1);
             expect(file.numberOfUntranslatedTransUnits()).toBe(file.numberOfTransUnits());
             expect(file.numberOfReviewedTransUnits()).toBe(0);
@@ -213,6 +215,24 @@ describe('ngx-i18nsupport-lib XLIFF 2.0 test spec', () => {
             const file: ITranslationMessagesFile = readFile(TRANSLATED_FILE_SRC);
             const tu: ITransUnit = file.transUnitWithId(ID_WITH_STRANGE_TAG);
             expect(tu.targetContentNormalized().asDisplayString()).toBe('This message is <strange>{{0}}</strange>');
+        });
+
+        it('should normalize empty html tag br', () => {
+            const file: ITranslationMessagesFile = readFile(MASTER1SRC);
+            const tu: ITransUnit = file.transUnitWithId(ID_WITH_BR_TAG);
+            expect(tu.sourceContentNormalized().asDisplayString()).toBe('Dieser Text enthält<br/>einen Zeilenumbruch per HTML-br-Element.');
+            let translation = tu.sourceContentNormalized().translate('This text contains<br/> a linebreak');
+            tu.translate(translation);
+            expect(tu.targetContent()).toBe('This text contains<ph id="0" equiv="LINE_BREAK" type="fmt" disp="&lt;br/>"/> a linebreak');
+        });
+
+        it('should normalize empty html tag img', () => {
+            const file: ITranslationMessagesFile = readFile(MASTER1SRC);
+            const tu: ITransUnit = file.transUnitWithId(ID_WITH_IMG_TAG);
+            expect(tu.sourceContentNormalized().asDisplayString()).toBe('Dieser Text enthält ein Bild <img/> mitt en in der Nachricht');
+            let translation = tu.sourceContentNormalized().translate('This text contains an img <img/> in the message');
+            tu.translate(translation);
+            expect(tu.targetContent()).toBe('This text contains an img <ph id="0" equiv="TAG_IMG" type="image" disp="&lt;img/>"/> in the message');
         });
 
         it('should remove a transunit by id', () => {
@@ -410,7 +430,7 @@ describe('ngx-i18nsupport-lib XLIFF 2.0 test spec', () => {
             expect(icuMessage.getCategories().length).toBe(3);
             expect(icuMessage.getCategories()[1].getCategory()).toBe('wert1');
             expect(icuMessage.getCategories()[1].getMessageNormalized().asDisplayString()).toBe('<em>changed</em>');
-            expect(tu.targetContent()).toContain('wert1 {<pc id="0" equivStart="START_EMPHASISED_TEXT" equivEnd="CLOSE_EMPHASISED_TEXT" type="fmt" dispStart="&lt;em>" dispEnd="&lt;/em>">changed</pc>}');
+            expect(tu.targetContent()).toContain('wert1 {<pc id="0" equivStart="START_EMPHASISED_TEXT" equivEnd="CLOSE_EMPHASISED_TEXT" type="other" dispStart="&lt;em>" dispEnd="&lt;/em>">changed</pc>}');
             // TODO find warnings in embedded message, known limitation in the moment.
             //            const warnings = icuMessage.getCategories()[1].getMessageNormalized().validateWarnings();
             //            expect(warnings).toBeTruthy();

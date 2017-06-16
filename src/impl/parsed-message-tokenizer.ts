@@ -9,6 +9,7 @@ import * as Tokenizr from 'tokenizr';
 export const TEXT = 'TEXT';
 export const START_TAG = 'START_TAG';
 export const END_TAG = 'END_TAG';
+export const EMPTY_TAG = 'EMPTY_TAG';
 export const PLACEHOLDER = 'PLACEHOLDER';
 export const ICU_MESSAGE_REF = 'ICU_MESSAGE_REF';
 export const ICU_MESSAGE = 'ICU_MESSAGE';
@@ -43,6 +44,10 @@ export class ParsedMesageTokenizer {
         lexer.rule(/<\/([a-zA-Z][a-zA-Z]*)>/, (ctx, match) => {
             ctx.accept(END_TAG, match[1]);
         }, END_TAG);
+        // empty tag
+        lexer.rule(/<([a-zA-Z][a-zA-Z]*)\/>/, (ctx, match) => {
+            ctx.accept(EMPTY_TAG, match[1]);
+        }, EMPTY_TAG);
         // placeholder
         lexer.rule(/{{([0-9]+)}}/, (ctx, match) => {
             ctx.accept(PLACEHOLDER, parseInt(match[1], 10));

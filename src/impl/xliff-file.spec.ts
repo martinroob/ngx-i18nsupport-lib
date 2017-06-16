@@ -42,6 +42,8 @@ describe('ngx-i18nsupport-lib xliff 1.2 test spec', () => {
         let ID_ICU_EMBEDDED_TAGS = '304b4d798bf51257538949844e121724110d37ed';
         let ID_CONTAINS_ICU = '1f3c670be000dbb6cbe05353d12ef62793d91fec';
         let ID_CONTAINS_TWO_ICU = 'complextags.icuTwoICU';
+        let ID_WITH_BR_TAG = 'e05aa009b849e0a5725e819b14c77a32576513a8';
+        let ID_WITH_IMG_TAG = 'ea7a3dece8868782142a70b3e1c8b064f6027e20';
 
         it('should read xlf file', () => {
             const file: ITranslationMessagesFile = readFile(MASTER1SRC);
@@ -60,7 +62,7 @@ describe('ngx-i18nsupport-lib xliff 1.2 test spec', () => {
 
         it('should count units', () => {
             const file: ITranslationMessagesFile = readFile(MASTER1SRC);
-            expect(file.numberOfTransUnits()).toBe(24);
+            expect(file.numberOfTransUnits()).toBe(27);
             expect(file.numberOfTransUnitsWithMissingId()).toBe(1);
             expect(file.numberOfUntranslatedTransUnits()).toBe(file.numberOfTransUnits());
             expect(file.numberOfReviewedTransUnits()).toBe(0);
@@ -222,6 +224,24 @@ describe('ngx-i18nsupport-lib xliff 1.2 test spec', () => {
             expect(tu.targetContentNormalized().asDisplayString()).toBe('Dieser Text enthält <b>eingebettetes html</b>');
             const tu2: ITransUnit = file.transUnitWithId(ID_WITH_TAGS_2);
             expect(tu2.targetContentNormalized().asDisplayString()).toBe('Dieser Text enthält <b>eingebettetes html</b>');
+        });
+
+        it('should normalize empty html tag br', () => {
+            const file: ITranslationMessagesFile = readFile(MASTER1SRC);
+            const tu: ITransUnit = file.transUnitWithId(ID_WITH_BR_TAG);
+            expect(tu.sourceContentNormalized().asDisplayString()).toBe('Dieser Text enthält<br/>einen Zeilenumbruch per HTML-br-Element.');
+            let translation = tu.sourceContentNormalized().translate('This text contains<br/> a linebreak');
+            tu.translate(translation);
+            expect(tu.targetContent()).toBe('This text contains<x id="LINE_BREAK" ctype="lb"/> a linebreak');
+        });
+
+        it('should normalize empty html tag img', () => {
+            const file: ITranslationMessagesFile = readFile(MASTER1SRC);
+            const tu: ITransUnit = file.transUnitWithId(ID_WITH_IMG_TAG);
+            expect(tu.sourceContentNormalized().asDisplayString()).toBe('Dieser Text enthält ein Bild <img/> mitt en in der Nachricht');
+            let translation = tu.sourceContentNormalized().translate('This text contains an img <img/> in the message');
+            tu.translate(translation);
+            expect(tu.targetContent()).toBe('This text contains an img <x id="TAG_IMG" ctype="image"/> in the message');
         });
 
         it('should remove a transunit by id', () => {

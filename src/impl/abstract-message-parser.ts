@@ -1,5 +1,6 @@
 import {ParsedMessage} from './parsed-message';
 import {
+    EMPTY_TAG,
     END_TAG, ICU_MESSAGE, ICU_MESSAGE_REF, ParsedMesageTokenizer, PLACEHOLDER, START_TAG, TEXT,
     Token
 } from './parsed-message-tokenizer';
@@ -12,6 +13,7 @@ import {ParsedMessagePartEndTag} from './parsed-message-part-end-tag';
 import {IMessageParser} from './i-message-parser';
 import {format, isNullOrUndefined} from 'util';
 import {DOMUtilities} from './dom-utilities';
+import {ParsedMessagePartEmptyTag} from './parsed-message-part-empty-tag';
 /**
  * Created by roobm on 10.05.2017.
  * A message parser can parseICUMessage the xml content of a translatable message.
@@ -167,6 +169,9 @@ export abstract class AbstractMessageParser implements IMessageParser {
                     }
                     openTags.pop();
                     break;
+                case EMPTY_TAG:
+                    message.addEmptyTag(token.value);
+                    break;
                 case PLACEHOLDER:
                     message.addPlaceholder(token.value);
                     break;
@@ -229,6 +234,8 @@ export abstract class AbstractMessageParser implements IMessageParser {
                 return this.createXmlRepresentationOfStartTagPart((<ParsedMessagePartStartTag>part), rootElem);
             case ParsedMessagePartType.END_TAG:
                 return this.createXmlRepresentationOfEndTagPart((<ParsedMessagePartEndTag>part), rootElem);
+            case ParsedMessagePartType.EMPTY_TAG:
+                return this.createXmlRepresentationOfEmptyTagPart((<ParsedMessagePartEmptyTag>part), rootElem);
             case ParsedMessagePartType.PLACEHOLDER:
                 return this.createXmlRepresentationOfPlaceholderPart((<ParsedMessagePartPlaceholder>part), rootElem);
         }
@@ -251,6 +258,13 @@ export abstract class AbstractMessageParser implements IMessageParser {
      * @param rootElem
      */
     protected abstract createXmlRepresentationOfEndTagPart(part: ParsedMessagePartEndTag, rootElem: Element): Node;
+
+    /**
+     * the xml used for empty tag in the message.
+     * @param part
+     * @param rootElem
+     */
+    protected abstract createXmlRepresentationOfEmptyTagPart(part: ParsedMessagePartEmptyTag, rootElem: Element): Node;
 
     /**
      * the xml used for placeholder in the message.

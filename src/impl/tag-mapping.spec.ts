@@ -18,10 +18,22 @@ describe('tag mapping spec', () => {
         expect(tagname).toBe('b');
     });
 
-    it('should map START_TAG_IMG to img', () => {
-        const placeholderName = 'START_TAG_IMG';
-        const tagname = new TagMapping().getTagnameFromStartTagPlaceholderName(placeholderName);
-        expect(tagname).toBe('img');
+    it('should map TAG_IMG to img', () => {
+        const placeholderName = 'TAG_IMG';
+        const starttagname = new TagMapping().getTagnameFromStartTagPlaceholderName(placeholderName);
+        expect(starttagname).toBe(null);
+        expect(new TagMapping().isEmptyTagPlaceholderName(placeholderName)).toBeTruthy();
+        const emptytagname = new TagMapping().getTagnameFromEmptyTagPlaceholderName(placeholderName);
+        expect(emptytagname).toBe('img');
+    });
+
+    it('should map LINE_BREAK to br', () => {
+        const placeholderName = 'LINE_BREAK';
+        const starttagname = new TagMapping().getTagnameFromStartTagPlaceholderName(placeholderName);
+        expect(starttagname).toBe(null);
+        expect(new TagMapping().isEmptyTagPlaceholderName(placeholderName)).toBeTruthy();
+        const emptytagname = new TagMapping().getTagnameFromEmptyTagPlaceholderName(placeholderName);
+        expect(emptytagname).toBe('br');
     });
 
     it('should map START_LINK to a', () => {
@@ -82,6 +94,36 @@ describe('tag mapping spec', () => {
         const tagname = 'b';
         const placeholderName = new TagMapping().getCloseTagPlaceholderName(tagname);
         expect(placeholderName).toBe('CLOSE_BOLD_TEXT');
+    });
+
+    it('should map tag br to LINE_BREAK', () => {
+        const tagname = 'br';
+        const placeholderName = new TagMapping().getEmptyTagPlaceholderName(tagname);
+        expect(placeholderName).toBe('LINE_BREAK');
+    });
+
+    it('should map tag img to TAG_IMG', () => {
+        const tagname = 'img';
+        const placeholderName = new TagMapping().getEmptyTagPlaceholderName(tagname);
+        expect(placeholderName).toBe('TAG_IMG');
+    });
+
+    it('should map special ctype for br', () => {
+        const tagname = 'br';
+        const ctype = new TagMapping().getCtypeForTag(tagname);
+        expect(ctype).toBe('lb');
+    });
+
+    it('should map special ctype for img', () => {
+        const tagname = 'IMG';
+        const ctype = new TagMapping().getCtypeForTag(tagname);
+        expect(ctype).toBe('image');
+    });
+
+    it('should map ctype for any tag', () => {
+        const tagname = 'strangething';
+        const ctype = new TagMapping().getCtypeForTag(tagname);
+        expect(ctype).toBe('x-strangething');
     });
 
 

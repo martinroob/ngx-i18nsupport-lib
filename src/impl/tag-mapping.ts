@@ -39,6 +39,12 @@ const TAG_TO_PLACEHOLDER_NAMES: {[k: string]: string} = {
     'UL': 'UNORDERED_LIST',
 };
 
+/**
+ * HTML Tags (in uppercase) that are empty, they have no content, but do not need a close tag, e.g. <br>, <img>, <hr>.
+ * @type {Array}
+ */
+const VOID_TAGS = ['BR', 'HR', 'IMG', 'AREA', 'LINK', 'WBR'];
+
 export class TagMapping {
 
     public getStartTagPlaceholderName(tag: string): string {
@@ -51,6 +57,22 @@ export class TagMapping {
         const upperTag = tag.toUpperCase();
         const baseName = TAG_TO_PLACEHOLDER_NAMES[upperTag] || `TAG_${upperTag}`;
         return `CLOSE_${baseName}`;
+    }
+
+    public getEmptyTagPlaceholderName(tag: string): string {
+        const upperTag = tag.toUpperCase();
+        return TAG_TO_PLACEHOLDER_NAMES[upperTag] || `TAG_${upperTag}`;
+    }
+
+    public getCtypeForTag(tag: string): string {
+        switch (tag.toLowerCase()) {
+            case 'br':
+                return 'lb';
+            case 'img':
+                return 'image';
+            default:
+                return `x-${tag}`;
+        }
     }
 
     public getTagnameFromStartTagPlaceholderName(placeholderName: string): string {
@@ -71,6 +93,48 @@ export class TagMapping {
             const ph = this.stripCounter(placeholderName.substring('CLOSE_'.length));
             let matchKey = Object.keys(TAG_TO_PLACEHOLDER_NAMES).find((key) => TAG_TO_PLACEHOLDER_NAMES[key] === ph);
             return matchKey ? matchKey.toLowerCase() : null;
+        }
+        return null;
+    }
+
+    /**
+     * Test, wether placeholder name stands for empty html tag.
+     * @param placeholderName can be TAG_<name> or just <name>
+     */
+    public isEmptyTagPlaceholderName(placeholderName: string): boolean {
+        let ph = this.stripCounter(placeholderName);
+        let matchKey;
+        if (ph.startsWith('TAG_')) {
+            matchKey = ph.substring(4).toUpperCase();
+        } else {
+            matchKey = Object.keys(TAG_TO_PLACEHOLDER_NAMES).find((key) => TAG_TO_PLACEHOLDER_NAMES[key] === ph);
+        }
+        if (matchKey) {
+            if (VOID_TAGS.indexOf(matchKey) >= 0) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    /**
+     * tagname of empty tag placeholder.
+     * @param placeholderName can be TAG_<name> or just <name>
+     */
+    public getTagnameFromEmptyTagPlaceholderName(placeholderName: string): string {
+        let ph = this.stripCounter(placeholderName);
+        let matchKey;
+        if (ph.startsWith('TAG_')) {
+            matchKey = ph.substring(4).toUpperCase();
+        } else {
+            matchKey = Object.keys(TAG_TO_PLACEHOLDER_NAMES).find((key) => TAG_TO_PLACEHOLDER_NAMES[key] === ph);
+        }
+        if (matchKey) {
+            if (VOID_TAGS.indexOf(matchKey) >= 0) {
+                return matchKey.toLowerCase();
+            } else {
+                return null;
+            }
         }
         return null;
     }
