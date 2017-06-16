@@ -220,6 +220,12 @@ describe('normalized message test spec', () => {
             expect(errors.icuMessageRefAdded).toBe('added ICU message references 1, 2, which are not in original message');
         });
 
+        it('should parse tags with - and [0-9]', () => {
+            let original = '<h1><md-icon>info</md-icon></h1>';
+            let sourceMessage = parsedMessageFor(original);
+            expect(sourceMessage.parts().length).toBe(5);
+        });
+
     });
 
     describe('ICU test cases', () => {

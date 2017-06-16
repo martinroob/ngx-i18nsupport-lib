@@ -37,15 +37,15 @@ export class ParsedMesageTokenizer {
             }
          });
         // start tag
-        lexer.rule(/<([a-zA-Z][a-zA-Z]*)>/, (ctx, match) => {
+        lexer.rule(/<([a-zA-Z][a-zA-Z-0-9]*)>/, (ctx, match) => {
             ctx.accept(START_TAG, match[1]);
         }, START_TAG);
         // end tag
-        lexer.rule(/<\/([a-zA-Z][a-zA-Z]*)>/, (ctx, match) => {
+        lexer.rule(/<\/([a-zA-Z][a-zA-Z-0-9]*)>/, (ctx, match) => {
             ctx.accept(END_TAG, match[1]);
         }, END_TAG);
         // empty tag
-        lexer.rule(/<([a-zA-Z][a-zA-Z]*)\/>/, (ctx, match) => {
+        lexer.rule(/<([a-zA-Z][a-zA-Z-0-9]*)\/>/, (ctx, match) => {
             ctx.accept(EMPTY_TAG, match[1]);
         }, EMPTY_TAG);
         // placeholder
