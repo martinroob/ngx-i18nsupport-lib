@@ -156,15 +156,16 @@ export class Xliff2MessageParser extends AbstractMessageParser {
      */
     protected createXmlRepresentationOfStartTagPart(part: ParsedMessagePartStartTag, rootElem: Element, id?: number): Node {
         const tagMapping = new TagMapping();
-        let pcElem = rootElem.ownerDocument.createElement('pc');
-        let equivStart = tagMapping.getStartTagPlaceholderName(part.tagName());
-        let equivEnd = tagMapping.getCloseTagPlaceholderName(part.tagName());
-        let dispStart = '<' + part.tagName() + '>';
-        let dispEnd = '</' + part.tagName() + '>';
+        const pcElem = rootElem.ownerDocument.createElement('pc');
+        const tagName = part.tagName();
+        const equivStart = tagMapping.getStartTagPlaceholderName(tagName);
+        const equivEnd = tagMapping.getCloseTagPlaceholderName(tagName);
+        const dispStart = '<' + tagName + '>';
+        const dispEnd = '</' + tagName + '>';
         pcElem.setAttribute('id', id.toString(10));
         pcElem.setAttribute('equivStart', equivStart);
         pcElem.setAttribute('equivEnd', equivEnd);
-        pcElem.setAttribute('type', 'fmt');
+        pcElem.setAttribute('type', this.getTypeForTag(tagName));
         pcElem.setAttribute('dispStart', dispStart);
         pcElem.setAttribute('dispEnd', dispEnd);
         return pcElem;
@@ -190,13 +191,31 @@ export class Xliff2MessageParser extends AbstractMessageParser {
      */
     protected createXmlRepresentationOfEmptyTagPart(part: ParsedMessagePartEmptyTag, rootElem: Element, id?: number): Node {
         const tagMapping = new TagMapping();
-        let phElem = rootElem.ownerDocument.createElement('ph');
-        let equiv = tagMapping.getEmptyTagPlaceholderName(part.tagName());
-        let disp = '<' + part.tagName() + '/>';
+        const phElem = rootElem.ownerDocument.createElement('ph');
+        const tagName = part.tagName();
+        const equiv = tagMapping.getEmptyTagPlaceholderName(tagName);
+        const disp = '<' + tagName + '/>';
         phElem.setAttribute('id', id.toString(10));
         phElem.setAttribute('equiv', equiv);
+        phElem.setAttribute('type', this.getTypeForTag(tagName));
         phElem.setAttribute('disp', disp);
         return phElem;
+    }
+
+    private getTypeForTag(tag: string): string {
+        switch (tag.toLowerCase()) {
+            case 'br':
+            case 'b':
+            case 'i':
+            case 'u':
+                return 'fmt';
+            case 'img':
+                return 'image';
+            case 'a':
+                return 'link';
+            default:
+                return 'other';
+        }
     }
 
     /**

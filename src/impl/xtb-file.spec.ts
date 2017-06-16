@@ -61,6 +61,8 @@ describe('ngx-i18nsupport-lib xtb test spec', () => {
         let ID_ICU_EMBEDDED_TAGS = '6710804210857077393';
         let ID_CONTAINS_ICU = '2747218257718409559';
         let ID_CONTAINS_TWO_ICU = 'complextags.icuTwoICU';
+        let ID_WITH_BR_TAG = '3944017551463298929';
+        let ID_WITH_IMG_TAG = '705837031073461246';
 
         it('should read xtb file', () => {
             const file: ITranslationMessagesFile = readFile(TRANSLATION_EN_XTB);
@@ -87,7 +89,7 @@ describe('ngx-i18nsupport-lib xtb test spec', () => {
 
         it('should count units', () => {
             const file: ITranslationMessagesFile = readFile(TRANSLATION_EN_XTB);
-            expect(file.numberOfTransUnits()).toBe(16);
+            expect(file.numberOfTransUnits()).toBe(18);
             expect(file.numberOfTransUnitsWithMissingId()).toBe(1);
             expect(file.numberOfUntranslatedTransUnits()).toBe(file.numberOfTransUnits());
             expect(file.numberOfReviewedTransUnits()).toBe(0);
@@ -231,6 +233,24 @@ describe('ngx-i18nsupport-lib xtb test spec', () => {
             const file: ITranslationMessagesFile = readFile(TRANSLATION_EN_XTB, MASTER_DE_XMB);
             const tu: ITransUnit = file.transUnitWithId(ID_WITH_TAG_STRANGE);
             expect(tu.targetContentNormalized().asDisplayString()).toBe('This message is <strange>{{0}}</strange>');
+        });
+
+        it('should normalize empty html tag br', () => {
+            const file: ITranslationMessagesFile = readFile(TRANSLATION_EN_XTB, MASTER_DE_XMB);
+            const tu: ITransUnit = file.transUnitWithId(ID_WITH_BR_TAG);
+            expect(tu.sourceContentNormalized().asDisplayString()).toBe('Dieser Text enthält<br/>einen Zeilenumbruch per HTML-br-Element.');
+            let translation = tu.sourceContentNormalized().translate('This text contains<br/> a linebreak');
+            tu.translate(translation);
+            expect(tu.targetContent()).toBe('This text contains<ph name="LINE_BREAK"><ex>&lt;br></ex></ph> a linebreak');
+        });
+
+        it('should normalize empty html tag img', () => {
+            const file: ITranslationMessagesFile = readFile(TRANSLATION_EN_XTB, MASTER_DE_XMB);
+            const tu: ITransUnit = file.transUnitWithId(ID_WITH_IMG_TAG);
+            expect(tu.sourceContentNormalized().asDisplayString()).toBe('Dieser Text enthält ein Bild <img/> mitt en in der Nachricht');
+            let translation = tu.sourceContentNormalized().translate('This text contains an img <img/> in the message');
+            tu.translate(translation);
+            expect(tu.targetContent()).toBe('This text contains an img <ph name="TAG_IMG"><ex>&lt;img></ex></ph> in the message');
         });
 
         it('should remove a transunit by id', () => {

@@ -26,4 +26,6 @@
     <translation id="157616252019374389">{VAR_PLURAL, plural, =0 {kein Schaf} =1 {1 Schaf} other {x Schafe} }</translation>
     <translation id="4002068837191765530">{VAR_SELECT, select, wert0 {wert0 wurde gewählt} wert1 {ein anderer Wert (wert1) wurde gewählt} wert2 {was ganz anderes wurde gewählt} }</translation>
     <translation id="6710804210857077393">{VAR_SELECT, select, wert0 {wert0 ausgewählt} wert1 {ein <ph name="START_BOLD_TEXT"><ex>&lt;b&gt;</ex></ph>anderer<ph name="CLOSE_BOLD_TEXT"><ex>&lt;/b&gt;</ex></ph> Wert (wert1) ausgewählt} wert2 {was <ph name="START_EMPHASISED_TEXT"><ex>&lt;em&gt;</ex></ph>ganz anderes<ph name="CLOSE_EMPHASISED_TEXT"><ex>&lt;/em&gt;</ex></ph> wurde ausgewählt} }</translation>
+    <translation id="3944017551463298929"></translation>
+    <translation id="705837031073461246"></translation>
 </translationbundle>

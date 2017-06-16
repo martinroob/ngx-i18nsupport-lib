@@ -160,6 +160,22 @@
               Third line.</source>
          <target/>
       </trans-unit>
+      <trans-unit id="e05aa009b849e0a5725e819b14c77a32576513a8" datatype="html">
+        <source>Dieser Text enthält<x id="LINE_BREAK" ctype="lb"/>einen Zeilenumbruch per HTML-br-Element.</source>
+        <target/>
+        <context-group purpose="location">
+          <context context-type="sourcefile">S:/experimente/sampleapp41/src/app/app.component.ts</context>
+          <context context-type="linenumber">9</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="ea7a3dece8868782142a70b3e1c8b064f6027e20" datatype="html">
+        <source>Dieser Text enthält ein Bild <x id="TAG_IMG" ctype="image"/> mitt en in der Nachricht</source>
+        <target/>
+        <context-group purpose="location">
+          <context context-type="sourcefile">S:/experimente/sampleapp41/src/app/app.component.ts</context>
+          <context context-type="linenumber">11</context>
+        </context-group>
+      </trans-unit>
     </body>
   </file>
 </xliff>

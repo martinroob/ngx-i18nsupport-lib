@@ -84,7 +84,7 @@ describe('message parse XLIFF 2.0 test spec', () => {
             let normalizedMessage = 'a text with <strange>strange emphasis</strange>';
             let parsedMessage = parsedMessageFor(normalizedMessage);
             expect(parsedMessage.asDisplayString()).toBe(normalizedMessage);
-            expect(parsedMessage.asNativeString()).toBe('a text with <pc id="0" equivStart="START_TAG_STRANGE" equivEnd="CLOSE_TAG_STRANGE" type="fmt" dispStart="&lt;strange>" dispEnd="&lt;/strange>">strange emphasis</pc>');
+            expect(parsedMessage.asNativeString()).toBe('a text with <pc id="0" equivStart="START_TAG_STRANGE" equivEnd="CLOSE_TAG_STRANGE" type="other" dispStart="&lt;strange>" dispEnd="&lt;/strange>">strange emphasis</pc>');
             checkToXmlAndBack(normalizedMessage);
         });
 
@@ -92,7 +92,7 @@ describe('message parse XLIFF 2.0 test spec', () => {
             let normalizedMessage = '<b><i><strange>Placeholder {{0}}</strange></i></b>';
             let parsedMessage = parsedMessageFor(normalizedMessage);
             expect(parsedMessage.asDisplayString()).toBe(normalizedMessage);
-            expect(parsedMessage.asNativeString()).toBe('<pc id="0" equivStart="START_BOLD_TEXT" equivEnd="CLOSE_BOLD_TEXT" type="fmt" dispStart="&lt;b>" dispEnd="&lt;/b>"><pc id="1" equivStart="START_ITALIC_TEXT" equivEnd="CLOSE_ITALIC_TEXT" type="fmt" dispStart="&lt;i>" dispEnd="&lt;/i>"><pc id="2" equivStart="START_TAG_STRANGE" equivEnd="CLOSE_TAG_STRANGE" type="fmt" dispStart="&lt;strange>" dispEnd="&lt;/strange>">Placeholder <ph id="0" equiv="INTERPOLATION" disp="{{todo()}}"/></pc></pc></pc>');
+            expect(parsedMessage.asNativeString()).toBe('<pc id="0" equivStart="START_BOLD_TEXT" equivEnd="CLOSE_BOLD_TEXT" type="fmt" dispStart="&lt;b>" dispEnd="&lt;/b>"><pc id="1" equivStart="START_ITALIC_TEXT" equivEnd="CLOSE_ITALIC_TEXT" type="fmt" dispStart="&lt;i>" dispEnd="&lt;/i>"><pc id="2" equivStart="START_TAG_STRANGE" equivEnd="CLOSE_TAG_STRANGE" type="other" dispStart="&lt;strange>" dispEnd="&lt;/strange>">Placeholder <ph id="0" equiv="INTERPOLATION" disp="{{todo()}}"/></pc></pc></pc>');
             checkToXmlAndBack(normalizedMessage);
         });
 
@@ -139,7 +139,7 @@ describe('message parse XLIFF 2.0 test spec', () => {
             let normalizedMessage = 'one line<br/>second line';
             let parsedMessage = parsedMessageFor(normalizedMessage);
             expect(parsedMessage.asDisplayString()).toBe(normalizedMessage);
-            expect(parsedMessage.asNativeString()).toBe('one line<ph id="0" equiv="LINE_BREAK" disp="&lt;br/>"/>second line');
+            expect(parsedMessage.asNativeString()).toBe('one line<ph id="0" equiv="LINE_BREAK" type="fmt" disp="&lt;br/>"/>second line');
             checkToXmlAndBack(normalizedMessage);
         });
 
