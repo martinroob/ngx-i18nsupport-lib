@@ -1,3 +1,10 @@
+<a name="1.4.5"></a>
+# [1.4.5](https://github.com/martinroob/ngx-i18nsupport-lib/compare/v1.4.5...v1.4.4) (2017-06-16)
+
+### Bug Fixes
+
+* **all formats** normalized messages cannot parse tags with - or digit ([#35](https://github.com/martinroob/ngx-i18nsupport-lib/issues/35)).
+
 <a name="1.4.4"></a>
 # [1.4.4](https://github.com/martinroob/ngx-i18nsupport-lib/compare/v1.4.4...v1.4.3) (2017-06-16)
 
