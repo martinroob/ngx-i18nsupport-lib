@@ -1,6 +1,6 @@
 {
   "name": "ngx-i18nsupport-lib",
-  "version": "1.4.3",
+  "version": "1.4.4",
   "description": "A Typescript library to work with Angular generated i18n files (xliff, xmb)",
   "main": "bundles/ngx-i18nsupport-lib.umd.js",
   "module": "./dist/index.js",
