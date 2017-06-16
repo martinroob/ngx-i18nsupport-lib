@@ -381,8 +381,11 @@ export class ParsedMessage implements INormalizedMessage {
         let suspiciousTags = [];
         if (this.sourceMessage) {
             let sourceTags = this.sourceMessage.allTags();
+            let myTags = this.allTags();
             sourceTags.forEach((tagName) => {
-                suspiciousTags.push(tagName);
+                if (!myTags.has(tagName)) {
+                    suspiciousTags.push(tagName);
+                }
             });
         }
         if (suspiciousTags.length === 1) {
