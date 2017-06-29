@@ -14,6 +14,7 @@ import {IMessageParser} from './i-message-parser';
 import {format, isNullOrUndefined} from 'util';
 import {DOMUtilities} from './dom-utilities';
 import {ParsedMessagePartEmptyTag} from './parsed-message-part-empty-tag';
+import {ParsedMessagePartICUMessageRef} from './parsed-message-part-icu-message-ref';
 /**
  * Created by roobm on 10.05.2017.
  * A message parser can parseICUMessage the xml content of a translatable message.
@@ -238,6 +239,8 @@ export abstract class AbstractMessageParser implements IMessageParser {
                 return this.createXmlRepresentationOfEmptyTagPart((<ParsedMessagePartEmptyTag>part), rootElem);
             case ParsedMessagePartType.PLACEHOLDER:
                 return this.createXmlRepresentationOfPlaceholderPart((<ParsedMessagePartPlaceholder>part), rootElem);
+            case ParsedMessagePartType.ICU_MESSAGE_REF:
+                return this.createXmlRepresentationOfICUMessageRefPart((<ParsedMessagePartICUMessageRef>part), rootElem);
         }
     }
 
@@ -273,4 +276,10 @@ export abstract class AbstractMessageParser implements IMessageParser {
      */
     protected abstract createXmlRepresentationOfPlaceholderPart(part: ParsedMessagePartPlaceholder, rootElem: Element): Node;
 
+    /**
+     * the xml used for icu message refs in the message.
+     * @param part
+     * @param rootElem
+     */
+    protected abstract createXmlRepresentationOfICUMessageRefPart(part: ParsedMessagePartICUMessageRef, rootElem: Element): Node;
 }
