@@ -1,3 +1,10 @@
+<a name="1.4.6"></a>
+# [1.4.6](https://github.com/martinroob/ngx-i18nsupport-lib/compare/v1.4.6...v1.4.6) (2017-06-29)
+
+### Bug Fixes
+
+* **all formats** normalized messages: ICU-References are not converted to native strings ([#37](https://github.com/martinroob/ngx-i18nsupport-lib/issues/37)).
+
 <a name="1.4.5"></a>
 # [1.4.5](https://github.com/martinroob/ngx-i18nsupport-lib/compare/v1.4.5...v1.4.4) (2017-06-16)
 
