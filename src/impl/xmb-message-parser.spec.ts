@@ -97,6 +97,14 @@ describe('message parse XMB test spec', () => {
             checkToXmlAndBack(normalizedMessage);
         });
 
+        it('should parse ICU Refs', () => {
+            let normalizedMessage = 'a text with <ICU-Message-Ref_0/>';
+            let parsedMessage = parsedMessageFor(normalizedMessage);
+            expect(parsedMessage.asDisplayString()).toBe(normalizedMessage);
+            expect(parsedMessage.asNativeString()).toBe('a text with <ph name="ICU"><ex>ICU</ex></ph>');
+            checkToXmlAndBack(normalizedMessage);
+        });
+
     });
 
     describe('xml to normalized message', () => {

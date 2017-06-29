@@ -6,6 +6,7 @@ import {ParsedMessagePartEndTag} from './parsed-message-part-end-tag';
 import {ParsedMessagePartPlaceholder} from './parsed-message-part-placeholder';
 import {TagMapping} from './tag-mapping';
 import {ParsedMessagePartEmptyTag} from './parsed-message-part-empty-tag';
+import {ParsedMessagePartICUMessageRef} from './parsed-message-part-icu-message-ref';
 /**
  * Created by roobm on 10.05.2017.
  * A message parser for XMB
@@ -242,4 +243,21 @@ export class XmbMessageParser extends AbstractMessageParser {
         return phElem;
     }
 
+    /**
+     * the xml used for icu message refs in the message.
+     * @param part
+     * @param rootElem
+     */
+    protected createXmlRepresentationOfICUMessageRefPart(part: ParsedMessagePartICUMessageRef, rootElem: Element): Node {
+        let phElem = rootElem.ownerDocument.createElement('ph');
+        let nameAttrib = 'ICU';
+        if (part.index() > 0) {
+            nameAttrib = 'ICU_' + part.index().toString(10);
+        }
+        phElem.setAttribute('name', nameAttrib);
+        let exElem = rootElem.ownerDocument.createElement('ex');
+        exElem.appendChild(rootElem.ownerDocument.createTextNode(nameAttrib));
+        phElem.appendChild(exElem);
+        return phElem;
+    }
 }

@@ -96,6 +96,14 @@ describe('message parse XLIFF 2.0 test spec', () => {
             checkToXmlAndBack(normalizedMessage);
         });
 
+        it('should parse ICU Refs', () => {
+            let normalizedMessage = 'a text with <ICU-Message-Ref_0/>';
+            let parsedMessage = parsedMessageFor(normalizedMessage);
+            expect(parsedMessage.asDisplayString()).toBe(normalizedMessage);
+            expect(parsedMessage.asNativeString()).toBe('a text with <ph id="0"/>');
+            checkToXmlAndBack(normalizedMessage);
+        });
+
      });
 
     describe('xml to normalized message', () => {

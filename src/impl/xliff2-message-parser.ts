@@ -7,6 +7,7 @@ import {ParsedMessagePartText} from './parsed-message-part-text';
 import {ParsedMessagePartType} from './parsed-message-part';
 import {TagMapping} from './tag-mapping';
 import {ParsedMessagePartEmptyTag} from './parsed-message-part-empty-tag';
+import {ParsedMessagePartICUMessageRef} from './parsed-message-part-icu-message-ref';
 /**
  * Created by roobm on 10.05.2017.
  * A message parser for XLIFF 2.0
@@ -118,6 +119,9 @@ export class Xliff2MessageParser extends AbstractMessageParser {
                     break;
                 case ParsedMessagePartType.PLACEHOLDER:
                     stack[stack.length - 1].element.appendChild(this.createXmlRepresentationOfPlaceholderPart(<ParsedMessagePartPlaceholder> part, rootElem));
+                    break;
+                case ParsedMessagePartType.ICU_MESSAGE_REF:
+                    stack[stack.length - 1].element.appendChild(this.createXmlRepresentationOfICUMessageRefPart(<ParsedMessagePartICUMessageRef> part, rootElem));
                     break;
                 case ParsedMessagePartType.START_TAG:
                     let newTagElem = this.createXmlRepresentationOfStartTagPart(<ParsedMessagePartStartTag> part, rootElem, tagIdCounter);
@@ -237,5 +241,15 @@ export class Xliff2MessageParser extends AbstractMessageParser {
         return phElem;
     }
 
+    /**
+     * the xml used for icu message refs in the message.
+     * @param part
+     * @param rootElem
+     */
+    protected createXmlRepresentationOfICUMessageRefPart(part: ParsedMessagePartICUMessageRef, rootElem: Element): Node {
+        let phElem = rootElem.ownerDocument.createElement('ph');
+        phElem.setAttribute('id', part.index().toString(10));
+        return phElem;
+    }
 
 }

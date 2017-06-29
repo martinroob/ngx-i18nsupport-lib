@@ -5,6 +5,7 @@ import {ParsedMessagePartEndTag} from './parsed-message-part-end-tag';
 import {ParsedMessagePartPlaceholder} from './parsed-message-part-placeholder';
 import {TagMapping} from './tag-mapping';
 import {ParsedMessagePartEmptyTag} from './parsed-message-part-empty-tag';
+import {ParsedMessagePartICUMessageRef} from './parsed-message-part-icu-message-ref';
 /**
  * Created by roobm on 10.05.2017.
  * A message parser for XLIFF 1.2
@@ -155,6 +156,21 @@ export class XliffMessageParser extends AbstractMessageParser {
         let idAttrib = 'INTERPOLATION';
         if (part.index() > 0) {
             idAttrib = 'INTERPOLATION_' + part.index().toString(10);
+        }
+        xElem.setAttribute('id', idAttrib);
+        return xElem;
+    }
+
+    /**
+     * the xml used for icu message refs in the message.
+     * @param part
+     * @param rootElem
+     */
+    protected createXmlRepresentationOfICUMessageRefPart(part: ParsedMessagePartICUMessageRef, rootElem: Element): Node {
+        let xElem = rootElem.ownerDocument.createElement('x');
+        let idAttrib = 'ICU';
+        if (part.index() > 0) {
+            idAttrib = 'ICU_' + part.index().toString(10);
         }
         xElem.setAttribute('id', idAttrib);
         return xElem;
