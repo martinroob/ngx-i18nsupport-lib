@@ -99,6 +99,25 @@ export interface ITransUnit {
     meaning(): string;
 
     /**
+     * Test, wether setting of description and meaning is supported.
+     * If not, setDescription and setMeaning will do nothing.
+     * xtb does not support this, all other formats do.
+     */
+    supportsSetDescriptionAndMeaning(): boolean;
+
+    /**
+     * Change description property of trans-unit.
+     * @param {string} description
+     */
+    setDescription(description: string);
+
+    /**
+     * Change meaning property of trans-unit.
+     * @param {string} meaning
+     */
+    setMeaning(meaning: string);
+
+    /**
      * Translate the trans unit.
      * @param translation the translated string or (preferred) a normalized message.
      * The pure string can contain any markup and will not be checked.

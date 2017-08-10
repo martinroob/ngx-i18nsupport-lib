@@ -216,6 +216,18 @@ export class XliffTransUnit extends AbstractTransUnit implements ITransUnit {
     }
 
     /**
+     * Change description property of trans-unit.
+     * @param {string} description
+     */
+    public setDescription(description: string) {
+       if (description) {
+           // TODO
+       } else {
+           // TODO
+       }
+    }
+
+    /**
      * The meaning (intent) set in the template as value of the i18n-attribute.
      * This is the part in front of the | symbol.
      * e.g. i18n="meaning|mydescription".
@@ -230,6 +242,18 @@ export class XliffTransUnit extends AbstractTransUnit implements ITransUnit {
             }
         }
         return null;
+    }
+
+    /**
+     * Change meaning property of trans-unit.
+     * @param {string} meaning
+     */
+    public setMeaning(meaning: string) {
+        if (meaning) {
+            // TODO
+        } else {
+            // TODO
+        }
     }
 
     /**
