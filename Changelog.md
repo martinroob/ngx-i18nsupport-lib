@@ -1,5 +1,12 @@
+<a name="1.5.0"></a>
+# [1.5.0](https://github.com/martinroob/ngx-i18nsupport-lib/compare/v1.5.0...v1.4.6) (2017-08-11)
+
+### Features
+
+* **API** description and meaning of trans-units are now writable ([#39](https://github.com/martinroob/ngx-i18nsupport-lib/issues/39)).
+
 <a name="1.4.6"></a>
-# [1.4.6](https://github.com/martinroob/ngx-i18nsupport-lib/compare/v1.4.6...v1.4.6) (2017-06-29)
+# [1.4.6](https://github.com/martinroob/ngx-i18nsupport-lib/compare/v1.4.6...v1.4.5) (2017-06-29)
 
 ### Bug Fixes
 
