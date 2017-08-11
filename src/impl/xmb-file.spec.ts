@@ -93,6 +93,30 @@ describe('ngx-i18nsupport-lib xmb test spec', () => {
             expect(tu.description()).toBe('ngx-translate');
         });
 
+        it('should ignore change description', () => {
+            const file: ITranslationMessagesFile = readFile(MASTER1SRC);
+            const tu: ITransUnit = file.transUnitWithId(ID_WITH_MEANING_AND_DESCRIPTION);
+            expect(tu).toBeTruthy();
+            expect(tu.description()).toBeTruthy();
+            const oldValue = tu.description();
+            expect(tu.supportsSetDescriptionAndMeaning()).toBeFalsy();
+            const changedMessage = 'a changed description';
+            tu.setDescription(changedMessage);
+            expect(tu.description()).toBe(oldValue);
+        });
+
+        it('should ignore change meaning', () => {
+            const file: ITranslationMessagesFile = readFile(MASTER1SRC);
+            const tu: ITransUnit = file.transUnitWithId(ID_WITH_MEANING_AND_DESCRIPTION);
+            expect(tu).toBeTruthy();
+            expect(tu.meaning()).toBeTruthy();
+            const oldValue = tu.meaning();
+            expect(tu.supportsSetDescriptionAndMeaning()).toBeFalsy();
+            const changedMessage = 'a changed description';
+            tu.setMeaning(changedMessage);
+            expect(tu.meaning()).toBe(oldValue);
+        });
+
         it('should ignore source attribute in sourceContent', () => {
             const file: ITranslationMessagesFile = readFile(MASTER1SRC);
             const tu: ITransUnit = file.transUnitWithId(ID_WITH_PLACEHOLDER);

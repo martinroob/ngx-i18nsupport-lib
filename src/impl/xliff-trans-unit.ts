@@ -5,6 +5,7 @@ import {AbstractTransUnit} from './abstract-trans-unit';
 import {XliffMessageParser} from './xliff-message-parser';
 import {ParsedMessage} from './parsed-message';
 import {AbstractMessageParser} from './abstract-message-parser';
+import {isNullOrUndefined} from 'util';
 /**
  * Created by martin on 01.05.2017.
  * A Translation Unit in an XLIFF 1.2 file.
@@ -205,14 +206,12 @@ export class XliffTransUnit extends AbstractTransUnit implements ITransUnit {
      * In xliff this is stored as a note element with attribute from="description".
      */
     public description(): string {
-        let noteElements = this._element.getElementsByTagName('note');
-        for (let i = 0; i < noteElements.length; i++) {
-            const noteElem = noteElements.item(i);
-            if (noteElem.getAttribute('from') === 'description') {
-                return DOMUtilities.getPCDATA(noteElem);
-            }
+        const noteElem = this.findNoteElementWithFromAttribute('description');
+        if (noteElem) {
+            return DOMUtilities.getPCDATA(noteElem);
+        } else {
+            return null;
         }
-        return null;
     }
 
     /**
@@ -220,11 +219,59 @@ export class XliffTransUnit extends AbstractTransUnit implements ITransUnit {
      * @param {string} description
      */
     public setDescription(description: string) {
-       if (description) {
-           // TODO
-       } else {
-           // TODO
-       }
+        let noteElem = this.findNoteElementWithFromAttribute('description');
+        if (description) {
+           if (isNullOrUndefined(noteElem)) {
+               // create it
+               noteElem = this.createNoteElementWithFromAttribute('description');
+           }
+           DOMUtilities.replaceContentWithXMLContent(noteElem, description);
+        } else {
+            if (!isNullOrUndefined(noteElem)) {
+                // remove node
+                this.removeNoteElementWithFromAttribute('description');
+            }
+        }
+    }
+
+    /**
+     * Find a note element with attribute from='<attrValue>'
+     * @param {string} attrValue
+     * @return {Element} element or null is absent
+     */
+    private findNoteElementWithFromAttribute(attrValue: string): Element {
+        let noteElements = this._element.getElementsByTagName('note');
+        for (let i = 0; i < noteElements.length; i++) {
+            const noteElem = noteElements.item(i);
+            if (noteElem.getAttribute('from') === attrValue) {
+                return noteElem;
+            }
+        }
+        return null;
+    }
+
+    /**
+     * Create a new note element with attribute from='<attrValue>'
+     * @param {string} attrValue
+     * @return the new created element
+     */
+    private createNoteElementWithFromAttribute(attrValue: string): Element {
+        const noteElement = this._element.ownerDocument.createElement('note');
+        noteElement.setAttribute('from', attrValue);
+        noteElement.setAttribute('priority', '1');
+        this._element.appendChild(noteElement);
+        return noteElement;
+    }
+
+    /**
+     * Remove note element with attribute from='<attrValue>'
+     * @param {string} attrValue
+     */
+    private removeNoteElementWithFromAttribute(attrValue: string) {
+        const noteElement = this.findNoteElementWithFromAttribute(attrValue);
+        if (noteElement) {
+            this._element.removeChild(noteElement);
+        }
     }
 
     /**
@@ -234,14 +281,12 @@ export class XliffTransUnit extends AbstractTransUnit implements ITransUnit {
      * In xliff this is stored as a note element with attribute from="meaning".
      */
     public meaning(): string {
-        let noteElements = this._element.getElementsByTagName('note');
-        for (let i = 0; i < noteElements.length; i++) {
-            const noteElem = noteElements.item(i);
-            if (noteElem.getAttribute('from') === 'meaning') {
-                return DOMUtilities.getPCDATA(noteElem);
-            }
+        const noteElem = this.findNoteElementWithFromAttribute('meaning');
+        if (noteElem) {
+            return DOMUtilities.getPCDATA(noteElem);
+        } else {
+            return null;
         }
-        return null;
     }
 
     /**
@@ -249,10 +294,18 @@ export class XliffTransUnit extends AbstractTransUnit implements ITransUnit {
      * @param {string} meaning
      */
     public setMeaning(meaning: string) {
+        let noteElem = this.findNoteElementWithFromAttribute('meaning');
         if (meaning) {
-            // TODO
+            if (isNullOrUndefined(noteElem)) {
+                // create it
+                noteElem = this.createNoteElementWithFromAttribute('meaning');
+            }
+            DOMUtilities.replaceContentWithXMLContent(noteElem, meaning);
         } else {
-            // TODO
+            if (!isNullOrUndefined(noteElem)) {
+                // remove node
+                this.removeNoteElementWithFromAttribute('meaning');
+            }
         }
     }
 

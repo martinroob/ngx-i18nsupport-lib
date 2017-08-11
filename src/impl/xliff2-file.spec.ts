@@ -1,5 +1,7 @@
 import {TranslationMessagesFileFactory, ITranslationMessagesFile, ITransUnit, INormalizedMessage, STATE_NEW, STATE_TRANSLATED, STATE_FINAL} from '../api';
 import * as fs from "fs";
+import {AbstractTransUnit} from './abstract-trans-unit';
+import {DOMUtilities} from './dom-utilities';
 
 /**
  * Created by martin on 05.05.2017.
@@ -108,6 +110,91 @@ describe('ngx-i18nsupport-lib XLIFF 2.0 test spec', () => {
             expect(tu).toBeTruthy();
             expect(tu.meaning()).toBe('dateservice.monday');
             expect(tu.description()).toBe('ngx-translate');
+        });
+
+        it('should change description', () => {
+            const file: ITranslationMessagesFile = readFile(MASTER1SRC);
+            const tu: ITransUnit = file.transUnitWithId(ID_WITH_MEANING_AND_DESCRIPTION);
+            expect(tu).toBeTruthy();
+            expect(tu.description()).toBeTruthy();
+            expect(tu.supportsSetDescriptionAndMeaning()).toBeTruthy();
+            const changedMessage = 'a changed description';
+            tu.setDescription(changedMessage);
+            expect(tu.description()).toBe(changedMessage);
+            const file2: ITranslationMessagesFile = TranslationMessagesFileFactory.fromUnknownFormatFileContent(file.editedContent(), null, null);
+            const tu2: ITransUnit = file2.transUnitWithId(ID_WITH_MEANING_AND_DESCRIPTION);
+            expect(tu2.description()).toBe(changedMessage);
+        });
+
+        it('should set description (creates new description)', () => {
+            const file: ITranslationMessagesFile = readFile(MASTER1SRC);
+            const tu: ITransUnit = file.transUnitWithId(ID_WITH_BR_TAG); // anyone without description
+            expect(tu).toBeTruthy();
+            expect(tu.description()).toBeFalsy();
+            expect(tu.supportsSetDescriptionAndMeaning()).toBeTruthy();
+            const changedMessage = 'a changed description';
+            tu.setDescription(changedMessage);
+            expect(tu.description()).toBe(changedMessage);
+            const file2: ITranslationMessagesFile = TranslationMessagesFileFactory.fromUnknownFormatFileContent(file.editedContent(), null, null);
+            const tu2: ITransUnit = file2.transUnitWithId(ID_WITH_BR_TAG);
+            expect(tu2.description()).toBe(changedMessage);
+            const xmlElem = (<AbstractTransUnit> tu2).asXmlElement();
+            const notesElem = DOMUtilities.getFirstElementByTagName(xmlElem,'notes');
+            expect(notesElem).toBeTruthy();
+        });
+
+        it('should remove description', () => {
+            const file: ITranslationMessagesFile = readFile(MASTER1SRC);
+            const tu: ITransUnit = file.transUnitWithId(ID_WITH_MEANING_AND_DESCRIPTION);
+            expect(tu).toBeTruthy();
+            expect(tu.description()).toBeTruthy();
+            expect(tu.supportsSetDescriptionAndMeaning()).toBeTruthy();
+            tu.setDescription(null);
+            expect(tu.description()).toBeFalsy();
+            const file2: ITranslationMessagesFile = TranslationMessagesFileFactory.fromUnknownFormatFileContent(file.editedContent(), null, null);
+            const tu2: ITransUnit = file2.transUnitWithId(ID_WITH_MEANING_AND_DESCRIPTION);
+            expect(tu2.description()).toBeFalsy();
+        });
+
+        it('should change meaning', () => {
+            const file: ITranslationMessagesFile = readFile(MASTER1SRC);
+            const tu: ITransUnit = file.transUnitWithId(ID_WITH_MEANING_AND_DESCRIPTION);
+            expect(tu).toBeTruthy();
+            expect(tu.meaning()).toBeTruthy();
+            expect(tu.supportsSetDescriptionAndMeaning()).toBeTruthy();
+            const changedMessage = 'a changed description';
+            tu.setMeaning(changedMessage);
+            expect(tu.meaning()).toBe(changedMessage);
+            const file2: ITranslationMessagesFile = TranslationMessagesFileFactory.fromUnknownFormatFileContent(file.editedContent(), null, null);
+            const tu2: ITransUnit = file2.transUnitWithId(ID_WITH_MEANING_AND_DESCRIPTION);
+            expect(tu2.meaning()).toBe(changedMessage);
+        });
+
+        it('should set meaning (creates new meaning)', () => {
+            const file: ITranslationMessagesFile = readFile(MASTER1SRC);
+            const tu: ITransUnit = file.transUnitWithId(ID_WITH_BR_TAG); // anyone without description
+            expect(tu).toBeTruthy();
+            expect(tu.meaning()).toBeFalsy();
+            expect(tu.supportsSetDescriptionAndMeaning()).toBeTruthy();
+            const changedMessage = 'a changed description';
+            tu.setMeaning(changedMessage);
+            expect(tu.meaning()).toBe(changedMessage);
+            const file2: ITranslationMessagesFile = TranslationMessagesFileFactory.fromUnknownFormatFileContent(file.editedContent(), null, null);
+            const tu2: ITransUnit = file2.transUnitWithId(ID_WITH_BR_TAG);
+            expect(tu2.meaning()).toBe(changedMessage);
+        });
+
+        it('should remove meaning', () => {
+            const file: ITranslationMessagesFile = readFile(MASTER1SRC);
+            const tu: ITransUnit = file.transUnitWithId(ID_WITH_MEANING_AND_DESCRIPTION);
+            expect(tu).toBeTruthy();
+            expect(tu.meaning()).toBeTruthy();
+            expect(tu.supportsSetDescriptionAndMeaning()).toBeTruthy();
+            tu.setMeaning(null);
+            expect(tu.meaning()).toBeFalsy();
+            const file2: ITranslationMessagesFile = TranslationMessagesFileFactory.fromUnknownFormatFileContent(file.editedContent(), null, null);
+            const tu2: ITransUnit = file2.transUnitWithId(ID_WITH_MEANING_AND_DESCRIPTION);
+            expect(tu2.meaning()).toBeFalsy();
         });
 
         it('should return empty source references array if source not set', () => {
