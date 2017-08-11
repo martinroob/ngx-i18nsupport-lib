@@ -211,14 +211,77 @@ export class Xliff2TransUnit extends AbstractTransUnit  implements ITransUnit {
      * In xliff 2.0 this is stored as a note element with attribute category="description".
      */
     public description(): string {
+        const noteElem = this.findNoteElementWithCategoryAttribute('description');
+        if (noteElem) {
+            return DOMUtilities.getPCDATA(noteElem);
+        } else {
+            return null;
+        }
+    }
+
+    /**
+     * Change description property of trans-unit.
+     * @param {string} description
+     */
+    public setDescription(description: string) {
+        let noteElem = this.findNoteElementWithCategoryAttribute('description');
+        if (description) {
+            if (isNullOrUndefined(noteElem)) {
+                // create it
+                noteElem = this.createNoteElementWithCategoryAttribute('description');
+            }
+            DOMUtilities.replaceContentWithXMLContent(noteElem, description);
+        } else {
+            if (!isNullOrUndefined(noteElem)) {
+                // remove node
+                this.removeNoteElementWithCategoryAttribute('description');
+            }
+        }
+    }
+
+    /**
+     * Find a note element with attribute from='<attrValue>'
+     * @param {string} attrValue
+     * @return {Element} element or null is absent
+     */
+    private findNoteElementWithCategoryAttribute(attrValue: string): Element {
         let noteElements = this._element.getElementsByTagName('note');
         for (let i = 0; i < noteElements.length; i++) {
             const noteElem = noteElements.item(i);
-            if (noteElem.getAttribute('category') === 'description') {
-                return DOMUtilities.getPCDATA(noteElem);
+            if (noteElem.getAttribute('category') === attrValue) {
+                return noteElem;
             }
         }
         return null;
+    }
+
+    /**
+     * Create a new note element with attribute from='<attrValue>'
+     * @param {string} attrValue
+     * @return the new created element
+     */
+    private createNoteElementWithCategoryAttribute(attrValue: string): Element {
+        let notesElement = DOMUtilities.getFirstElementByTagName(this._element, 'notes');
+        if (isNullOrUndefined(notesElement)) {
+            // create it
+            notesElement = this._element.ownerDocument.createElement('notes');
+            this._element.appendChild(notesElement);
+        }
+        const noteElement = this._element.ownerDocument.createElement('note');
+        noteElement.setAttribute('category', attrValue);
+        notesElement.appendChild(noteElement);
+        return noteElement;
+    }
+
+    /**
+     * Remove note element with attribute from='<attrValue>'
+     * @param {string} attrValue
+     */
+    private removeNoteElementWithCategoryAttribute(attrValue: string) {
+        const noteElement = this.findNoteElementWithCategoryAttribute(attrValue);
+        if (noteElement) {
+            this._element.removeChild(noteElement);
+        }
     }
 
     /**
@@ -228,14 +291,32 @@ export class Xliff2TransUnit extends AbstractTransUnit  implements ITransUnit {
      * In xliff 2.0 this is stored as a note element with attribute category="meaning".
      */
     public meaning(): string {
-        let noteElements = this._element.getElementsByTagName('note');
-        for (let i = 0; i < noteElements.length; i++) {
-            const noteElem = noteElements.item(i);
-            if (noteElem.getAttribute('category') === 'meaning') {
-                return DOMUtilities.getPCDATA(noteElem);
+        const noteElem = this.findNoteElementWithCategoryAttribute('meaning');
+        if (noteElem) {
+            return DOMUtilities.getPCDATA(noteElem);
+        } else {
+            return null;
+        }
+    }
+
+    /**
+     * Change meaning property of trans-unit.
+     * @param {string} meaning
+     */
+    public setMeaning(meaning: string) {
+        let noteElem = this.findNoteElementWithCategoryAttribute('meaning');
+        if (meaning) {
+            if (isNullOrUndefined(noteElem)) {
+                // create it
+                noteElem = this.createNoteElementWithCategoryAttribute('meaning');
+            }
+            DOMUtilities.replaceContentWithXMLContent(noteElem, meaning);
+        } else {
+            if (!isNullOrUndefined(noteElem)) {
+                // remove node
+                this.removeNoteElementWithCategoryAttribute('meaning');
             }
         }
-        return null;
     }
 
     /**

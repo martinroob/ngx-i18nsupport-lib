@@ -152,6 +152,27 @@ export abstract class AbstractTransUnit implements ITransUnit {
     abstract meaning(): string;
 
     /**
+     * Test, wether setting of description and meaning is supported.
+     * If not, setDescription and setMeaning will do nothing.
+     * xtb does not support this, all other formats do.
+     */
+    public supportsSetDescriptionAndMeaning(): boolean {
+        return true;
+    }
+
+    /**
+     * Change description property of trans-unit.
+     * @param {string} description
+     */
+    abstract setDescription(description: string);
+
+    /**
+     * Change meaning property of trans-unit.
+     * @param {string} meaning
+     */
+    abstract setMeaning(meaning: string);
+
+    /**
      * The real xml element used for the trans unit.
      * (internal usage only, a client should never need this)
      * @return {Element}

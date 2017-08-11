@@ -175,6 +175,31 @@ export class XtbTransUnit extends AbstractTransUnit implements ITransUnit {
     }
 
     /**
+     * Test, wether setting of description and meaning is supported.
+     * If not, setDescription and setMeaning will do nothing.
+     * xtb does not support this, all other formats do.
+     */
+    public supportsSetDescriptionAndMeaning(): boolean {
+        return false;
+    }
+
+    /**
+     * Change description property of trans-unit.
+     * @param {string} description
+     */
+    public setDescription(description: string) {
+        // not supported, do nothing
+    }
+
+    /**
+     * Change meaning property of trans-unit.
+     * @param {string} meaning
+     */
+    public setMeaning(meaning: string) {
+        // not supported, do nothing
+    }
+
+    /**
      * Copy source to target to use it as dummy translation.
      * Returns a changed copy of this trans unit.
      * receiver is not changed.
