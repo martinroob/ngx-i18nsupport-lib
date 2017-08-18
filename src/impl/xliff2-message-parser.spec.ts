@@ -53,7 +53,7 @@ describe('message parse XLIFF 2.0 test spec', () => {
             let normalizedMessage = 'a placeholder: {{0}}';
             let parsedMessage = parsedMessageFor(normalizedMessage);
             expect(parsedMessage.asDisplayString()).toBe(normalizedMessage);
-            expect(parsedMessage.asNativeString()).toBe('a placeholder: <ph id="0" equiv="INTERPOLATION" disp="{{todo()}}"/>');
+            expect(parsedMessage.asNativeString()).toBe('a placeholder: <ph id="0" equiv="INTERPOLATION"/>');
             checkToXmlAndBack(normalizedMessage);
         });
 
@@ -61,7 +61,7 @@ describe('message parse XLIFF 2.0 test spec', () => {
             let normalizedMessage = '{{1}}: a placeholder: {{0}}';
             let parsedMessage = parsedMessageFor(normalizedMessage);
             expect(parsedMessage.asDisplayString()).toBe(normalizedMessage);
-            expect(parsedMessage.asNativeString()).toBe('<ph id="1" equiv="INTERPOLATION_1" disp="{{todo()}}"/>: a placeholder: <ph id="0" equiv="INTERPOLATION" disp="{{todo()}}"/>');
+            expect(parsedMessage.asNativeString()).toBe('<ph id="1" equiv="INTERPOLATION_1"/>: a placeholder: <ph id="0" equiv="INTERPOLATION"/>');
             checkToXmlAndBack(normalizedMessage);
         });
 
@@ -92,7 +92,7 @@ describe('message parse XLIFF 2.0 test spec', () => {
             let normalizedMessage = '<b><i><strange>Placeholder {{0}}</strange></i></b>';
             let parsedMessage = parsedMessageFor(normalizedMessage);
             expect(parsedMessage.asDisplayString()).toBe(normalizedMessage);
-            expect(parsedMessage.asNativeString()).toBe('<pc id="0" equivStart="START_BOLD_TEXT" equivEnd="CLOSE_BOLD_TEXT" type="fmt" dispStart="&lt;b>" dispEnd="&lt;/b>"><pc id="1" equivStart="START_ITALIC_TEXT" equivEnd="CLOSE_ITALIC_TEXT" type="fmt" dispStart="&lt;i>" dispEnd="&lt;/i>"><pc id="2" equivStart="START_TAG_STRANGE" equivEnd="CLOSE_TAG_STRANGE" type="other" dispStart="&lt;strange>" dispEnd="&lt;/strange>">Placeholder <ph id="0" equiv="INTERPOLATION" disp="{{todo()}}"/></pc></pc></pc>');
+            expect(parsedMessage.asNativeString()).toBe('<pc id="0" equivStart="START_BOLD_TEXT" equivEnd="CLOSE_BOLD_TEXT" type="fmt" dispStart="&lt;b>" dispEnd="&lt;/b>"><pc id="1" equivStart="START_ITALIC_TEXT" equivEnd="CLOSE_ITALIC_TEXT" type="fmt" dispStart="&lt;i>" dispEnd="&lt;/i>"><pc id="2" equivStart="START_TAG_STRANGE" equivEnd="CLOSE_TAG_STRANGE" type="other" dispStart="&lt;strange>" dispEnd="&lt;/strange>">Placeholder <ph id="0" equiv="INTERPOLATION"/></pc></pc></pc>');
             checkToXmlAndBack(normalizedMessage);
         });
 
@@ -100,7 +100,10 @@ describe('message parse XLIFF 2.0 test spec', () => {
             let normalizedMessage = 'a text with <ICU-Message-Ref_0/>';
             let parsedMessage = parsedMessageFor(normalizedMessage);
             expect(parsedMessage.asDisplayString()).toBe(normalizedMessage);
-            expect(parsedMessage.asNativeString()).toBe('a text with <ph id="0"/>');
+            // old syntax before angular #17344
+            // expect(parsedMessage.asNativeString()).toBe('a text with <ph id="0"/>');
+            // new syntax after angular #17344
+            expect(parsedMessage.asNativeString()).toBe('a text with <ph id="0" equiv="ICU"/>');
             checkToXmlAndBack(normalizedMessage);
         });
 
@@ -138,8 +141,18 @@ describe('message parse XLIFF 2.0 test spec', () => {
             expect(parsedMessage.asDisplayString()).toBe('first: <ICU-Message-Ref_0/>');
         });
 
+        it('should parse message with embedded ICU message reference (new syntax after angular #17344)', () => {
+            let parsedMessage = parsedMessageFromXML('first: <ph id="0" equiv="ICU" disp="{count, plural, =0 {...} =1 {...} other {...}}"/>');
+            expect(parsedMessage.asDisplayString()).toBe('first: <ICU-Message-Ref_0/>');
+        });
+
         it('should parse message with 2 embedded ICU message reference', () => {
             let parsedMessage = parsedMessageFromXML('first: <ph id="0"/>, second <ph id="1"/>');
+            expect(parsedMessage.asDisplayString()).toBe('first: <ICU-Message-Ref_0/>, second <ICU-Message-Ref_1/>');
+        });
+
+        it('should parse message with 2 embedded ICU message reference (new syntax after angular #17344)', () => {
+            let parsedMessage = parsedMessageFromXML('first: <ph id="0" equiv="ICU" disp="{count, plural, =0 {...} =1 {...} other {...}}"/>, second <ph id="1" equiv="ICU_1" disp="{gender, select, m {...} f {...}}"/>');
             expect(parsedMessage.asDisplayString()).toBe('first: <ICU-Message-Ref_0/>, second <ICU-Message-Ref_1/>');
         });
 

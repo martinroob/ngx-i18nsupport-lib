@@ -27,8 +27,11 @@ export class Xliff2MessageParser extends AbstractMessageParser {
             // placeholder are like <ph id="0" equiv="INTERPOLATION" disp="{{number()}}"/>
             // They contain the id and also a name (number in the example)
             // TODO make some use of the name (but it is not available in XLIFF 1.2)
-            // ICU message are handled with the same tag, but they do not have an equiv:
+            // ICU message are handled with the same tag
+            // Before 4.3.2 they did not have an equiv and disp (Bug #17344):
             // e.g. <ph id="0"/>
+            // Beginning with 4.3.2 they do have an equiv ICU and disp:
+            // e.g. <ph id="0" equiv="ICU" disp="{count, plural, =0 {...} =1 {...} other {...}}"/>
             // and empty tags have equiv other then INTERPOLATION:
             // e.g. <ph id="3" equiv="TAG_IMG" type="image" disp="&lt;img/>"/>
             // or <ph equiv="LINE_BREAK" type="lb" disp="&lt;br/>"/>
@@ -36,12 +39,23 @@ export class Xliff2MessageParser extends AbstractMessageParser {
             let isICU = false;
             let isEmptyTag = false;
             let equiv = elementNode.getAttribute('equiv');
+            let disp = elementNode.getAttribute('disp');
             let indexString = null;
             let index = 0;
             let emptyTagName = null;
             if (!equiv) {
+                // old ICU syntax, fixed with #17344
                 isICU = true;
-                indexString = elementNode.getAttribute('id')
+                indexString = elementNode.getAttribute('id');
+                index = Number.parseInt(indexString);
+            } else if (equiv.startsWith('ICU')) {
+                // new ICU syntax, fixed with #17344
+                isICU = true;
+                if (equiv === 'ICU') {
+                    indexString = '0';
+                } else {
+                    indexString = equiv.substring('ICU_'.length);
+                }
                 index = Number.parseInt(indexString);
             } else if (equiv.startsWith('INTERPOLATION')) {
                 isInterpolation = true;
@@ -58,10 +72,10 @@ export class Xliff2MessageParser extends AbstractMessageParser {
                 return true;
             }
             if (isInterpolation) {
-                message.addPlaceholder(index);
+                message.addPlaceholder(index, disp);
             } else if (isICU) {
-                message.addICUMessageRef(index);
-            } else {
+                message.addICUMessageRef(index, disp);
+            } else if (isEmptyTag) {
                 message.addEmptyTag(emptyTagName);
             }
         } else if (tagName === 'pc') {
@@ -157,6 +171,7 @@ export class Xliff2MessageParser extends AbstractMessageParser {
      * Text content will be added later.
      * @param part
      * @param rootElem
+     * @param id
      */
     protected createXmlRepresentationOfStartTagPart(part: ParsedMessagePartStartTag, rootElem: Element, id?: number): Node {
         const tagMapping = new TagMapping();
@@ -192,6 +207,7 @@ export class Xliff2MessageParser extends AbstractMessageParser {
      * e.g. <ph id="3" equiv="TAG_IMG" type="image" disp="&lt;img/>"/>
      * @param part
      * @param rootElem
+     * @param id
      */
     protected createXmlRepresentationOfEmptyTagPart(part: ParsedMessagePartEmptyTag, rootElem: Element, id?: number): Node {
         const tagMapping = new TagMapping();
@@ -236,8 +252,10 @@ export class Xliff2MessageParser extends AbstractMessageParser {
         }
         phElem.setAttribute('id', part.index().toString(10));
         phElem.setAttribute('equiv', equivAttrib);
-        // disp ignored TODO copy from source ?
-        phElem.setAttribute('disp', '{{todo()}}');
+        const disp = part.disp();
+        if (disp) {
+            phElem.setAttribute('disp', disp);
+        }
         return phElem;
     }
 
@@ -248,7 +266,16 @@ export class Xliff2MessageParser extends AbstractMessageParser {
      */
     protected createXmlRepresentationOfICUMessageRefPart(part: ParsedMessagePartICUMessageRef, rootElem: Element): Node {
         let phElem = rootElem.ownerDocument.createElement('ph');
+        let equivAttrib = 'ICU';
+        if (part.index() > 0) {
+            equivAttrib = 'ICU_' + part.index().toString(10);
+        }
         phElem.setAttribute('id', part.index().toString(10));
+        phElem.setAttribute('equiv', equivAttrib);
+        const disp = part.disp();
+        if (disp) {
+            phElem.setAttribute('disp', disp);
+        }
         return phElem;
     }
 

@@ -38,7 +38,7 @@ export class XmbMessageParser extends AbstractMessageParser {
             }
             if (name.startsWith('INTERPOLATION')) {
                 const index = this.parsePlaceholderIndexFromName(name);
-                message.addPlaceholder(index);
+                message.addPlaceholder(index, null);
                 return false; // ignore children
             } else if (name.startsWith('START_')) {
                 const tag = this.parseTagnameFromPhElement(elementNode);
@@ -58,7 +58,7 @@ export class XmbMessageParser extends AbstractMessageParser {
                 return false; // ignore children
             } else if (name.startsWith('ICU')) {
                 const index = this.parseICUMessageIndexFromName(name);
-                message.addICUMessageRef(index);
+                message.addICUMessageRef(index, null);
                 return false; // ignore children
             }
         } else if (tagName === 'source') {
@@ -80,7 +80,7 @@ export class XmbMessageParser extends AbstractMessageParser {
         }
         let firstChild = null;
         // find first child that is no source element.
-        let i = 0;
+        let i;
         for (i = 0; i < children.length; i++) {
             const child = children.item(i);
             if (child.nodeType !== child.ELEMENT_NODE || (<Element> child).tagName !== 'source') {
@@ -178,6 +178,7 @@ export class XmbMessageParser extends AbstractMessageParser {
      * Returns an <ph>-Element with attribute name and subelement ex
      * @param part
      * @param rootElem
+     * @param id
      */
     protected createXmlRepresentationOfStartTagPart(part: ParsedMessagePartStartTag, rootElem: Element, id?: number): Node {
         let phElem = rootElem.ownerDocument.createElement('ph');
@@ -212,6 +213,7 @@ export class XmbMessageParser extends AbstractMessageParser {
      * Returns an <ph>-Element with attribute name and subelement ex
      * @param part
      * @param rootElem
+     * @param id
      */
     protected createXmlRepresentationOfEmptyTagPart(part: ParsedMessagePartEmptyTag, rootElem: Element, id?: number): Node {
         let phElem = rootElem.ownerDocument.createElement('ph');
