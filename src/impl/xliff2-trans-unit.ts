@@ -23,6 +23,22 @@ export class Xliff2TransUnit extends AbstractTransUnit  implements ITransUnit {
     }
 
     /**
+     * Set new source content in the transunit.
+     * Normally, this is done by ng-extract.
+     * Method only exists to allow xliffmerge to merge missing changed source content.
+     * @param newContent the new content.
+     */
+    public setSourceContent(newContent: string) {
+        let source = DOMUtilities.getFirstElementByTagName(this._element, 'source');
+        if (!source) {
+            // should not happen, there always has to be a source, but who knows..
+            let segment = DOMUtilities.getFirstElementByTagName(this._element, 'segment');
+            source = segment.parentNode.appendChild(this._element.ownerDocument.createElement('source'));
+        }
+        DOMUtilities.replaceContentWithXMLContent(source, newContent);
+    }
+
+    /**
      * Return a parser used for normalized messages.
      */
     protected messageParser(): AbstractMessageParser {

@@ -24,6 +24,21 @@ export interface ITransUnit {
     sourceContent(): string;
 
     /**
+     * Test, wether setting of source content is supported.
+     * If not, setSourceContent in trans-unit will do nothing.
+     * xtb does not support this, all other formats do.
+     */
+    supportsSetSourceContent(): boolean;
+
+    /**
+     * Set new source content in the transunit.
+     * Normally, this is done by ng-extract.
+     * Method only exists to allow xliffmerge to merge missing changed source content.
+     * @param newContent the new content.
+     */
+    setSourceContent(newContent: string);
+
+    /**
      * The original text value, that is to be translated, as normalized message.
      * Throws an error if normalized xml is not well formed.
      * (which should not happen in generated files)

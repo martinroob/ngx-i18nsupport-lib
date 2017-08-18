@@ -1,3 +1,10 @@
+<a name="1.6.0"></a>
+# [1.6.0](https://github.com/martinroob/ngx-i18nsupport-lib/compare/v1.6.0...v1.5.0) (2017-08-18)
+
+### Features
+
+* **API** source content of trans-units are now writable ([#41](https://github.com/martinroob/ngx-i18nsupport-lib/issues/41)).
+
 <a name="1.5.0"></a>
 # [1.5.0](https://github.com/martinroob/ngx-i18nsupport-lib/compare/v1.5.0...v1.4.6) (2017-08-11)
 
