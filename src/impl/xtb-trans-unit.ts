@@ -34,6 +34,25 @@ export class XtbTransUnit extends AbstractTransUnit implements ITransUnit {
     }
 
     /**
+     * Test, wether setting of source content is supported.
+     * If not, setSourceContent in trans-unit will do nothing.
+     * xtb does not support this, all other formats do.
+     */
+    supportsSetSourceContent(): boolean {
+        return false;
+    }
+
+    /**
+     * Set new source content in the transunit.
+     * Normally, this is done by ng-extract.
+     * Method only exists to allow xliffmerge to merge missing changed source content.
+     * @param newContent the new content.
+     */
+    public setSourceContent(newContent: string) {
+        // xtb has no source content, they are part of the master
+    }
+
+    /**
      * Return a parser used for normalized messages.
      */
     protected messageParser(): AbstractMessageParser {

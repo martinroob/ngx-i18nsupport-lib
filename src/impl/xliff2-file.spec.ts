@@ -104,6 +104,19 @@ describe('ngx-i18nsupport-lib XLIFF 2.0 test spec', () => {
             expect(count).toBeGreaterThan(24);
         });
 
+        it('should change source content', () => {
+            const file: ITranslationMessagesFile = readFile(MASTER1SRC);
+            const tu: ITransUnit = file.transUnitWithId(ID_WITH_BR_TAG);
+            expect(tu).toBeTruthy();
+            expect(tu.supportsSetSourceContent()).toBeTruthy();
+            const changedMessage = tu.sourceContent() + 'a changed source content';
+            tu.setSourceContent(changedMessage);
+            expect(tu.sourceContent()).toBe(changedMessage);
+            const file2: ITranslationMessagesFile = TranslationMessagesFileFactory.fromUnknownFormatFileContent(file.editedContent(), null, null);
+            const tu2: ITransUnit = file2.transUnitWithId(ID_WITH_BR_TAG);
+            expect(tu2.sourceContent()).toBe(changedMessage);
+        });
+
         it('should read meaning and description of tu', () => {
             const file: ITranslationMessagesFile = readFile(MASTER1SRC);
             const tu: ITransUnit = file.transUnitWithId(ID_WITH_MEANING_AND_DESCRIPTION);

@@ -85,6 +85,18 @@ describe('ngx-i18nsupport-lib xmb test spec', () => {
             expect(count).toBeGreaterThan(4);
         });
 
+        it('should ignore change source content', () => {
+            const file: ITranslationMessagesFile = readFile(MASTER_DE_XMB);
+            const tu: ITransUnit = file.transUnitWithId(ID_WITH_PLACEHOLDER);
+            expect(tu).toBeTruthy();
+            expect(tu.sourceContent()).toBeTruthy();
+            const oldValue = tu.sourceContent();
+            expect(tu.supportsSetSourceContent()).toBeFalsy();
+            const changedMessage = 'a changed source';
+            tu.setSourceContent(changedMessage);
+            expect(tu.sourceContent()).toBe(oldValue);
+        });
+
         it('should read meaning and description of tu', () => {
             const file: ITranslationMessagesFile = readFile(MASTER1SRC);
             const tu: ITransUnit = file.transUnitWithId(ID_WITH_MEANING_AND_DESCRIPTION);
