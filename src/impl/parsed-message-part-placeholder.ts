@@ -8,11 +8,15 @@ import {NORMALIZATION_FORMAT_NGXTRANSLATE} from '../api/constants';
 
 export class ParsedMessagePartPlaceholder extends ParsedMessagePart {
 
+    // index 0 .. n
     private _index: number;
+    // optional disp-Attribute value, contains the original expression.
+    private _disp?: string;
 
-    constructor(index: number) {
+    constructor(index: number, disp: string) {
         super(ParsedMessagePartType.PLACEHOLDER);
         this._index = index;
+        this._disp = disp;
     }
 
     public asDisplayString(format?: string) {
@@ -23,5 +27,9 @@ export class ParsedMessagePartPlaceholder extends ParsedMessagePart {
     }
     public index(): number {
         return this._index;
+    }
+
+    public disp(): string {
+        return this._disp;
     }
 }

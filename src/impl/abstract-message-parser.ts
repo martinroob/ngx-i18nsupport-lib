@@ -17,7 +17,7 @@ import {ParsedMessagePartEmptyTag} from './parsed-message-part-empty-tag';
 import {ParsedMessagePartICUMessageRef} from './parsed-message-part-icu-message-ref';
 /**
  * Created by roobm on 10.05.2017.
- * A message parser can parseICUMessage the xml content of a translatable message.
+ * A message parser can parse the xml content of a translatable message.
  * It generates a ParsedMessage from it.
  */
 export abstract class AbstractMessageParser implements IMessageParser {
@@ -154,6 +154,7 @@ export abstract class AbstractMessageParser implements IMessageParser {
             throw new Error(format('unexpected error while parsing message: "%s" (parsed "%")', error.message, normalizedString));
         }
         tokens.forEach((token: Token) => {
+            let disp: string = null;
             switch (token.type) {
                 case TEXT:
                     message.addText(token.value);
@@ -174,10 +175,12 @@ export abstract class AbstractMessageParser implements IMessageParser {
                     message.addEmptyTag(token.value);
                     break;
                 case PLACEHOLDER:
-                    message.addPlaceholder(token.value);
+                    disp = (sourceMessage) ? sourceMessage.getPlaceholderDisp(token.value) : null;
+                    message.addPlaceholder(token.value, disp);
                     break;
                 case ICU_MESSAGE_REF:
-                    message.addICUMessageRef(token.value);
+                    disp = (sourceMessage) ? sourceMessage.getICUMessageRefDisp(token.value) : null;
+                    message.addICUMessageRef(token.value, disp);
                     break;
                 case ICU_MESSAGE:
                     throw new Error(format('<ICUMessage/> not allowed here, use parseICUMessage instead (parsed "%")', normalizedString));

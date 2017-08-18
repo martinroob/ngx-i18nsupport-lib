@@ -270,6 +270,12 @@
         <target>first: <ph id="0"/>, second <ph id="1"/></target>
       </segment>
     </unit>
+    <unit id="complextags.icuTwoICU.withEquiv">
+      <!-- Angular issue #17344 equiv and disp now set for ICU message refs -->
+      <segment>
+        <source>first: <ph id="0" equiv="ICU" disp="{count, plural, =0 {...} =1 {...} other {...}}"/>, second <ph id="1" equiv="ICU_1" disp="{gender, select, m {...} f {...}}"/></source>
+      </segment>
+    </unit>
     <unit id="3944017551463298929">
       <segment>
         <source>Dieser Text enthält<ph id="0" equiv="LINE_BREAK" type="fmt" disp="&lt;br/&gt;"/>einen Zeilenumbruch per HTML-br-Element.</source>

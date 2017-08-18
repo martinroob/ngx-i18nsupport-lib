@@ -42,6 +42,7 @@ describe('ngx-i18nsupport-lib XLIFF 2.0 test spec', () => {
         let ID_ICU_EMBEDDED_TAGS = '6710804210857077393';
         let ID_CONTAINS_ICU = '2747218257718409559';
         let ID_CONTAINS_TWO_ICU = 'complextags.icuTwoICU';
+        let ID_CONTAINS_TWO_ICU_WITH_EQUIV = 'complextags.icuTwoICU.withEquiv'; // angular issue #17344
         let ID_WITH_BR_TAG = '3944017551463298929';
         let ID_WITH_IMG_TAG = '705837031073461246';
 
@@ -62,7 +63,7 @@ describe('ngx-i18nsupport-lib XLIFF 2.0 test spec', () => {
 
         it('should count units', () => {
             const file: ITranslationMessagesFile = readFile(MASTER1SRC);
-            expect(file.numberOfTransUnits()).toBe(38);
+            expect(file.numberOfTransUnits()).toBe(39);
             expect(file.numberOfTransUnitsWithMissingId()).toBe(1);
             expect(file.numberOfUntranslatedTransUnits()).toBe(file.numberOfTransUnits());
             expect(file.numberOfReviewedTransUnits()).toBe(0);
@@ -427,6 +428,18 @@ describe('ngx-i18nsupport-lib XLIFF 2.0 test spec', () => {
             expect(tu2.targetContentNormalized().asDisplayString()).toBe(translationString);
         });
 
+        it('should translate placeholders without loosing disp info', () => {
+            const file: ITranslationMessagesFile = readFile(MASTER1SRC);
+            const tu: ITransUnit = file.transUnitWithId(ID_WITH_PLACEHOLDER);
+            expect(tu).toBeTruthy();
+            const normalizedMessage = tu.sourceContentNormalized();
+            // Eintrag <ph id="0" equiv="INTERPOLATION" disp="{{number()}}"/> von <ph id="1" equiv="INTERPOLATION_1" disp="{{total()}}"/> hinzugefügt.
+            expect(normalizedMessage.asDisplayString()).toBe('Eintrag {{0}} von {{1}} hinzugefügt.');
+            const translatedMessage = normalizedMessage.translate('Total {{1}}, added {{0}}');
+            tu.translate(translatedMessage);
+            expect(tu.targetContent()).toBe('Total <ph id="1" equiv="INTERPOLATION_1" disp="{{total()}}"/>, added <ph id="0" equiv="INTERPOLATION" disp="{{number()}}"/>');
+        });
+
         it('should contain ICU reference in sourceContentNormalized', () => {
             const file: ITranslationMessagesFile = readFile(MASTER1SRC);
             const tu: ITransUnit = file.transUnitWithId(ID_CONTAINS_ICU);
@@ -435,12 +448,31 @@ describe('ngx-i18nsupport-lib XLIFF 2.0 test spec', () => {
             expect(tu.sourceContentNormalized().asDisplayString()).toBe('Zum Wert {{0}} gehört der Text <ICU-Message-Ref_1/>');
         });
 
-        it('should contain 2 ICU references in sourceContentNormalized', () => {
+        it('should contain 2 ICU references in sourceContentNormalized (old syntax before angular #17344)', () => {
             const file: ITranslationMessagesFile = readFile(MASTER1SRC);
             const tu: ITransUnit = file.transUnitWithId(ID_CONTAINS_TWO_ICU);
             expect(tu).toBeTruthy();
             expect(tu.sourceContent()).toBe('first: <ph id="0"/>, second <ph id="1"/>');
             expect(tu.sourceContentNormalized().asDisplayString()).toBe('first: <ICU-Message-Ref_0/>, second <ICU-Message-Ref_1/>');
+        });
+
+        it('should contain 2 ICU references in sourceContentNormalized (new syntax after angular #17344)', () => {
+            const file: ITranslationMessagesFile = readFile(MASTER1SRC);
+            const tu: ITransUnit = file.transUnitWithId(ID_CONTAINS_TWO_ICU_WITH_EQUIV);
+            expect(tu).toBeTruthy();
+            expect(tu.sourceContent()).toBe('first: <ph id="0" equiv="ICU" disp="{count, plural, =0 {...} =1 {...} other {...}}"/>, second <ph id="1" equiv="ICU_1" disp="{gender, select, m {...} f {...}}"/>');
+            expect(tu.sourceContentNormalized().asDisplayString()).toBe('first: <ICU-Message-Ref_0/>, second <ICU-Message-Ref_1/>');
+        });
+
+        it('should translate ICU references without loosing disp info', () => {
+            const file: ITranslationMessagesFile = readFile(MASTER1SRC);
+            const tu: ITransUnit = file.transUnitWithId(ID_CONTAINS_TWO_ICU_WITH_EQUIV);
+            expect(tu).toBeTruthy();
+            const normalizedMessage = tu.sourceContentNormalized();
+            expect(normalizedMessage.asDisplayString()).toBe('first: <ICU-Message-Ref_0/>, second <ICU-Message-Ref_1/>');
+            const translatedMessage = normalizedMessage.translate('Zweitens <ICU-Message-Ref_1/>, Erstens: <ICU-Message-Ref_0/>');
+            tu.translate(translatedMessage);
+            expect(tu.targetContent()).toBe('Zweitens <ph id="1" equiv="ICU_1" disp="{gender, select, m {...} f {...}}"/>, Erstens: <ph id="0" equiv="ICU" disp="{count, plural, =0 {...} =1 {...} other {...}}"/>');
         });
 
         it('should handle plural ICU', () => {

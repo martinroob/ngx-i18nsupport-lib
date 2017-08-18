@@ -326,6 +326,24 @@ export class ParsedMessage implements INormalizedMessage {
     }
 
     /**
+     * Return the disp-Attribute of placeholder
+     * @param {number} index of placeholder
+     * @return {string} disp or null
+     */
+    public getPlaceholderDisp(index: number): string {
+        let placeHolder: ParsedMessagePartPlaceholder = null;
+        this.parts().forEach((part) => {
+            if (part.type === ParsedMessagePartType.PLACEHOLDER) {
+                const phPart: ParsedMessagePartPlaceholder = <ParsedMessagePartPlaceholder> part;
+                if (phPart.index() === index) {
+                    placeHolder = phPart;
+                }
+            }
+        });
+        return placeHolder ? placeHolder.disp() : null;
+    }
+
+    /**
      * Get all indexes of ICU message refs used in the message.
      */
     private allICUMessageRefs(): Set<number> {
@@ -337,6 +355,24 @@ export class ParsedMessage implements INormalizedMessage {
             }
         });
         return result;
+    }
+
+    /**
+     * Return the disp-Attribute of icu message ref
+     * @param {number} index of ref
+     * @return {string} disp or null
+     */
+    public getICUMessageRefDisp(index: number): string {
+        let icuMessageRefPart: ParsedMessagePartICUMessageRef = null;
+        this.parts().forEach((part) => {
+            if (part.type === ParsedMessagePartType.ICU_MESSAGE_REF) {
+                const refPart: ParsedMessagePartICUMessageRef = <ParsedMessagePartICUMessageRef> part;
+                if (refPart.index() === index) {
+                    icuMessageRefPart = refPart;
+                }
+            }
+        });
+        return icuMessageRefPart ? icuMessageRefPart.disp() : null;
     }
 
     /**
@@ -431,8 +467,8 @@ export class ParsedMessage implements INormalizedMessage {
         this._parts.push(new ParsedMessagePartText(text));
     }
 
-    addPlaceholder(index: number) {
-        this._parts.push(new ParsedMessagePartPlaceholder(index));
+    addPlaceholder(index: number, disp: string) {
+        this._parts.push(new ParsedMessagePartPlaceholder(index, disp));
     }
 
     addStartTag(tagname: string) {
@@ -453,8 +489,8 @@ export class ParsedMessage implements INormalizedMessage {
         this._parts.push(new ParsedMessagePartEmptyTag(tagname));
     }
 
-    addICUMessageRef(index: number) {
-        this._parts.push(new ParsedMessagePartICUMessageRef(index));
+    addICUMessageRef(index: number, disp) {
+        this._parts.push(new ParsedMessagePartICUMessageRef(index, disp));
     }
 
     addICUMessage(text: string) {

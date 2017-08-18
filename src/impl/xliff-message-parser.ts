@@ -30,10 +30,10 @@ export class XliffMessageParser extends AbstractMessageParser {
             }
             if (id.startsWith('INTERPOLATION')) {
                 const index = this.parsePlaceholderIndexFromId(id);
-                message.addPlaceholder(index);
+                message.addPlaceholder(index, null);
             } else if (id.startsWith('ICU')) {
                 const index = this.parseICUMessageRefIndexFromId(id);
-                message.addICUMessageRef(index);
+                message.addICUMessageRef(index, null);
             } else if (id.startsWith('START_')) {
                 let normalizedTagName = tagMapping.getTagnameFromStartTagPlaceholderName(id);
                 if (normalizedTagName) {
@@ -102,6 +102,7 @@ export class XliffMessageParser extends AbstractMessageParser {
      * Returns an empty <x/>-Element with attributes id and ctype
      * @param part
      * @param rootElem
+     * @param id
      */
     protected createXmlRepresentationOfStartTagPart(part: ParsedMessagePartStartTag, rootElem: Element, id?: number): Node {
         let xElem = rootElem.ownerDocument.createElement('x');
@@ -134,6 +135,7 @@ export class XliffMessageParser extends AbstractMessageParser {
      * Returns an empty <x/>-Element with attributes id and ctype
      * @param part
      * @param rootElem
+     * @param id
      */
     protected createXmlRepresentationOfEmptyTagPart(part: ParsedMessagePartEmptyTag, rootElem: Element, id?: number): Node {
         let xElem = rootElem.ownerDocument.createElement('x');

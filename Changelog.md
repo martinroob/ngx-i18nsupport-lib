@@ -1,3 +1,10 @@
+<a name="1.6.1"></a>
+# [1.6.1](https://github.com/martinroob/ngx-i18nsupport-lib/compare/v1.6.1...v1.6.1) (2017-08-18)
+
+### Bug Fixes
+
+* **XLIFF 2.0** handle ICU equiv in XLIFF 2.0 ([#43](https://github.com/martinroob/ngx-i18nsupport-lib/issues/43)).
+
 <a name="1.6.0"></a>
 # [1.6.0](https://github.com/martinroob/ngx-i18nsupport-lib/compare/v1.6.0...v1.5.0) (2017-08-18)
 
