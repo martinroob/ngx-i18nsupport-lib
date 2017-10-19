@@ -367,9 +367,9 @@ export class XliffTransUnit extends AbstractTransUnit implements ITransUnit {
             DOMUtilities.replaceContentWithXMLContent(target, '');
         }
         if (isDefaultLang) {
-            target.setAttribute('state', 'final');
+            target.setAttribute('state', this.mapStateToNativeState(STATE_FINAL));
         } else {
-            target.setAttribute('state', 'new');
+            target.setAttribute('state', this.mapStateToNativeState(STATE_NEW));
         }
     }
 }

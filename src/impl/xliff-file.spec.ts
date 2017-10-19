@@ -398,6 +398,16 @@ describe('ngx-i18nsupport-lib xliff 1.2 test spec', () => {
             expect(tu2.targetContentNormalized().asDisplayString()).toBe('Beschreibung zu {{0}} ({{1}})');
         });
 
+        it ('should copy source to target for non default lang and set state new, native state initial, #57', () => {
+            const file: ITranslationMessagesFile = readFile(MASTER1SRC);
+            let isDefaultLang: boolean = false;
+            let copyContent: boolean = true;
+            const file2: ITranslationMessagesFile = file.createTranslationFileForLang('xy', null, isDefaultLang, copyContent);
+            const tu2: ITransUnit = file2.transUnitWithId(ID_UNTRANSLATED_DESCRIPTION);
+            expect(tu2.targetState()).toBe(STATE_NEW);
+            expect((<any>tu2).nativeTargetState()).toBe('new');
+        });
+
         it ('should not copy source to target for non default lang if not wanted', () => {
             const file: ITranslationMessagesFile = readFile(MASTER1SRC);
             const tu: ITransUnit = file.transUnitWithId(ID_UNTRANSLATED_DESCRIPTION);

@@ -1,5 +1,12 @@
+<a name="1.6.2"></a>
+# [1.6.2](https://github.com/martinroob/ngx-i18nsupport-lib/compare/v1.6.2...v1.6.1) (2017-10-19)
+
+### Bug Fixes
+
+* **XLIFF 2.0** xliffmerge uses wrong state values for new XLIFF 2.0 segments ([#57](https://github.com/martinroob/ngx-i18nsupport-lib/issues/57)).
+
 <a name="1.6.1"></a>
-# [1.6.1](https://github.com/martinroob/ngx-i18nsupport-lib/compare/v1.6.1...v1.6.1) (2017-08-18)
+# [1.6.1](https://github.com/martinroob/ngx-i18nsupport-lib/compare/v1.6.1...v1.6.0) (2017-08-18)
 
 ### Bug Fixes
 

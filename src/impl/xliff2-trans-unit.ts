@@ -380,9 +380,9 @@ export class Xliff2TransUnit extends AbstractTransUnit  implements ITransUnit {
         let segment = DOMUtilities.getFirstElementByTagName(this._element, 'segment');
         if (segment) {
             if (isDefaultLang) {
-                segment.setAttribute('state', 'final');
+                segment.setAttribute('state', this.mapStateToNativeState(STATE_FINAL));
             } else {
-                segment.setAttribute('state', 'new');
+                segment.setAttribute('state', this.mapStateToNativeState(STATE_NEW));
             }
         }
     }
