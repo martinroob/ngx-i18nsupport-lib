@@ -239,8 +239,9 @@ describe('ngx-i18nsupport-lib xmb test spec', () => {
             expect(targetFile.fileType()).toBe(FILETYPE_XTB);
             targetFile.removeTransUnitWithId(ID_TO_MERGE);
             expect(targetFile.transUnitWithId(ID_TO_MERGE)).toBeFalsy();
-            targetFile.importNewTransUnit(tu, false, true);
+            const newTu = targetFile.importNewTransUnit(tu, false, true);
             expect(targetFile.transUnitWithId(ID_TO_MERGE)).toBeTruthy();
+            expect(targetFile.transUnitWithId(ID_TO_MERGE)).toEqual(newTu);
             let changedTargetFile = TranslationMessagesFileFactory.fromUnknownFormatFileContent(targetFile.editedContent(), null, null);
             let targetTu = changedTargetFile.transUnitWithId(ID_TO_MERGE);
             expect(targetTu.targetContent()).toBe('Test for merging units');

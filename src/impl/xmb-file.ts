@@ -134,9 +134,10 @@ export class XmbFile extends AbstractTranslationMessagesFile implements ITransla
      * @param copyContent Flag, wether to copy content or leave it empty.
      * Wben true, content will be copied from source.
      * When false, content will be left empty (if it is not the default language).
+     * @return the newly imported trans unit (since version 1.7.0)
      * @throws an error if trans-unit with same id already is in the file.
      */
-    public importNewTransUnit(transUnit: ITransUnit, isDefaultLang: boolean, copyContent: boolean) {
+    public importNewTransUnit(transUnit: ITransUnit, isDefaultLang: boolean, copyContent: boolean): ITransUnit {
         throw Error('xmb file cannot be used to store translations, use xtb file');
     }
 

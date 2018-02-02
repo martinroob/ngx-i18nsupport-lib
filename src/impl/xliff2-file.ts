@@ -140,9 +140,10 @@ export class Xliff2File extends AbstractTranslationMessagesFile implements ITran
      * @param copyContent Flag, wether to copy content or leave it empty.
      * Wben true, content will be copied from source.
      * When false, content will be left empty (if it is not the default language).
+     * @return the newly imported trans unit (since version 1.7.0)
      * @throws an error if trans-unit with same id already is in the file.
      */
-    public importNewTransUnit(transUnit: ITransUnit, isDefaultLang: boolean, copyContent: boolean) {
+    public importNewTransUnit(transUnit: ITransUnit, isDefaultLang: boolean, copyContent: boolean): ITransUnit {
         if (this.transUnitWithId(transUnit.id)) {
             throw new Error(format('tu with id %s already exists in file, cannot import it', transUnit.id));
         }
@@ -156,6 +157,7 @@ export class Xliff2File extends AbstractTranslationMessagesFile implements ITran
         } else {
             throw new Error(format('File "%s" seems to be no xliff 2.0 file (should contain a file element)', this._filename));
         }
+        return newTu;
     }
 
     /**
