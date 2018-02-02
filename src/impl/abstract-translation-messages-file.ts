@@ -1,7 +1,8 @@
 import {ITranslationMessagesFile, ITransUnit, STATE_NEW, STATE_TRANSLATED} from '../api';
 import {isNullOrUndefined} from 'util';
-import {XMLSerializer} from 'xmldom';
+import {DOMParser, XMLSerializer} from 'xmldom';
 import {AbstractTransUnit} from './abstract-trans-unit';
+import {XtbFile} from './xtb-file';
 /**
  * Created by roobm on 09.05.2017.
  * Abstract superclass for all implementations of ITranslationMessagesFile.
@@ -14,6 +15,8 @@ export abstract class AbstractTranslationMessagesFile implements ITranslationMes
     protected _encoding: string;
 
     protected _parsedDocument: Document;
+
+    protected _fileEndsWithEOL: boolean;
 
     // trans-unit elements and their id from the file
     protected transUnits: ITransUnit[];
@@ -29,6 +32,21 @@ export abstract class AbstractTranslationMessagesFile implements ITranslationMes
     constructor() {
         this.transUnits = null;
         this._warnings = [];
+    }
+
+    /**
+     * Parse file content.
+     * Sets _parsedDocument, line ending, encoding, etc.
+     * @param {string} xmlString
+     * @param {string} path
+     * @param {string} encoding
+     * @param {{xmlContent: string; path: string; encoding: string}} optionalMaster
+     */
+    protected parseContent(xmlString: string, path: string, encoding: string, optionalMaster?: { xmlContent: string, path: string, encoding: string }): void {
+        this._filename = path;
+        this._encoding = encoding;
+        this._parsedDocument = new DOMParser().parseFromString(xmlString, 'text/xml');
+        this._fileEndsWithEOL = xmlString.endsWith('\n');
     }
 
     abstract i18nFormat(): string;
@@ -207,7 +225,13 @@ export abstract class AbstractTranslationMessagesFile implements ITranslationMes
      * The xml content to be saved after changes are made.
      */
     public editedContent(): string {
-        return new XMLSerializer().serializeToString(this._parsedDocument);
+        const result = new XMLSerializer().serializeToString(this._parsedDocument);
+        if (this._fileEndsWithEOL) {
+            // add eol if there was eol in original source
+            return result + '\n';
+        } else {
+            return result;
+        }
     }
 
     /**

@@ -434,6 +434,19 @@ describe('ngx-i18nsupport-lib xliff 1.2 test spec', () => {
             expect(targetTu.sourceContent()).toBe('Test for merging units');
         });
 
+        it ('should preserve line end at end of file while editing', () => {
+            const content = fs.readFileSync(MASTER1SRC, ENCODING);
+            expect(content.endsWith('\n')).toBeTruthy('Master should end with EOL');
+            const file: ITranslationMessagesFile = readFile(MASTER1SRC);
+            const tu: ITransUnit = file.transUnitWithId(ID_TO_MERGE);
+            expect(tu).toBeTruthy();
+            const targetFile: ITranslationMessagesFile = readFile(TRANSLATED_FILE_SRC);
+            expect(targetFile.transUnitWithId(ID_TO_MERGE)).toBeFalsy();
+            targetFile.importNewTransUnit(tu, false, true);
+            expect(targetFile.transUnitWithId(ID_TO_MERGE)).toBeTruthy();
+            expect(targetFile.editedContent().endsWith('\n')).toBeTruthy('Edited content should end with EOL');
+        });
+
         it ('should translate using NormalizedMessage (plain text case, no placeholders, no markup)', () => {
             const file: ITranslationMessagesFile = readFile(MASTER1SRC);
             const tu: ITransUnit = file.transUnitWithId(ID_TRANSLATED_SCHLIESSEN);

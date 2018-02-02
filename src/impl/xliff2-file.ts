@@ -31,9 +31,7 @@ export class Xliff2File extends AbstractTranslationMessagesFile implements ITran
     }
 
     private initializeFromContent(xmlString: string, path: string, encoding: string): Xliff2File {
-        this._filename = path;
-        this._encoding = encoding;
-        this._parsedDocument = new DOMParser().parseFromString(xmlString, 'text/xml');
+        this.parseContent(xmlString, path, encoding);
         const xliffList = this._parsedDocument.getElementsByTagName('xliff');
         if (xliffList.length !== 1) {
             throw new Error(format('File "%s" seems to be no xliff file (should contain an xliff element)', path));

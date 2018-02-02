@@ -45,9 +45,7 @@ export class XtbFile extends AbstractTranslationMessagesFile implements ITransla
     }
 
     private initializeFromContent(xmlString: string, path: string, encoding: string, optionalMaster?: { xmlContent: string, path: string, encoding: string }): XtbFile {
-        this._filename = path;
-        this._encoding = encoding;
-        this._parsedDocument = new DOMParser().parseFromString(xmlString, 'text/xml');
+        this.parseContent(xmlString, path, encoding);
         if (this._parsedDocument.getElementsByTagName('translationbundle').length !== 1) {
             throw new Error(format('File "%s" seems to be no xtb file (should contain a translationbundle element)', path));
         }
