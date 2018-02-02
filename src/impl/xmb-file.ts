@@ -27,9 +27,7 @@ export class XmbFile extends AbstractTranslationMessagesFile implements ITransla
     }
 
     private initializeFromContent(xmlString: string, path: string, encoding: string): XmbFile {
-        this._filename = path;
-        this._encoding = encoding;
-        this._parsedDocument = new DOMParser().parseFromString(xmlString, 'text/xml');
+        this.parseContent(xmlString, path, encoding);
         if (this._parsedDocument.getElementsByTagName('messagebundle').length !== 1) {
             throw new Error(format('File "%s" seems to be no xmb file (should contain a messagebundle element)', path));
         }
@@ -134,9 +132,10 @@ export class XmbFile extends AbstractTranslationMessagesFile implements ITransla
      * @param copyContent Flag, wether to copy content or leave it empty.
      * Wben true, content will be copied from source.
      * When false, content will be left empty (if it is not the default language).
+     * @return the newly imported trans unit (since version 1.7.0)
      * @throws an error if trans-unit with same id already is in the file.
      */
-    public importNewTransUnit(transUnit: ITransUnit, isDefaultLang: boolean, copyContent: boolean) {
+    public importNewTransUnit(transUnit: ITransUnit, isDefaultLang: boolean, copyContent: boolean): ITransUnit {
         throw Error('xmb file cannot be used to store translations, use xtb file');
     }
 
@@ -155,7 +154,7 @@ export class XmbFile extends AbstractTranslationMessagesFile implements ITransla
      * When false, content will be left empty (if it is not the default language).
      */
     public createTranslationFileForLang(lang: string, filename: string, isDefaultLang: boolean, copyContent: boolean): ITranslationMessagesFile {
-        let translationbundleXMLSource = '<?xml version="1.0" encoding="UTF-8"?>\n' + XTB_DOCTYPE + '\n<translationbundle>\n</translationbundle>';
+        let translationbundleXMLSource = '<?xml version="1.0" encoding="UTF-8"?>\n' + XTB_DOCTYPE + '\n<translationbundle>\n</translationbundle>\n';
         let translationFile = new XtbFile(translationbundleXMLSource, filename, this.encoding(), {xmlContent: this.editedContent(), path: this.filename(), encoding: this.encoding()});
         translationFile.setTargetLanguage(lang);
         this.forEachTransUnit((tu) => {

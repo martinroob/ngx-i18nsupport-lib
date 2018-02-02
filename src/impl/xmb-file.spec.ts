@@ -239,11 +239,25 @@ describe('ngx-i18nsupport-lib xmb test spec', () => {
             expect(targetFile.fileType()).toBe(FILETYPE_XTB);
             targetFile.removeTransUnitWithId(ID_TO_MERGE);
             expect(targetFile.transUnitWithId(ID_TO_MERGE)).toBeFalsy();
-            targetFile.importNewTransUnit(tu, false, true);
+            const newTu = targetFile.importNewTransUnit(tu, false, true);
             expect(targetFile.transUnitWithId(ID_TO_MERGE)).toBeTruthy();
+            expect(targetFile.transUnitWithId(ID_TO_MERGE)).toEqual(newTu);
             let changedTargetFile = TranslationMessagesFileFactory.fromUnknownFormatFileContent(targetFile.editedContent(), null, null);
             let targetTu = changedTargetFile.transUnitWithId(ID_TO_MERGE);
             expect(targetTu.targetContent()).toBe('Test for merging units');
+        });
+
+        it ('should preserve line end at end of file while editing', () => {
+            const content = fs.readFileSync(MASTER1SRC, ENCODING);
+            expect(content.endsWith('\n')).toBeTruthy('Master should end with EOL');
+            const file: ITranslationMessagesFile = readFile(MASTER1SRC);
+            const tu: ITransUnit = file.transUnitWithId(ID_TO_MERGE);
+            expect(tu).toBeTruthy();
+            const targetFile: ITranslationMessagesFile = file.createTranslationFileForLang('de', null, false, true);
+            targetFile.removeTransUnitWithId(ID_TO_MERGE);
+            targetFile.importNewTransUnit(tu, false, true);
+            expect(targetFile.transUnitWithId(ID_TO_MERGE)).toBeTruthy();
+            expect(targetFile.editedContent().endsWith('\n')).toBeTruthy('Edited content should end with EOL');
         });
 
         it ('should not be translatable at all', () => {

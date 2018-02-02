@@ -29,9 +29,7 @@ export class XliffFile extends AbstractTranslationMessagesFile implements ITrans
     }
 
     private initializeFromContent(xmlString: string, path: string, encoding: string): XliffFile {
-        this._filename = path;
-        this._encoding = encoding;
-        this._parsedDocument = new DOMParser().parseFromString(xmlString, 'text/xml');
+        this.parseContent(xmlString, path, encoding);
         const xliffList = this._parsedDocument.getElementsByTagName('xliff');
         if (xliffList.length !== 1) {
             throw new Error(format('File "%s" seems to be no xliff file (should contain an xliff element)', path));
@@ -138,9 +136,10 @@ export class XliffFile extends AbstractTranslationMessagesFile implements ITrans
      * @param copyContent Flag, wether to copy content or leave it empty.
      * Wben true, content will be copied from source.
      * When false, content will be left empty (if it is not the default language).
+     * @return the newly imported trans unit (since version 1.7.0)
      * @throws an error if trans-unit with same id already is in the file.
      */
-    public importNewTransUnit(transUnit: ITransUnit, isDefaultLang: boolean, copyContent: boolean) {
+    public importNewTransUnit(transUnit: ITransUnit, isDefaultLang: boolean, copyContent: boolean): ITransUnit {
         if (this.transUnitWithId(transUnit.id)) {
             throw new Error(format('tu with id %s already exists in file, cannot import it', transUnit.id));
         }
@@ -152,6 +151,7 @@ export class XliffFile extends AbstractTranslationMessagesFile implements ITrans
             this.transUnits.push(newTu);
             this.countNumbers();
         }
+        return newTu;
     }
 
     /**

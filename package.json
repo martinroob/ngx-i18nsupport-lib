@@ -1,6 +1,6 @@
 {
   "name": "ngx-i18nsupport-lib",
-  "version": "1.6.2",
+  "version": "1.7.0",
   "description": "A Typescript library to work with Angular generated i18n files (xliff, xmb)",
   "main": "bundles/ngx-i18nsupport-lib.umd.js",
   "module": "./dist/index.js",
@@ -36,18 +36,18 @@
   "homepage": "https://github.com/martinroob/ngx-i18nsupport-lib#readme",
   "devDependencies": {
     "@types/jasmine": "^2.5.43",
-    "@types/node": "^7.0.5",
+    "@types/node": "^9.4.0",
     "awesome-typescript-loader": "^3.1.2",
     "clean-webpack-plugin": "^0.1.16",
-    "codelyzer": "^2.1.1",
-    "coveralls": "^2.11.16",
+    "codelyzer": "^4.1.0",
+    "coveralls": "^3.0.0",
     "cpx": "^1.5.0",
     "istanbul": "0.4.5",
     "jasmine-node": "^1.14.5",
     "tslint": "^5.0.0",
     "tslint-loader": "^3.5.2",
     "typescript": "^2.2.1",
-    "webpack": "^2.3.3"
+    "webpack": "^3.10.0"
   },
   "dependencies": {
     "@types/xmldom": "^0.1.29",

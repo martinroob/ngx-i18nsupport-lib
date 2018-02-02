@@ -45,9 +45,7 @@ export class XtbFile extends AbstractTranslationMessagesFile implements ITransla
     }
 
     private initializeFromContent(xmlString: string, path: string, encoding: string, optionalMaster?: { xmlContent: string, path: string, encoding: string }): XtbFile {
-        this._filename = path;
-        this._encoding = encoding;
-        this._parsedDocument = new DOMParser().parseFromString(xmlString, 'text/xml');
+        this.parseContent(xmlString, path, encoding);
         if (this._parsedDocument.getElementsByTagName('translationbundle').length !== 1) {
             throw new Error(format('File "%s" seems to be no xtb file (should contain a translationbundle element)', path));
         }
@@ -163,8 +161,10 @@ export class XtbFile extends AbstractTranslationMessagesFile implements ITransla
      * @param copyContent Flag, wether to copy content or leave it empty.
      * Wben true, content will be copied from source.
      * When false, content will be left empty (if it is not the default language).
+     * @return the newly imported trans unit (since version 1.7.0)
+     * @throws an error if trans-unit with same id already is in the file.
      */
-    public importNewTransUnit(transUnit: ITransUnit, isDefaultLang: boolean, copyContent: boolean) {
+    public importNewTransUnit(transUnit: ITransUnit, isDefaultLang: boolean, copyContent: boolean): ITransUnit {
         if (this.transUnitWithId(transUnit.id)) {
             throw new Error(format('tu with id %s already exists in file, cannot import it', transUnit.id));
         }
@@ -179,6 +179,9 @@ export class XtbFile extends AbstractTranslationMessagesFile implements ITransla
             this.lazyInitializeTransUnits();
             this.transUnits.push(newTransUnit);
             this.countNumbers();
+            return newTransUnit;
+        } else {
+            return null;
         }
     }
 
