@@ -1,3 +1,16 @@
+<a name="1.7.0"></a>
+# [1.7.0](https://github.com/martinroob/ngx-i18nsupport-lib/compare/v1.7.0...v1.6.2) (2018-02-02)
+
+### Bug Fixes
+
+* **API** Method ITranslationMessagesFile>>importNewTransUnit now returns newly create trans unit (internally needed for xliffmerge).
+
+### Features
+
+* **all formats** library now preserves EOL at end of XML files. ([xliffmerge #66](https://github.com/martinroob/ngx-i18nsupport/issues/66)).
+
+* **internal** updated out of date dependencies (webpack, coveralls, codelyzer, @types/node) to latest versions
+
 <a name="1.6.2"></a>
 # [1.6.2](https://github.com/martinroob/ngx-i18nsupport-lib/compare/v1.6.2...v1.6.1) (2017-10-19)
 
