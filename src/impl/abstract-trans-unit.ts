@@ -236,6 +236,15 @@ export abstract class AbstractTransUnit implements ITransUnit {
     protected abstract messageParser(): AbstractMessageParser;
 
     /**
+     * Test, wether message looks like ICU message.
+     * @param {string} message
+     * @return {boolean}
+     */
+    public isICUMessage(message: string): boolean {
+        return this.messageParser().isICUMessageStart(message);
+    }
+
+    /**
      * Set the translation to a given string (including markup).
      * @param translation
      */

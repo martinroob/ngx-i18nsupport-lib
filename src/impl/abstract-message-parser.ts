@@ -116,7 +116,7 @@ export abstract class AbstractMessageParser implements IMessageParser {
      * Test, wether text is beginning of ICU Message.
      * @param text
      */
-    protected isICUMessageStart(text: string): boolean {
+    public isICUMessageStart(text: string): boolean {
         return text.startsWith('{VAR_PLURAL') || text.startsWith('{VAR_SELECT');
     }
 
