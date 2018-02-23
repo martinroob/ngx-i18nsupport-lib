@@ -24,6 +24,7 @@ describe('ngx-i18nsupport-lib xmb test spec', () => {
     describe('xmb format tests', () => {
         let MASTER1SRC = SRCDIR + 'ngExtractedMaster1.xmb';
         let MASTER_DE_XMB = SRCDIR + 'ngExtractedMaster1.de.xmb';
+        let TRANSLATED_FILE_SRC = SRCDIR + 'ngExtractedMaster1.en.xtb';
 
         let ID_MY_FIRST = '2047558209369508311'; // an ID from ngExtractedMaster1.xmb
         let ID_WITH_PLACEHOLDER = '9030312858648510700';
@@ -245,6 +246,18 @@ describe('ngx-i18nsupport-lib xmb test spec', () => {
             let changedTargetFile = TranslationMessagesFileFactory.fromUnknownFormatFileContent(targetFile.editedContent(), null, null);
             let targetTu = changedTargetFile.transUnitWithId(ID_TO_MERGE);
             expect(targetTu.targetContent()).toBe('Test for merging units');
+        });
+
+        it ('should copy source to target and set a praefix and suffix', () => {
+            const file: ITranslationMessagesFile = readFile(MASTER1SRC);
+            file.setNewTransUnitTargetPraefix('%%');
+            file.setNewTransUnitTargetSuffix('!!');
+            let isDefaultLang: boolean = false;
+            let copyContent: boolean = true;
+            const file2: ITranslationMessagesFile = file.createTranslationFileForLang('xy', null, isDefaultLang, copyContent);
+            const tu2: ITransUnit = file2.transUnitWithId(ID_TO_MERGE);
+            expect(tu2.targetState()).toBe(STATE_FINAL); // FINAL because source is different than target
+            expect(tu2.targetContent()).toBe('%%Test for merging units!!');
         });
 
         it ('should preserve line end at end of file while editing', () => {

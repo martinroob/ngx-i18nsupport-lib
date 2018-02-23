@@ -92,6 +92,36 @@ export interface ITranslationMessagesFile {
     setTargetLanguage(language: string);
 
     /**
+     * Set the praefix used when copying source to target.
+     * This is used by importNewTransUnit and createTranslationFileForLang methods.
+     * (since 1.8.0)
+     * @param {string} targetPraefix
+     */
+    setNewTransUnitTargetPraefix(targetPraefix: string);
+
+    /**
+     * Get the praefix used when copying source to target.
+     * (since 1.8.0)
+     * @return {string}
+     */
+    getNewTransUnitTargetPraefix(): string;
+
+    /**
+     * Set the suffix used when copying source to target.
+     * This is used by importNewTransUnit and createTranslationFileForLang methods.
+     * (since 1.8.0)
+     * @param {string} targetSuffix
+     */
+    setNewTransUnitTargetSuffix(targetSuffix: string);
+
+    /**
+     * Get the suffix used when copying source to target.
+     * (since 1.8.0)
+     * @return {string}
+     */
+    getNewTransUnitTargetSuffix(): string;
+
+    /**
      * Add a new trans-unit to this file.
      * The trans unit stems from another file.
      * It copies the source content of the tu to the target content too,

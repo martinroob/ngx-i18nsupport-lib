@@ -168,12 +168,13 @@ export class XtbFile extends AbstractTranslationMessagesFile implements ITransla
         if (this.transUnitWithId(transUnit.id)) {
             throw new Error(format('tu with id %s already exists in file, cannot import it', transUnit.id));
         }
-        let newTu = (<AbstractTransUnit> transUnit).cloneWithSourceAsTarget(isDefaultLang, copyContent);
+        let newTu = (<AbstractTransUnit> transUnit).cloneWithSourceAsTarget(isDefaultLang, copyContent, this);
         let translationbundleElem = DOMUtilities.getFirstElementByTagName(this._parsedDocument, 'translationbundle');
         if (translationbundleElem) {
             let translationElement = translationbundleElem.ownerDocument.createElement('translation');
             translationElement.setAttribute('id', transUnit.id);
-            DOMUtilities.replaceContentWithXMLContent(translationElement, transUnit.sourceContent());
+            const newContent = this.getNewTransUnitTargetPraefix() + transUnit.sourceContent() + this.getNewTransUnitTargetSuffix();
+            DOMUtilities.replaceContentWithXMLContent(translationElement, newContent);
             let newTransUnit = new XtbTransUnit(translationElement, transUnit.id, this, newTu);
             translationbundleElem.appendChild(translationElement);
             this.lazyInitializeTransUnits();

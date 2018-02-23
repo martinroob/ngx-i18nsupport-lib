@@ -313,6 +313,22 @@ describe('ngx-i18nsupport-lib xtb test spec', () => {
             expect(targetTu.targetContent()).toBe('Test for merging units');
         });
 
+        it ('should copy a transunit from file a to file b and set a praefix and suffix', () => {
+            const file: ITranslationMessagesFile = readUnknownFormatFile(MASTER_1_XMB);
+            const tu: ITransUnit = file.transUnitWithId(ID_TO_MERGE);
+            expect(tu).toBeTruthy();
+            const targetFile: ITranslationMessagesFile = readFile(TRANSLATION_EN_XTB, MASTER_1_XMB);
+            targetFile.setNewTransUnitTargetPraefix('%%');
+            targetFile.setNewTransUnitTargetSuffix('!!');
+            expect(targetFile.transUnitWithId(ID_TO_MERGE)).toBeFalsy();
+            const newTu = targetFile.importNewTransUnit(tu, false, true);
+            expect(targetFile.transUnitWithId(ID_TO_MERGE)).toBeTruthy();
+            expect(targetFile.transUnitWithId(ID_TO_MERGE)).toEqual(newTu);
+            let changedTargetFile = TranslationMessagesFileFactory.fromUnknownFormatFileContent(targetFile.editedContent(), null, null);
+            let targetTu = changedTargetFile.transUnitWithId(ID_TO_MERGE);
+            expect(targetTu.targetContent()).toBe('%%Test for merging units!!');
+        });
+
         it ('should translate using NormalizedMessage (plain text case, no placeholders, no markup)', () => {
             const file: ITranslationMessagesFile = readFile(TRANSLATION_EN_XTB, MASTER_DE_XMB);
             const tu: ITransUnit = file.transUnitWithId(ID_MY_FIRST);

@@ -29,6 +29,10 @@ export abstract class AbstractTranslationMessagesFile implements ITranslationMes
 
     protected _numberOfReviewedTransUnits: number;
 
+    protected targetPraefix: string;
+
+    protected targetSuffix: string;
+
     constructor() {
         this.transUnits = null;
         this._warnings = [];
@@ -173,6 +177,44 @@ export abstract class AbstractTranslationMessagesFile implements ITranslationMes
      * @param language
      */
     abstract setTargetLanguage(language: string);
+
+    /**
+     * Set the praefix used when copying source to target.
+     * This is used by importNewTransUnit and createTranslationFileForLang methods.
+     * (since 1.8.0)
+     * @param {string} targetPraefix
+     */
+    public setNewTransUnitTargetPraefix(targetPraefix: string) {
+        this.targetPraefix = targetPraefix;
+    }
+
+    /**
+     * Get the praefix used when copying source to target.
+     * (since 1.8.0)
+     * @return {string}
+     */
+    getNewTransUnitTargetPraefix(): string {
+        return isNullOrUndefined(this.targetPraefix) ? '' : this.targetPraefix;
+    }
+
+    /**
+     * Set the suffix used when copying source to target.
+     * This is used by importNewTransUnit and createTranslationFileForLang methods.
+     * (since 1.8.0)
+     * @param {string} targetSuffix
+     */
+    public setNewTransUnitTargetSuffix(targetSuffix: string) {
+        this.targetSuffix = targetSuffix;
+    }
+
+    /**
+     * Get the suffix used when copying source to target.
+     * (since 1.8.0)
+     * @return {string}
+     */
+    getNewTransUnitTargetSuffix(): string {
+        return isNullOrUndefined(this.targetSuffix) ? '' : this.targetSuffix;
+    }
 
     /**
      * Add a new trans-unit to this file.

@@ -143,7 +143,7 @@ export class XliffFile extends AbstractTranslationMessagesFile implements ITrans
         if (this.transUnitWithId(transUnit.id)) {
             throw new Error(format('tu with id %s already exists in file, cannot import it', transUnit.id));
         }
-        let newTu = (<AbstractTransUnit> transUnit).cloneWithSourceAsTarget(isDefaultLang, copyContent);
+        let newTu = (<AbstractTransUnit> transUnit).cloneWithSourceAsTarget(isDefaultLang, copyContent, this);
         let bodyElement = DOMUtilities.getFirstElementByTagName(this._parsedDocument, 'body');
         if (bodyElement) {
             bodyElement.appendChild(newTu.asXmlElement());
@@ -170,6 +170,8 @@ export class XliffFile extends AbstractTranslationMessagesFile implements ITrans
      */
     public createTranslationFileForLang(lang: string, filename: string, isDefaultLang: boolean, copyContent: boolean): ITranslationMessagesFile {
         let translationFile = new XliffFile(this.editedContent(), filename, this.encoding());
+        translationFile.setNewTransUnitTargetPraefix(this.targetPraefix);
+        translationFile.setNewTransUnitTargetSuffix(this.targetSuffix);
         translationFile.setTargetLanguage(lang);
         translationFile.forEachTransUnit((transUnit: ITransUnit) => {
             (<AbstractTransUnit> transUnit).useSourceAsTarget(isDefaultLang, copyContent);
