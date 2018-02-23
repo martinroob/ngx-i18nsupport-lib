@@ -355,9 +355,9 @@ export class Xliff2TransUnit extends AbstractTransUnit  implements ITransUnit {
      * receiver is not changed.
      * (internal usage only, a client should call importNewTransUnit on ITranslationMessageFile)
      */
-    public cloneWithSourceAsTarget(isDefaultLang: boolean, copyContent: boolean): AbstractTransUnit {
+    public cloneWithSourceAsTarget(isDefaultLang: boolean, copyContent: boolean, targetFile: ITranslationMessagesFile): AbstractTransUnit {
         let element = <Element> this._element.cloneNode(true);
-        let clone = new Xliff2TransUnit(element, this._id, this._translationMessagesFile);
+        let clone = new Xliff2TransUnit(element, this._id, targetFile);
         clone.useSourceAsTarget(isDefaultLang, copyContent);
         return clone;
     }
@@ -373,7 +373,11 @@ export class Xliff2TransUnit extends AbstractTransUnit  implements ITransUnit {
             target = source.parentNode.appendChild(this._element.ownerDocument.createElement('target'));
         }
         if (isDefaultLang || copyContent) {
-            DOMUtilities.replaceContentWithXMLContent(target, DOMUtilities.getXMLContent(source));
+            const sourceString = DOMUtilities.getXMLContent(source);
+            const newTargetString = this.translationMessagesFile().getNewTransUnitTargetPraefix()
+                + sourceString
+                + this.translationMessagesFile().getNewTransUnitTargetSuffix();
+            DOMUtilities.replaceContentWithXMLContent(target, newTargetString);
         } else {
             DOMUtilities.replaceContentWithXMLContent(target, '');
         }

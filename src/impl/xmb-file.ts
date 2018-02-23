@@ -156,7 +156,11 @@ export class XmbFile extends AbstractTranslationMessagesFile implements ITransla
     public createTranslationFileForLang(lang: string, filename: string, isDefaultLang: boolean, copyContent: boolean): ITranslationMessagesFile {
         let translationbundleXMLSource = '<?xml version="1.0" encoding="UTF-8"?>\n' + XTB_DOCTYPE + '\n<translationbundle>\n</translationbundle>\n';
         let translationFile = new XtbFile(translationbundleXMLSource, filename, this.encoding(), {xmlContent: this.editedContent(), path: this.filename(), encoding: this.encoding()});
+        translationFile.setNewTransUnitTargetPraefix(this.targetPraefix);
+        translationFile.setNewTransUnitTargetSuffix(this.targetSuffix);
         translationFile.setTargetLanguage(lang);
+        translationFile.setNewTransUnitTargetPraefix(this.getNewTransUnitTargetPraefix());
+        translationFile.setNewTransUnitTargetSuffix(this.getNewTransUnitTargetSuffix());
         this.forEachTransUnit((tu) => {
             translationFile.importNewTransUnit(tu, isDefaultLang, copyContent);
         });

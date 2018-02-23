@@ -1,3 +1,10 @@
+<a name="1.8.0"></a>
+# [1.8.0](https://github.com/martinroob/ngx-i18nsupport-lib/compare/v1.8.0...v1.7.0) (2018-02-23)
+
+### Features
+
+* **all formats** new API function `setNewTransUnitTargetPraefix` and `setNewTransUnitTargetSuffix` to support setting of praefix and suffix for copied trans units. ([xliffmerge #70](https://github.com/martinroob/ngx-i18nsupport/issues/70)).
+
 <a name="1.7.0"></a>
 # [1.7.0](https://github.com/martinroob/ngx-i18nsupport-lib/compare/v1.7.0...v1.6.2) (2018-02-02)
 

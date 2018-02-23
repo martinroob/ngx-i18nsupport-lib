@@ -237,7 +237,7 @@ export class XmbTransUnit extends AbstractTransUnit implements ITransUnit {
      * (internal usage only, a client should call importNewTransUnit on ITranslationMessageFile)
      * In xmb there is nothing to do, because there is only a target, no source.
      */
-    public cloneWithSourceAsTarget(isDefaultLang: boolean, copyContent: boolean): AbstractTransUnit {
+    public cloneWithSourceAsTarget(isDefaultLang: boolean, copyContent: boolean, targetFile: ITranslationMessagesFile): AbstractTransUnit {
         return this;
     }
 

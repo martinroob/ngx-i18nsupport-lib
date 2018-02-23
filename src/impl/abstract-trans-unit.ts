@@ -204,7 +204,7 @@ export abstract class AbstractTransUnit implements ITransUnit {
      * receiver is not changed.
      * (internal usage only, a client should call importNewTransUnit on ITranslationMessageFile)
      */
-    abstract cloneWithSourceAsTarget(isDefaultLang: boolean, copyContent: boolean): AbstractTransUnit;
+    abstract cloneWithSourceAsTarget(isDefaultLang: boolean, copyContent: boolean, targetFile: ITranslationMessagesFile): AbstractTransUnit;
 
     /**
      * Copy source to target to use it as dummy translation.
