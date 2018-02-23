@@ -58,6 +58,7 @@ describe('ngx-i18nsupport-lib xtb test spec', () => {
         let ID_TO_MERGE = 'unittomerge';
         let ID_ICU_PLURAL = '157616252019374389';
         let ID_ICU_SELECT = '4002068837191765530';
+        let ID_ICU_SELECT_2 = '4002068837191765531';
         let ID_ICU_EMBEDDED_TAGS = '6710804210857077393';
         let ID_CONTAINS_ICU = '2747218257718409559';
         let ID_CONTAINS_TWO_ICU = 'complextags.icuTwoICU';
@@ -327,6 +328,23 @@ describe('ngx-i18nsupport-lib xtb test spec', () => {
             let changedTargetFile = TranslationMessagesFileFactory.fromUnknownFormatFileContent(targetFile.editedContent(), null, null);
             let targetTu = changedTargetFile.transUnitWithId(ID_TO_MERGE);
             expect(targetTu.targetContent()).toBe('%%Test for merging units!!');
+        });
+
+        it ('should copy a transunit from file a to file b, but should not set a praefix and suffix for ICU messages', () => {
+            const file: ITranslationMessagesFile = readUnknownFormatFile(MASTER_1_XMB);
+            const tu: ITransUnit = file.transUnitWithId(ID_ICU_SELECT_2);
+            expect(tu).toBeTruthy();
+            const targetFile: ITranslationMessagesFile = readFile(TRANSLATION_EN_XTB, MASTER_1_XMB);
+            targetFile.setNewTransUnitTargetPraefix('%%');
+            targetFile.setNewTransUnitTargetSuffix('!!');
+            expect(targetFile.transUnitWithId(ID_ICU_SELECT_2)).toBeFalsy();
+            const newTu = targetFile.importNewTransUnit(tu, false, true);
+            expect(targetFile.transUnitWithId(ID_ICU_SELECT_2)).toBeTruthy();
+            expect(targetFile.transUnitWithId(ID_ICU_SELECT_2)).toEqual(newTu);
+            let changedTargetFile = TranslationMessagesFileFactory.fromUnknownFormatFileContent(targetFile.editedContent(), null, null);
+            let targetTu = changedTargetFile.transUnitWithId(ID_ICU_SELECT_2);
+            expect(targetTu.targetContent()).not.toContain('%%');
+            expect(targetTu.targetContent()).not.toContain('!!');
         });
 
         it ('should translate using NormalizedMessage (plain text case, no placeholders, no markup)', () => {

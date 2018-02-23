@@ -1,3 +1,10 @@
+<a name="1.8.1"></a>
+# [1.8.1](https://github.com/martinroob/ngx-i18nsupport-lib/compare/v1.8.1...v1.8.0) (2018-02-23)
+
+### Bug Fixes
+
+* **all formats** new API function `setNewTransUnitTargetPraefix` and `setNewTransUnitTargetSuffix` should not set praefix and suffix for ICU messages. ([xliffmerge #70](https://github.com/martinroob/ngx-i18nsupport/issues/70)).
+
 <a name="1.8.0"></a>
 # [1.8.0](https://github.com/martinroob/ngx-i18nsupport-lib/compare/v1.8.0...v1.7.0) (2018-02-23)
 

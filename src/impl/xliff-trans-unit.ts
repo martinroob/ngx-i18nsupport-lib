@@ -363,9 +363,12 @@ export class XliffTransUnit extends AbstractTransUnit implements ITransUnit {
         }
         if (isDefaultLang || copyContent) {
             const sourceString = DOMUtilities.getXMLContent(source);
-            const newTargetString = this.translationMessagesFile().getNewTransUnitTargetPraefix()
-                + sourceString
-                + this.translationMessagesFile().getNewTransUnitTargetSuffix();
+            let newTargetString = sourceString;
+            if (!this.isICUMessage(sourceString)) {
+                newTargetString = this.translationMessagesFile().getNewTransUnitTargetPraefix()
+                    + sourceString
+                    + this.translationMessagesFile().getNewTransUnitTargetSuffix();
+            }
             DOMUtilities.replaceContentWithXMLContent(target, newTargetString);
         } else {
             DOMUtilities.replaceContentWithXMLContent(target, '');

@@ -408,18 +408,6 @@ describe('ngx-i18nsupport-lib xliff 1.2 test spec', () => {
             expect((<any>tu2).nativeTargetState()).toBe('new');
         });
 
-        it ('should copy source to target and set a praefix and suffix', () => {
-            const file: ITranslationMessagesFile = readFile(MASTER1SRC);
-            file.setNewTransUnitTargetPraefix('%%');
-            file.setNewTransUnitTargetSuffix('!!');
-            let isDefaultLang: boolean = false;
-            let copyContent: boolean = true;
-            const file2: ITranslationMessagesFile = file.createTranslationFileForLang('xy', null, isDefaultLang, copyContent);
-            const tu2: ITransUnit = file2.transUnitWithId(ID_TO_MERGE);
-            expect(tu2.targetState()).toBe(STATE_NEW);
-            expect(tu2.targetContent()).toBe('%%Test for merging units!!');
-        });
-
         it ('should not copy source to target for non default lang if not wanted', () => {
             const file: ITranslationMessagesFile = readFile(MASTER1SRC);
             const tu: ITransUnit = file.transUnitWithId(ID_UNTRANSLATED_DESCRIPTION);
@@ -446,6 +434,31 @@ describe('ngx-i18nsupport-lib xliff 1.2 test spec', () => {
             expect(targetTu.sourceContent()).toBe('Test for merging units');
         });
 
+        it ('should copy source to target and set a praefix and suffix', () => {
+            const file: ITranslationMessagesFile = readFile(MASTER1SRC);
+            file.setNewTransUnitTargetPraefix('%%');
+            file.setNewTransUnitTargetSuffix('!!');
+            let isDefaultLang: boolean = false;
+            let copyContent: boolean = true;
+            const file2: ITranslationMessagesFile = file.createTranslationFileForLang('xy', null, isDefaultLang, copyContent);
+            const tu2: ITransUnit = file2.transUnitWithId(ID_TO_MERGE);
+            expect(tu2.targetState()).toBe(STATE_NEW);
+            expect(tu2.targetContent()).toBe('%%Test for merging units!!');
+        });
+
+        it ('should copy source to target, but should not set a praefix and suffix for ICU messages', () => {
+            const file: ITranslationMessagesFile = readFile(MASTER1SRC);
+            file.setNewTransUnitTargetPraefix('%%');
+            file.setNewTransUnitTargetSuffix('!!');
+            let isDefaultLang: boolean = false;
+            let copyContent: boolean = true;
+            const file2: ITranslationMessagesFile = file.createTranslationFileForLang('xy', null, isDefaultLang, copyContent);
+            const tuICU: ITransUnit = file2.transUnitWithId(ID_ICU_PLURAL);
+            expect(tuICU.targetState()).toBe(STATE_NEW);
+            expect(tuICU.targetContent()).not.toContain('%%');
+            expect(tuICU.targetContent()).not.toContain('!!');
+        });
+
         it ('should copy a transunit from file a to file b and set a praefix and suffix', () => {
             const file: ITranslationMessagesFile = readFile(MASTER1SRC);
             const tu: ITransUnit = file.transUnitWithId(ID_TO_MERGE);
@@ -460,6 +473,23 @@ describe('ngx-i18nsupport-lib xliff 1.2 test spec', () => {
             let changedTargetFile = TranslationMessagesFileFactory.fromUnknownFormatFileContent(targetFile.editedContent(), null, null);
             let targetTu = changedTargetFile.transUnitWithId(ID_TO_MERGE);
             expect(targetTu.targetContent()).toBe('%%Test for merging units!!');
+        });
+
+        it ('should copy a transunit from file a to file b, but should not set a praefix and suffix for ICU messages', () => {
+            const file: ITranslationMessagesFile = readFile(MASTER1SRC);
+            const tu: ITransUnit = file.transUnitWithId(ID_ICU_SELECT);
+            expect(tu).toBeTruthy();
+            const targetFile: ITranslationMessagesFile = readFile(TRANSLATED_FILE_SRC);
+            targetFile.setNewTransUnitTargetPraefix('%%');
+            targetFile.setNewTransUnitTargetSuffix('!!');
+            expect(targetFile.transUnitWithId(ID_ICU_SELECT)).toBeFalsy();
+            const newTu = targetFile.importNewTransUnit(tu, false, true);
+            expect(targetFile.transUnitWithId(ID_ICU_SELECT)).toBeTruthy();
+            expect(targetFile.transUnitWithId(ID_ICU_SELECT)).toEqual(newTu);
+            let changedTargetFile = TranslationMessagesFileFactory.fromUnknownFormatFileContent(targetFile.editedContent(), null, null);
+            let targetTu = changedTargetFile.transUnitWithId(ID_ICU_SELECT);
+            expect(targetTu.targetContent()).not.toContain('%%');
+            expect(targetTu.targetContent()).not.toContain('!!');
         });
 
         it ('should preserve line end at end of file while editing', () => {
