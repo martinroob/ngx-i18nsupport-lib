@@ -330,19 +330,19 @@ describe('ngx-i18nsupport-lib xliff 1.2 test spec', () => {
         it('should normalize empty html tag br', () => {
             const file: ITranslationMessagesFile = readFile(MASTER1SRC);
             const tu: ITransUnit = file.transUnitWithId(ID_WITH_BR_TAG);
-            expect(tu.sourceContentNormalized().asDisplayString()).toBe('Dieser Text enthält<br/>einen Zeilenumbruch per HTML-br-Element.');
-            let translation = tu.sourceContentNormalized().translate('This text contains<br/> a linebreak');
+            expect(tu.sourceContentNormalized().asDisplayString()).toBe('Dieser Text enthält<br>einen Zeilenumbruch per HTML-br-Element.');
+            let translation = tu.sourceContentNormalized().translate('This text contains<br> a linebreak');
             tu.translate(translation);
-            expect(tu.targetContent()).toBe('This text contains<x id="LINE_BREAK" ctype="lb"/> a linebreak');
+            expect(tu.targetContent()).toBe('This text contains<x id="LINE_BREAK" ctype="lb" equiv-text="&lt;br/>"/> a linebreak');
         });
 
         it('should normalize empty html tag img', () => {
             const file: ITranslationMessagesFile = readFile(MASTER1SRC);
             const tu: ITransUnit = file.transUnitWithId(ID_WITH_IMG_TAG);
-            expect(tu.sourceContentNormalized().asDisplayString()).toBe('Dieser Text enthält ein Bild <img/> mitt en in der Nachricht');
-            let translation = tu.sourceContentNormalized().translate('This text contains an img <img/> in the message');
+            expect(tu.sourceContentNormalized().asDisplayString()).toBe('Dieser Text enthält ein Bild <img> mitt en in der Nachricht');
+            let translation = tu.sourceContentNormalized().translate('This text contains an img <img> in the message');
             tu.translate(translation);
-            expect(tu.targetContent()).toBe('This text contains an img <x id="TAG_IMG" ctype="image"/> in the message');
+            expect(tu.targetContent()).toBe('This text contains an img <x id="TAG_IMG" ctype="image" equiv-text="&lt;img/>"/> in the message');
         });
 
         it('should remove a transunit by id', () => {
@@ -622,7 +622,7 @@ describe('ngx-i18nsupport-lib xliff 1.2 test spec', () => {
             expect(icuMessage.getCategories().length).toBe(3);
             expect(icuMessage.getCategories()[1].getCategory()).toBe('wert1');
             expect(icuMessage.getCategories()[1].getMessageNormalized().asDisplayString()).toBe('<em>changed</em>');
-            expect(tu.targetContent()).toContain('wert1 {<x id="START_EMPHASISED_TEXT" ctype="x-em"/>changed<x id="CLOSE_EMPHASISED_TEXT" ctype="x-em"/>}');
+            expect(tu.targetContent()).toContain('wert1 {<x id="START_EMPHASISED_TEXT" ctype="x-em" equiv-text="&lt;em>"/>changed<x id="CLOSE_EMPHASISED_TEXT" ctype="x-em"/>}');
             // TODO find warnings in embedded message, known limitation in the moment.
             //            const warnings = icuMessage.getCategories()[1].getMessageNormalized().validateWarnings();
             //            expect(warnings).toBeTruthy();

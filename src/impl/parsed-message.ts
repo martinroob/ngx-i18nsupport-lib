@@ -471,8 +471,8 @@ export class ParsedMessage implements INormalizedMessage {
         this._parts.push(new ParsedMessagePartPlaceholder(index, disp));
     }
 
-    addStartTag(tagname: string) {
-        this._parts.push(new ParsedMessagePartStartTag(tagname));
+    addStartTag(tagname: string, idcounter: number) {
+        this._parts.push(new ParsedMessagePartStartTag(tagname, idcounter));
     }
 
     addEndTag(tagname: string) {
@@ -485,8 +485,8 @@ export class ParsedMessage implements INormalizedMessage {
         this._parts.push(new ParsedMessagePartEndTag(tagname));
     }
 
-    addEmptyTag(tagname: string) {
-        this._parts.push(new ParsedMessagePartEmptyTag(tagname));
+    addEmptyTag(tagname: string, idcounter: number) {
+        this._parts.push(new ParsedMessagePartEmptyTag(tagname, idcounter));
     }
 
     addICUMessageRef(index: number, disp) {

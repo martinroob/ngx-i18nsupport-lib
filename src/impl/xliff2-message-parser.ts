@@ -76,13 +76,13 @@ export class Xliff2MessageParser extends AbstractMessageParser {
             } else if (isICU) {
                 message.addICUMessageRef(index, disp);
             } else if (isEmptyTag) {
-                message.addEmptyTag(emptyTagName);
+                message.addEmptyTag(emptyTagName, this.parseIdCountFromName(equiv));
             }
         } else if (tagName === 'pc') {
             // pc example: <pc id="0" equivStart="START_BOLD_TEXT" equivEnd="CLOSE_BOLD_TEXT" type="fmt" dispStart="&lt;b&gt;" dispEnd="&lt;/b&gt;">IMPORTANT</pc>
             let embeddedTagName = this.tagNameFromPCElement(elementNode);
             if (embeddedTagName) {
-                message.addStartTag(embeddedTagName);
+                message.addStartTag(embeddedTagName, this.parseIdCountFromName(elementNode.getAttribute('equivStart')));
             }
         }
         return true;
@@ -125,21 +125,20 @@ export class Xliff2MessageParser extends AbstractMessageParser {
      */
     protected addXmlRepresentationToRoot(message: ParsedMessage, rootElem: Element) {
         let stack = [{element: rootElem, tagName: 'root'}];
-        let tagIdCounter = 0;
+        let id: number = 0;
         message.parts().forEach((part) => {
             switch (part.type) {
                 case ParsedMessagePartType.TEXT:
                     stack[stack.length - 1].element.appendChild(this.createXmlRepresentationOfTextPart(<ParsedMessagePartText> part, rootElem));
                     break;
                 case ParsedMessagePartType.PLACEHOLDER:
-                    stack[stack.length - 1].element.appendChild(this.createXmlRepresentationOfPlaceholderPart(<ParsedMessagePartPlaceholder> part, rootElem));
+                    stack[stack.length - 1].element.appendChild(this.createXmlRepresentationOfPlaceholderPart(<ParsedMessagePartPlaceholder> part, rootElem,id++));
                     break;
                 case ParsedMessagePartType.ICU_MESSAGE_REF:
                     stack[stack.length - 1].element.appendChild(this.createXmlRepresentationOfICUMessageRefPart(<ParsedMessagePartICUMessageRef> part, rootElem));
                     break;
                 case ParsedMessagePartType.START_TAG:
-                    let newTagElem = this.createXmlRepresentationOfStartTagPart(<ParsedMessagePartStartTag> part, rootElem, tagIdCounter);
-                    tagIdCounter++;
+                    let newTagElem = this.createXmlRepresentationOfStartTagPart(<ParsedMessagePartStartTag> part, rootElem, id++);
                     stack[stack.length - 1].element.appendChild(newTagElem);
                     stack.push({element: <Element> newTagElem, tagName: (<ParsedMessagePartStartTag> part).tagName()});
                     break;
@@ -152,8 +151,7 @@ export class Xliff2MessageParser extends AbstractMessageParser {
                     stack.pop();
                     break;
                 case ParsedMessagePartType.EMPTY_TAG:
-                    let emptyTagElem = this.createXmlRepresentationOfEmptyTagPart(<ParsedMessagePartEmptyTag> part, rootElem, tagIdCounter);
-                    tagIdCounter++;
+                    let emptyTagElem = this.createXmlRepresentationOfEmptyTagPart(<ParsedMessagePartEmptyTag> part, rootElem, id++);
                     stack[stack.length - 1].element.appendChild(emptyTagElem);
                     break;
             }
@@ -171,13 +169,13 @@ export class Xliff2MessageParser extends AbstractMessageParser {
      * Text content will be added later.
      * @param part
      * @param rootElem
-     * @param id
+     * @param id id number in xliff2
      */
-    protected createXmlRepresentationOfStartTagPart(part: ParsedMessagePartStartTag, rootElem: Element, id?: number): Node {
+    protected createXmlRepresentationOfStartTagPart(part: ParsedMessagePartStartTag, rootElem: Element, id: number): Node {
         const tagMapping = new TagMapping();
         const pcElem = rootElem.ownerDocument.createElement('pc');
         const tagName = part.tagName();
-        const equivStart = tagMapping.getStartTagPlaceholderName(tagName);
+        const equivStart = tagMapping.getStartTagPlaceholderName(tagName, part.idCounter());
         const equivEnd = tagMapping.getCloseTagPlaceholderName(tagName);
         const dispStart = '<' + tagName + '>';
         const dispEnd = '</' + tagName + '>';
@@ -207,13 +205,13 @@ export class Xliff2MessageParser extends AbstractMessageParser {
      * e.g. <ph id="3" equiv="TAG_IMG" type="image" disp="&lt;img/>"/>
      * @param part
      * @param rootElem
-     * @param id
+     * @param id id number in xliff2
      */
-    protected createXmlRepresentationOfEmptyTagPart(part: ParsedMessagePartEmptyTag, rootElem: Element, id?: number): Node {
+    protected createXmlRepresentationOfEmptyTagPart(part: ParsedMessagePartEmptyTag, rootElem: Element, id: number): Node {
         const tagMapping = new TagMapping();
         const phElem = rootElem.ownerDocument.createElement('ph');
         const tagName = part.tagName();
-        const equiv = tagMapping.getEmptyTagPlaceholderName(tagName);
+        const equiv = tagMapping.getEmptyTagPlaceholderName(tagName, part.idCounter());
         const disp = '<' + tagName + '/>';
         phElem.setAttribute('id', id.toString(10));
         phElem.setAttribute('equiv', equiv);
@@ -243,14 +241,15 @@ export class Xliff2MessageParser extends AbstractMessageParser {
      * Returns e.g. <ph id="1" equiv="INTERPOLATION_1" disp="{{total()}}"/>
      * @param part
      * @param rootElem
+     * @param id id number in xliff2
      */
-    protected createXmlRepresentationOfPlaceholderPart(part: ParsedMessagePartPlaceholder, rootElem: Element): Node {
+    protected createXmlRepresentationOfPlaceholderPart(part: ParsedMessagePartPlaceholder, rootElem: Element, id: number): Node {
         let phElem = rootElem.ownerDocument.createElement('ph');
         let equivAttrib = 'INTERPOLATION';
         if (part.index() > 0) {
             equivAttrib = 'INTERPOLATION_' + part.index().toString(10);
         }
-        phElem.setAttribute('id', part.index().toString(10));
+        phElem.setAttribute('id', id.toString(10));
         phElem.setAttribute('equiv', equivAttrib);
         const disp = part.disp();
         if (disp) {

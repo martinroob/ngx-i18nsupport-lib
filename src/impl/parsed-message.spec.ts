@@ -124,7 +124,7 @@ describe('normalized message test spec', () => {
         });
 
         it('should warn if you remove an empty tag in the translation', () => {
-            let original = 'a text with <br/>line break and <img/>';
+            let original = 'a text with <br>line break and <img>';
             let translation = 'a text';
             let sourceMessage = parsedMessageFor(original);
             let translatedMessage = sourceMessage.translate(translation);
@@ -136,7 +136,7 @@ describe('normalized message test spec', () => {
 
         it('should warn if you add an empty tag in the translation', () => {
             let original = 'a normal text';
-            let translation = 'a normal text with <br/> line break';
+            let translation = 'a normal text with <br> line break';
             let sourceMessage = parsedMessageFor(original);
             let translatedMessage = sourceMessage.translate(translation);
             expect(translatedMessage.validate()).toBeFalsy();
@@ -147,7 +147,7 @@ describe('normalized message test spec', () => {
 
         it('should warn if you add 2 empty tags in the translation', () => {
             let original = 'a normal text';
-            let translation = 'a normal text with <br/> line break and <img/>';
+            let translation = 'a normal text with <br> line break and <img>';
             let sourceMessage = parsedMessageFor(original);
             let translatedMessage = sourceMessage.translate(translation);
             expect(translatedMessage.validate()).toBeFalsy();

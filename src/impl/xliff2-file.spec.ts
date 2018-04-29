@@ -321,8 +321,8 @@ describe('ngx-i18nsupport-lib XLIFF 2.0 test spec', () => {
         it('should normalize empty html tag br', () => {
             const file: ITranslationMessagesFile = readFile(MASTER1SRC);
             const tu: ITransUnit = file.transUnitWithId(ID_WITH_BR_TAG);
-            expect(tu.sourceContentNormalized().asDisplayString()).toBe('Dieser Text enthält<br/>einen Zeilenumbruch per HTML-br-Element.');
-            let translation = tu.sourceContentNormalized().translate('This text contains<br/> a linebreak');
+            expect(tu.sourceContentNormalized().asDisplayString()).toBe('Dieser Text enthält<br>einen Zeilenumbruch per HTML-br-Element.');
+            let translation = tu.sourceContentNormalized().translate('This text contains<br> a linebreak');
             tu.translate(translation);
             expect(tu.targetContent()).toBe('This text contains<ph id="0" equiv="LINE_BREAK" type="fmt" disp="&lt;br/>"/> a linebreak');
         });
@@ -330,8 +330,8 @@ describe('ngx-i18nsupport-lib XLIFF 2.0 test spec', () => {
         it('should normalize empty html tag img', () => {
             const file: ITranslationMessagesFile = readFile(MASTER1SRC);
             const tu: ITransUnit = file.transUnitWithId(ID_WITH_IMG_TAG);
-            expect(tu.sourceContentNormalized().asDisplayString()).toBe('Dieser Text enthält ein Bild <img/> mitt en in der Nachricht');
-            let translation = tu.sourceContentNormalized().translate('This text contains an img <img/> in the message');
+            expect(tu.sourceContentNormalized().asDisplayString()).toBe('Dieser Text enthält ein Bild <img> mitt en in der Nachricht');
+            let translation = tu.sourceContentNormalized().translate('This text contains an img <img> in the message');
             tu.translate(translation);
             expect(tu.targetContent()).toBe('This text contains an img <ph id="0" equiv="TAG_IMG" type="image" disp="&lt;img/>"/> in the message');
         });
@@ -520,7 +520,7 @@ describe('ngx-i18nsupport-lib XLIFF 2.0 test spec', () => {
             expect(normalizedMessage.asDisplayString()).toBe('Eintrag {{0}} von {{1}} hinzugefügt.');
             const translatedMessage = normalizedMessage.translate('Total {{1}}, added {{0}}');
             tu.translate(translatedMessage);
-            expect(tu.targetContent()).toBe('Total <ph id="1" equiv="INTERPOLATION_1" disp="{{total()}}"/>, added <ph id="0" equiv="INTERPOLATION" disp="{{number()}}"/>');
+            expect(tu.targetContent()).toBe('Total <ph id="0" equiv="INTERPOLATION_1" disp="{{total()}}"/>, added <ph id="1" equiv="INTERPOLATION" disp="{{number()}}"/>');
         });
 
         it('should contain ICU reference in sourceContentNormalized', () => {

@@ -74,8 +74,14 @@ describe('tag mapping spec', () => {
 
     it('should map tag a to START_LINK', () => {
         const tagname = 'a';
-        const placeholderName = new TagMapping().getStartTagPlaceholderName(tagname);
+        const placeholderName = new TagMapping().getStartTagPlaceholderName(tagname, 0);
         expect(placeholderName).toBe('START_LINK');
+    });
+
+    it('should map tag a to START_LINK with index', () => {
+        const tagname = 'a';
+        const placeholderName = new TagMapping().getStartTagPlaceholderName(tagname, 7);
+        expect(placeholderName).toBe('START_LINK_7');
     });
 
     it('should map end tag img to CLOSE_TAG_IMG', () => {
@@ -98,14 +104,20 @@ describe('tag mapping spec', () => {
 
     it('should map tag br to LINE_BREAK', () => {
         const tagname = 'br';
-        const placeholderName = new TagMapping().getEmptyTagPlaceholderName(tagname);
+        const placeholderName = new TagMapping().getEmptyTagPlaceholderName(tagname, 0);
         expect(placeholderName).toBe('LINE_BREAK');
     });
 
     it('should map tag img to TAG_IMG', () => {
         const tagname = 'img';
-        const placeholderName = new TagMapping().getEmptyTagPlaceholderName(tagname);
+        const placeholderName = new TagMapping().getEmptyTagPlaceholderName(tagname, 0);
         expect(placeholderName).toBe('TAG_IMG');
+    });
+
+    it('should map tag img to TAG_IMG with index', () => {
+        const tagname = 'img';
+        const placeholderName = new TagMapping().getEmptyTagPlaceholderName(tagname, 1);
+        expect(placeholderName).toBe('TAG_IMG_1');
     });
 
     it('should map special ctype for br', () => {

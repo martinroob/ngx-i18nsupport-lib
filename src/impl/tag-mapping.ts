@@ -47,10 +47,10 @@ const VOID_TAGS = ['BR', 'HR', 'IMG', 'AREA', 'LINK', 'WBR'];
 
 export class TagMapping {
 
-    public getStartTagPlaceholderName(tag: string): string {
+    public getStartTagPlaceholderName(tag: string, id: number): string {
         const upperTag = tag.toUpperCase();
         const baseName = TAG_TO_PLACEHOLDER_NAMES[upperTag] || `TAG_${upperTag}`;
-        return `START_${baseName}`;
+        return `START_${baseName}` + this.counterString(id);
     }
 
     public getCloseTagPlaceholderName(tag: string): string {
@@ -59,9 +59,10 @@ export class TagMapping {
         return `CLOSE_${baseName}`;
     }
 
-    public getEmptyTagPlaceholderName(tag: string): string {
+    public getEmptyTagPlaceholderName(tag: string, id: number): string {
         const upperTag = tag.toUpperCase();
-        return TAG_TO_PLACEHOLDER_NAMES[upperTag] || `TAG_${upperTag}`;
+        const baseName =  TAG_TO_PLACEHOLDER_NAMES[upperTag] || `TAG_${upperTag}`;
+        return baseName + this.counterString(id);
     }
 
     public getCtypeForTag(tag: string): string {
@@ -152,5 +153,19 @@ export class TagMapping {
             }
         }
         return placeholderName;
+    }
+
+    /**
+     * String suffix for counter.
+     * If counter is 0, it is empty, otherwise _<id>.
+     * @param {number} id
+     * @return {string}
+     */
+    private counterString(id: number) {
+        if (id === 0) {
+            return '';
+        } else {
+            return '_' + id.toString(10);
+        }
     }
 }

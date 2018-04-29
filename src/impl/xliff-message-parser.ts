@@ -6,6 +6,9 @@ import {ParsedMessagePartPlaceholder} from './parsed-message-part-placeholder';
 import {TagMapping} from './tag-mapping';
 import {ParsedMessagePartEmptyTag} from './parsed-message-part-empty-tag';
 import {ParsedMessagePartICUMessageRef} from './parsed-message-part-icu-message-ref';
+import {isNullOrUndefined} from 'util';
+import {ParsedMessagePartType} from './parsed-message-part';
+import {ParsedMessagePartText} from './parsed-message-part-text';
 /**
  * Created by roobm on 10.05.2017.
  * A message parser for XLIFF 1.2
@@ -37,7 +40,8 @@ export class XliffMessageParser extends AbstractMessageParser {
             } else if (id.startsWith('START_')) {
                 let normalizedTagName = tagMapping.getTagnameFromStartTagPlaceholderName(id);
                 if (normalizedTagName) {
-                    message.addStartTag(normalizedTagName);
+                    const idcount = this.parseIdCountFromName(id);
+                    message.addStartTag(normalizedTagName, idcount);
                 }
             } else if (id.startsWith('CLOSE_')) {
                 let normalizedTagName = tagMapping.getTagnameFromCloseTagPlaceholderName(id);
@@ -47,7 +51,8 @@ export class XliffMessageParser extends AbstractMessageParser {
             } else if (tagMapping.isEmptyTagPlaceholderName(id)) {
                 let normalizedTagName = tagMapping.getTagnameFromEmptyTagPlaceholderName(id);
                 if (normalizedTagName) {
-                    message.addEmptyTag(normalizedTagName);
+                    const idcount = this.parseIdCountFromName(id);
+                    message.addEmptyTag(normalizedTagName, idcount);
                 }
             }
         }
@@ -97,20 +102,50 @@ export class XliffMessageParser extends AbstractMessageParser {
         return Number.parseInt(indexString);
     }
 
+    protected addXmlRepresentationToRoot(message: ParsedMessage, rootElem: Element) {
+        message.parts().forEach((part) => {
+            let child: Node;
+            switch (part.type) {
+                case ParsedMessagePartType.TEXT:
+                    child = this.createXmlRepresentationOfTextPart(<ParsedMessagePartText> part, rootElem);
+                    break;
+                case ParsedMessagePartType.START_TAG:
+                    child = this.createXmlRepresentationOfStartTagPart((<ParsedMessagePartStartTag>part), rootElem);
+                    break;
+                case ParsedMessagePartType.END_TAG:
+                    child = this.createXmlRepresentationOfEndTagPart((<ParsedMessagePartEndTag>part), rootElem);
+                    break;
+                case ParsedMessagePartType.EMPTY_TAG:
+                    child = this.createXmlRepresentationOfEmptyTagPart((<ParsedMessagePartEmptyTag>part), rootElem);
+                    break;
+                case ParsedMessagePartType.PLACEHOLDER:
+                    child = this.createXmlRepresentationOfPlaceholderPart((<ParsedMessagePartPlaceholder>part), rootElem);
+                    break;
+                case ParsedMessagePartType.ICU_MESSAGE_REF:
+                    child = this.createXmlRepresentationOfICUMessageRefPart((<ParsedMessagePartICUMessageRef>part), rootElem);
+                    break;
+            }
+            if (child) {
+                rootElem.appendChild(child);
+            }
+        });
+    }
+
     /**
      * the xml used for start tag in the message.
      * Returns an empty <x/>-Element with attributes id and ctype
      * @param part
      * @param rootElem
-     * @param id
      */
-    protected createXmlRepresentationOfStartTagPart(part: ParsedMessagePartStartTag, rootElem: Element, id?: number): Node {
+    protected createXmlRepresentationOfStartTagPart(part: ParsedMessagePartStartTag, rootElem: Element): Node {
         let xElem = rootElem.ownerDocument.createElement('x');
         const tagMapping = new TagMapping();
-        let idAttrib = tagMapping.getStartTagPlaceholderName(part.tagName());
-        let ctypeAttrib = tagMapping.getCtypeForTag(part.tagName());
+        const idAttrib = tagMapping.getStartTagPlaceholderName(part.tagName(), part.idCounter());
+        const ctypeAttrib = tagMapping.getCtypeForTag(part.tagName());
+        const equivTextAttr = '<' + part.tagName() + '>';
         xElem.setAttribute('id', idAttrib);
         xElem.setAttribute('ctype', ctypeAttrib);
+        xElem.setAttribute('equiv-text', equivTextAttr);
         return xElem;
     }
 
@@ -135,15 +170,16 @@ export class XliffMessageParser extends AbstractMessageParser {
      * Returns an empty <x/>-Element with attributes id and ctype
      * @param part
      * @param rootElem
-     * @param id
      */
-    protected createXmlRepresentationOfEmptyTagPart(part: ParsedMessagePartEmptyTag, rootElem: Element, id?: number): Node {
+    protected createXmlRepresentationOfEmptyTagPart(part: ParsedMessagePartEmptyTag, rootElem: Element): Node {
         let xElem = rootElem.ownerDocument.createElement('x');
         const tagMapping = new TagMapping();
-        let idAttrib = tagMapping.getEmptyTagPlaceholderName(part.tagName());
-        let ctypeAttrib = tagMapping.getCtypeForTag(part.tagName());
+        const idAttrib = tagMapping.getEmptyTagPlaceholderName(part.tagName(), part.idCounter());
+        const ctypeAttrib = tagMapping.getCtypeForTag(part.tagName());
+        const equivTextAttr = '<' + part.tagName() + '/>';
         xElem.setAttribute('id', idAttrib);
         xElem.setAttribute('ctype', ctypeAttrib);
+        xElem.setAttribute('equiv-text', equivTextAttr);
         return xElem;
     }
 
@@ -159,7 +195,11 @@ export class XliffMessageParser extends AbstractMessageParser {
         if (part.index() > 0) {
             idAttrib = 'INTERPOLATION_' + part.index().toString(10);
         }
+        const equivTextAttr = part.disp();
         xElem.setAttribute('id', idAttrib);
+        if (equivTextAttr) {
+            xElem.setAttribute('equiv-text', equivTextAttr);
+        }
         return xElem;
     }
 

@@ -7,6 +7,9 @@ import {ParsedMessagePartPlaceholder} from './parsed-message-part-placeholder';
 import {TagMapping} from './tag-mapping';
 import {ParsedMessagePartEmptyTag} from './parsed-message-part-empty-tag';
 import {ParsedMessagePartICUMessageRef} from './parsed-message-part-icu-message-ref';
+import {ParsedMessagePart, ParsedMessagePartType} from './parsed-message-part';
+import {ParsedMessagePartText} from './parsed-message-part-text';
+import {isNullOrUndefined} from 'util';
 /**
  * Created by roobm on 10.05.2017.
  * A message parser for XMB
@@ -42,8 +45,9 @@ export class XmbMessageParser extends AbstractMessageParser {
                 return false; // ignore children
             } else if (name.startsWith('START_')) {
                 const tag = this.parseTagnameFromPhElement(elementNode);
+                const idcounter = this.parseIdCountFromName(name);
                 if (tag) {
-                    message.addStartTag(tag);
+                    message.addStartTag(tag, idcounter);
                 }
                 return false; // ignore children
             } else if (name.startsWith('CLOSE_')) {
@@ -54,7 +58,8 @@ export class XmbMessageParser extends AbstractMessageParser {
                 return false; // ignore children
             } else if (new TagMapping().isEmptyTagPlaceholderName(name)) {
                 const emptyTagName = new TagMapping().getTagnameFromEmptyTagPlaceholderName(name);
-                message.addEmptyTag(emptyTagName);
+                const idcounter = this.parseIdCountFromName(name);
+                message.addEmptyTag(emptyTagName, idcounter);
                 return false; // ignore children
             } else if (name.startsWith('ICU')) {
                 const index = this.parseICUMessageIndexFromName(name);
@@ -173,17 +178,42 @@ export class XmbMessageParser extends AbstractMessageParser {
         }
     }
 
+    protected addXmlRepresentationToRoot(message: ParsedMessage, rootElem: Element) {
+        message.parts().forEach((part) => {
+            const child = this.createXmlRepresentationOfPart(part, rootElem);
+            if (child) {
+                rootElem.appendChild(child);
+            }
+        });
+    }
+
+    protected createXmlRepresentationOfPart(part: ParsedMessagePart, rootElem: Element): Node {
+        switch (part.type) {
+            case ParsedMessagePartType.TEXT:
+                return this.createXmlRepresentationOfTextPart(<ParsedMessagePartText> part, rootElem);
+            case ParsedMessagePartType.START_TAG:
+                return this.createXmlRepresentationOfStartTagPart((<ParsedMessagePartStartTag>part), rootElem);
+            case ParsedMessagePartType.END_TAG:
+                return this.createXmlRepresentationOfEndTagPart((<ParsedMessagePartEndTag>part), rootElem);
+            case ParsedMessagePartType.EMPTY_TAG:
+                return this.createXmlRepresentationOfEmptyTagPart((<ParsedMessagePartEmptyTag>part), rootElem);
+            case ParsedMessagePartType.PLACEHOLDER:
+                return this.createXmlRepresentationOfPlaceholderPart((<ParsedMessagePartPlaceholder>part), rootElem);
+            case ParsedMessagePartType.ICU_MESSAGE_REF:
+                return this.createXmlRepresentationOfICUMessageRefPart((<ParsedMessagePartICUMessageRef>part), rootElem);
+        }
+    }
+
     /**
      * the xml used for start tag in the message.
      * Returns an <ph>-Element with attribute name and subelement ex
      * @param part
      * @param rootElem
-     * @param id
      */
-    protected createXmlRepresentationOfStartTagPart(part: ParsedMessagePartStartTag, rootElem: Element, id?: number): Node {
+    protected createXmlRepresentationOfStartTagPart(part: ParsedMessagePartStartTag, rootElem: Element): Node {
         let phElem = rootElem.ownerDocument.createElement('ph');
         const tagMapping = new TagMapping();
-        let nameAttrib = tagMapping.getStartTagPlaceholderName(part.tagName());
+        let nameAttrib = tagMapping.getStartTagPlaceholderName(part.tagName(), part.idCounter());
         phElem.setAttribute('name', nameAttrib);
         let exElem = rootElem.ownerDocument.createElement('ex');
         exElem.appendChild(rootElem.ownerDocument.createTextNode('<' + part.tagName() + '>'));
@@ -213,12 +243,11 @@ export class XmbMessageParser extends AbstractMessageParser {
      * Returns an <ph>-Element with attribute name and subelement ex
      * @param part
      * @param rootElem
-     * @param id
      */
-    protected createXmlRepresentationOfEmptyTagPart(part: ParsedMessagePartEmptyTag, rootElem: Element, id?: number): Node {
+    protected createXmlRepresentationOfEmptyTagPart(part: ParsedMessagePartEmptyTag, rootElem: Element): Node {
         let phElem = rootElem.ownerDocument.createElement('ph');
         const tagMapping = new TagMapping();
-        let nameAttrib = tagMapping.getEmptyTagPlaceholderName(part.tagName());
+        let nameAttrib = tagMapping.getEmptyTagPlaceholderName(part.tagName(), part.idCounter());
         phElem.setAttribute('name', nameAttrib);
         let exElem = rootElem.ownerDocument.createElement('ex');
         exElem.appendChild(rootElem.ownerDocument.createTextNode('<' + part.tagName() + '>'));
