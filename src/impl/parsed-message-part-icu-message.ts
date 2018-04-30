@@ -24,7 +24,20 @@ export class ParsedMessagePartICUMessage extends ParsedMessagePart {
 
     constructor(icuMessageText: string, private _parser: IMessageParser) {
         super(ParsedMessagePartType.ICU_MESSAGE);
-        this.parseICUMessage(icuMessageText);
+        if (icuMessageText) {
+            this.parseICUMessage(icuMessageText);
+        }
+    }
+
+    /**
+     * Test wether text might be an ICU message.
+     * Should at least start with something like '{<name>, select, ..' or '{<name>, plural, ...'
+     * @param {string} icuMessageText
+     * @return {boolean}
+     */
+    static looksLikeICUMessage(icuMessageText: string): boolean {
+        const part = new ParsedMessagePartICUMessage(null, null);
+        return part.looksLikeICUMessage(icuMessageText);
     }
 
     public asDisplayString(format?: string) {
@@ -52,7 +65,6 @@ export class ParsedMessagePartICUMessage extends ParsedMessagePart {
         // });
         this._messageText = text;
         this._tokenizer = new ICUMessageTokenizer();
-        const tokens = new ICUMessageTokenizer().tokenize(text);
         this._tokenizer.input(text);
         this.expectNext(CURLY_BRACE_OPEN);
         this.expectNext(TEXT); // varname, not used currently, ng always used VAR_PLURAL or VAR_SELECT
@@ -75,6 +87,34 @@ export class ParsedMessagePartICUMessage extends ParsedMessagePart {
         }
         this.expectNext(CURLY_BRACE_CLOSE);
         this.expectNext('EOF');
+    }
+
+    /**
+     * Parse the message to check, wether it might be an ICU message.
+     * Should at least start with something like '{<name>, select, ..' or '{<name>, plural, ...'
+     * @param text message text to parse
+     */
+    private looksLikeICUMessage(text: string): boolean {
+        // console.log('message ', text);
+        // const tokens = new ICUMessageTokenizer().tokenize(text);
+        // tokens.forEach((tok) => {
+        //     console.log('Token', tok.type, tok.value);
+        // });
+        this._tokenizer = new ICUMessageTokenizer();
+        this._tokenizer.input(text);
+        try {
+            this.expectNext(CURLY_BRACE_OPEN);
+            this.expectNext(TEXT); // varname, not used currently, ng always used VAR_PLURAL or VAR_SELECT
+            this.expectNext(COMMA);
+            let token: ICUToken = this._tokenizer.next();
+            if (token.type !== PLURAL && token.type !== SELECT) {
+                return false;
+            }
+            this.expectNext(COMMA);
+            return true;
+        } catch (error) {
+            return false;
+        }
     }
 
     /**

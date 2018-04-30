@@ -373,7 +373,7 @@ describe('normalized message test spec', () => {
             }
         });
 
-        it('should parse plural ICU message with placeholder', () => {
+        it('should parse plural ICU message with placeholder in xlf format', () => {
             let original = '{minutes, plural, =0 {just now} =1 {one minute ago} other {<x id="INTERPOLATION" equiv-text="{{minutes}}"/> minutes ago} }';
             let parsedMessage: INormalizedMessage = parsedICUMessage(original, null, 'xlf');
             expect(parsedMessage.asDisplayString()).toBe('<ICU-Message/>');
@@ -381,6 +381,94 @@ describe('normalized message test spec', () => {
             const icuMessage = parsedMessage.getICUMessage();
             expect(icuMessage.getCategories().length).toBe(3);
             expect(icuMessage.getCategories()[2].getMessageNormalized().asDisplayString()).toBe('{{0}} minutes ago');
+        });
+
+        it('should parse plural ICU message with placeholder in xlf2 format', () => {
+            let original = '{minutes, plural, =0 {just now} =1 {one minute ago} other {<ph id="3" equiv="INTERPOLATION" disp="{{minutes}}"/> minutes ago} }';
+            let parsedMessage: INormalizedMessage = parsedICUMessage(original);
+            expect(parsedMessage.asDisplayString()).toBe('<ICU-Message/>');
+            expect(parsedMessage.getICUMessage()).toBeTruthy();
+            const icuMessage = parsedMessage.getICUMessage();
+            expect(icuMessage.getCategories().length).toBe(3);
+            expect(icuMessage.getCategories()[2].getMessageNormalized().asDisplayString()).toBe('{{0}} minutes ago');
+        });
+
+        it('should parse nested ICU messages', () => {
+            let original = `{gender_of_host, select, 
+  female {
+    {num_guests, plural, 
+      =0 {{host} does not give a party.}
+      =1 {{host} invites {guest} to her party.}
+      =2 {{host} invites {guest} and one other person to her party.}
+      other {{host} invites {guest} and # other people to her party.}}}
+  male {
+    {num_guests, plural, 
+      =0 {{host} does not give a party.}
+      =1 {{host} invites {guest} to his party.}
+      =2 {{host} invites {guest} and one other person to his party.}
+      other {{host} invites {guest} and # other people to his party.}}}
+  other {
+    {num_guests, plural, 
+      =0 {{host} does not give a party.}
+      =1 {{host} invites {guest} to their party.}
+      =2 {{host} invites {guest} and one other person to their party.}
+      other {{host} invites {guest} and # other people to their party.}}}}`;
+
+            let parsedMessage: INormalizedMessage = parsedICUMessage(original, null, 'xlf');
+            expect(parsedMessage.asDisplayString()).toBe('<ICU-Message/>');
+            expect(parsedMessage.getICUMessage()).toBeTruthy();
+            const outerIcuMessage = parsedMessage.getICUMessage();
+            expect(outerIcuMessage.getCategories().length).toBe(3);
+            expect(outerIcuMessage.getCategories()[0].getCategory()).toBe('female');
+            expect(outerIcuMessage.getCategories()[1].getCategory()).toBe('male');
+            expect(outerIcuMessage.getCategories()[2].getCategory()).toBe('other');
+            const innerMessage = outerIcuMessage.getCategories()[1].getMessageNormalized();
+            expect(innerMessage.asDisplayString()).toBe('<ICU-Message/>');
+            const innerIcuMessage = innerMessage.getICUMessage();
+            expect(innerIcuMessage).toBeTruthy();
+            expect(innerIcuMessage.getCategories().length).toBe(4);
+            expect(innerIcuMessage.getCategories()[0].getCategory()).toBe('=0');
+            expect(innerIcuMessage.getCategories()[1].getCategory()).toBe('=1');
+            expect(innerIcuMessage.getCategories()[2].getCategory()).toBe('=2');
+            expect(innerIcuMessage.getCategories()[3].getCategory()).toBe('other');
+        });
+
+        it('should parse nested ICU messages with placeholder', () => {
+            let original = `{gender_of_host, select, 
+  female {
+    {num_guests, plural, 
+      =0 {{host} does not give a party.}
+      =1 {{host} invites {guest} to her party.}
+      =2 {{host} invites {guest} and one other person to her party.}
+      other {{host} invites {guest} and # other people to her party.}}}
+  male {
+    {num_guests, plural, 
+      =0 {<x id="INTERPOLATION" equiv-text="{{host}}"/> does not give a party.}
+      =1 {<x id="INTERPOLATION" equiv-text="{{host}}"/> invites {guest} to his party.}
+      =2 {<x id="INTERPOLATION" equiv-text="{{host}}"/> invites {guest} and one other person to his party.}
+      other {<x id="INTERPOLATION" equiv-text="{{host}}"/> invites {guest} and # other people to his party.}}}
+  other {
+    {num_guests, plural, 
+      =0 {{host} does not give a party.}
+      =1 {{host} invites {guest} to their party.}
+      =2 {{host} invites {guest} and one other person to their party.}
+      other {{host} invites {guest} and # other people to their party.}}}}`;
+
+            let parsedMessage: INormalizedMessage = parsedICUMessage(original, null, 'xlf');
+            expect(parsedMessage.asDisplayString()).toBe('<ICU-Message/>');
+            expect(parsedMessage.getICUMessage()).toBeTruthy();
+            const outerIcuMessage = parsedMessage.getICUMessage();
+            expect(outerIcuMessage.getCategories().length).toBe(3);
+            expect(outerIcuMessage.getCategories()[0].getCategory()).toBe('female');
+            expect(outerIcuMessage.getCategories()[1].getCategory()).toBe('male');
+            expect(outerIcuMessage.getCategories()[2].getCategory()).toBe('other');
+            const innerMessage = outerIcuMessage.getCategories()[1].getMessageNormalized();
+            expect(innerMessage.asDisplayString()).toBe('<ICU-Message/>');
+            const innerIcuMessage = innerMessage.getICUMessage();
+            expect(innerIcuMessage).toBeTruthy();
+            expect(innerIcuMessage.getCategories().length).toBe(4);
+            expect(innerIcuMessage.getCategories()[0].getCategory()).toBe('=0');
+            expect(innerIcuMessage.getCategories()[0].getMessageNormalized().asDisplayString()).toBe('{{0}} does not give a party.');
         });
 
     });

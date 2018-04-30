@@ -14,6 +14,7 @@ import {format, isNullOrUndefined} from 'util';
 import {DOMUtilities} from './dom-utilities';
 import {ParsedMessagePartEmptyTag} from './parsed-message-part-empty-tag';
 import {ParsedMessagePartICUMessageRef} from './parsed-message-part-icu-message-ref';
+import {ParsedMessagePartICUMessage} from './parsed-message-part-icu-message';
 /**
  * Created by roobm on 10.05.2017.
  * A message parser can parse the xml content of a translatable message.
@@ -116,7 +117,8 @@ export abstract class AbstractMessageParser implements IMessageParser {
      * @param text
      */
     public isICUMessageStart(text: string): boolean {
-        return text.startsWith('{VAR_PLURAL') || text.startsWith('{VAR_SELECT');
+        return ParsedMessagePartICUMessage.looksLikeICUMessage(text);
+//        return text.startsWith('{VAR_PLURAL') || text.startsWith('{VAR_SELECT');
     }
 
     /**
