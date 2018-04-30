@@ -31,7 +31,8 @@ module.exports = {
         publicPath: '/',
         filename: 'ngx-i18nsupport-lib.umd.js',
         library: 'ngx-i18nsupport-lib',
-        libraryTarget: 'umd'
+        libraryTarget: 'umd',
+        globalObject: 'this'
     },
 
     // require those dependencies but don't bundle them
