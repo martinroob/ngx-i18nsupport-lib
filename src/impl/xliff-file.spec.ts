@@ -56,6 +56,17 @@ describe('ngx-i18nsupport-lib xliff 1.2 test spec', () => {
             expect(tu.sourceContent()).toBe('Schließen');
         });
 
+        it('should read xlf file and pretty print it with pretty-data', () => {
+            const file: ITranslationMessagesFile = readFile(MASTER1SRC);
+            expect(file).toBeTruthy();
+            expect(file.editedContent()).toContain('<source>Beschreibung zu <x id="INTERPOLATION"/> (<x id="INTERPOLATION_1"/>)</source>');
+            expect(file.editedContent(true)).toContain(`        <source>Beschreibung zu 
+          <x id="INTERPOLATION"/> (
+          <x id="INTERPOLATION_1"/>)
+        </source>
+`);
+        });
+
         it('should emit warnings', () => {
             const file: ITranslationMessagesFile = readFile(MASTER1SRC);
             expect(file.warnings().length).toBe(1);

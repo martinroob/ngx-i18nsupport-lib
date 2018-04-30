@@ -55,6 +55,14 @@ describe('ngx-i18nsupport-lib XLIFF 2.0 test spec', () => {
             expect(tu.sourceContent()).toBe('Anwendung läuft!');
         });
 
+        it('should read xlf2 file and pretty print it and read it in again', () => {
+            const file: ITranslationMessagesFile = readFile(TRANSLATED_FILE_SRC);
+            expect(file).toBeTruthy();
+            const formattedXml = file.editedContent(true);
+            const rereadFile: ITranslationMessagesFile = TranslationMessagesFileFactory.fromUnknownFormatFileContent(formattedXml, null, null);
+            expect(rereadFile.numberOfTransUnits()).toBe(file.numberOfTransUnits());
+        });
+
         it('should emit warnings', () => {
             const file: ITranslationMessagesFile = readFile(MASTER1SRC);
             expect(file.warnings().length).toBe(1);

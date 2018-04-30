@@ -1,6 +1,7 @@
 import {ITranslationMessagesFile, ITransUnit, STATE_NEW, STATE_TRANSLATED} from '../api';
 import {isNullOrUndefined} from 'util';
 import {DOMParser, XMLSerializer} from 'xmldom';
+import * as prettyData from 'pretty-data';
 import {AbstractTransUnit} from './abstract-trans-unit';
 import {XtbFile} from './xtb-file';
 /**
@@ -265,9 +266,16 @@ export abstract class AbstractTranslationMessagesFile implements ITranslationMes
 
     /**
      * The xml content to be saved after changes are made.
+     * @param beautifyOutput Flag whether to use pretty-data to format the output.
+     * XMLSerializer produces some correct but strangely formatted output, which pretty-data can correct.
+     * See issue #64 for details.
+     * Default is false.
      */
-    public editedContent(): string {
-        const result = new XMLSerializer().serializeToString(this._parsedDocument);
+    public editedContent(beautifyOutput?: boolean): string {
+        let result = new XMLSerializer().serializeToString(this._parsedDocument);
+        if (beautifyOutput === true) {
+            result = prettyData.pd.xml(result);
+        }
         if (this._fileEndsWithEOL) {
             // add eol if there was eol in original source
             return result + '\n';
