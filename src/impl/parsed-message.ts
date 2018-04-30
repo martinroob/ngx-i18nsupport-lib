@@ -48,6 +48,14 @@ export class ParsedMessage implements INormalizedMessage {
     }
 
     /**
+     * Get the parser (for tests only, not part of API)
+     * @return {IMessageParser}
+     */
+    getParser(): IMessageParser {
+        return this._parser;
+    }
+
+    /**
      * Create a new normalized message as a translation of this one.
      * @param normalizedString the translation in normalized form.
      * If the message is an ICUMessage (getICUMessage returns a value), use translateICUMessage instead.

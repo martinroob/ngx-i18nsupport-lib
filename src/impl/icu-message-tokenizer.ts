@@ -29,6 +29,7 @@ export class ICUMessageTokenizer {
     private getLexer(): Tokenizr {
         const lexer = new Tokenizr();
         let plaintext = '';
+        let openedCurlyBracesInTextCounter = 0;
         lexer.before((ctx, match, rule) => {
             if (rule.name !== TEXT) {
                 if (this.containsNonWhiteSpace(plaintext)) {
@@ -57,22 +58,39 @@ export class ICUMessageTokenizer {
             ctx.pop();
             ctx.accept(CURLY_BRACE_CLOSE, match[0]);
         }, CURLY_BRACE_CLOSE);
-        lexer.rule(STATE_IN_MESSAGE, /'{'/, (ctx, match) => {
-            plaintext += '{';
+        // masked ' { and }
+        lexer.rule(STATE_IN_MESSAGE, /'[{}]?'/, (ctx, match) => {
+            if (match[0] === '\'\'') {
+                plaintext += '\'';
+            } else if (match[0] === '\'{\'') {
+                plaintext += '{';
+            } else if (match[0] === '\'}\'') {
+                plaintext += '}';
+            }
             ctx.ignore();
         }, TEXT);
-        lexer.rule(STATE_IN_MESSAGE, /'}'/, (ctx, match) => {
-            plaintext += '}';
-            ctx.ignore();
+        lexer.rule(STATE_IN_MESSAGE, /./, (ctx, match) => {
+            const char = match[0];
+            if (char === '{') {
+                openedCurlyBracesInTextCounter++;
+                plaintext += match[0];
+                ctx.ignore();
+            } else if (char === '}') {
+                if (openedCurlyBracesInTextCounter > 0) {
+                    openedCurlyBracesInTextCounter--;
+                    plaintext += match[0];
+                    ctx.ignore();
+                } else {
+                    ctx.pop();
+                    ctx.accept(TEXT, plaintext);
+                    plaintext = '';
+                    ctx.accept(CURLY_BRACE_CLOSE, match[0]);
+                }
+            } else {
+                plaintext += match[0];
+                ctx.ignore();
+            }
         }, TEXT);
-        lexer.rule(STATE_IN_MESSAGE, /''/, (ctx, match) => {
-            plaintext += '\'';
-            ctx.ignore();
-        }, TEXT);
-        lexer.rule(STATE_IN_MESSAGE, /}/, (ctx, match) => {
-            ctx.pop();
-            ctx.accept(CURLY_BRACE_CLOSE, match[0]);
-        }, CURLY_BRACE_CLOSE);
         // comma
         lexer.rule(STATE_NORMAL, /,/, (ctx, match) => {
             ctx.accept(COMMA, match[0]);

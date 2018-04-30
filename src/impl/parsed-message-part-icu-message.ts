@@ -52,6 +52,7 @@ export class ParsedMessagePartICUMessage extends ParsedMessagePart {
         // });
         this._messageText = text;
         this._tokenizer = new ICUMessageTokenizer();
+        const tokens = new ICUMessageTokenizer().tokenize(text);
         this._tokenizer.input(text);
         this.expectNext(CURLY_BRACE_OPEN);
         this.expectNext(TEXT); // varname, not used currently, ng always used VAR_PLURAL or VAR_SELECT

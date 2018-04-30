@@ -1,6 +1,9 @@
 import {Xliff2MessageParser} from './xliff2-message-parser';
 import {ParsedMessage} from './parsed-message';
 import {INormalizedMessage} from '../api/i-normalized-message';
+import {IMessageParser} from './i-message-parser';
+import {XliffMessageParser} from './xliff-message-parser';
+import {XmbMessageParser} from './xmb-message-parser';
 /**
  * Created by martin on 17.05.2017.
  * Testcases for parsed messages.
@@ -23,10 +26,30 @@ describe('normalized message test spec', () => {
      * Helperfunction to create an ICU Message.
      * @param icuMessageString
      * @param sourceMessage
-     * @return {ParsedMessage}
+     * @param parserType (optional) xlf or xlf2 or xmb, default xlf2
+     * @return {INormalizedMessage}
      */
-    function parsedICUMessage(icuMessageString: string, sourceMessage?: ParsedMessage): ParsedMessage {
-        let parser = new Xliff2MessageParser(); // parser does not matter here, every format should be the same.
+    function parsedICUMessage(icuMessageString: string, sourceMessage?: ParsedMessage, parserType?: string): INormalizedMessage {
+        let parser: IMessageParser;
+        if (sourceMessage) {
+            parser = sourceMessage.getParser();
+        } else {
+            if (parserType) {
+                switch (parserType) {
+                    case 'xlf':
+                        parser = new XliffMessageParser();
+                        break;
+                    case 'xlf':
+                        parser = new XmbMessageParser();
+                        break;
+                    case 'xlf2':
+                        parser = new Xliff2MessageParser();
+                        break;
+                }
+            } else {
+                parser = new Xliff2MessageParser(); // parser does not matter here, every format should be the same.
+            }
+        }
         return parser.parseICUMessage(icuMessageString, sourceMessage);
     }
 
@@ -348,6 +371,16 @@ describe('normalized message test spec', () => {
             } catch (error) {
                 expect(error.toString()).toBe('Error: adding a new category not allowed for select messages ("u" is not part of message)');
             }
+        });
+
+        it('should parse plural ICU message with placeholder', () => {
+            let original = '{minutes, plural, =0 {just now} =1 {one minute ago} other {<x id="INTERPOLATION" equiv-text="{{minutes}}"/> minutes ago} }';
+            let parsedMessage: INormalizedMessage = parsedICUMessage(original, null, 'xlf');
+            expect(parsedMessage.asDisplayString()).toBe('<ICU-Message/>');
+            expect(parsedMessage.getICUMessage()).toBeTruthy();
+            const icuMessage = parsedMessage.getICUMessage();
+            expect(icuMessage.getCategories().length).toBe(3);
+            expect(icuMessage.getCategories()[2].getMessageNormalized().asDisplayString()).toBe('{{0}} minutes ago');
         });
 
     });

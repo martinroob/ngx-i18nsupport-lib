@@ -166,6 +166,23 @@ describe('message parse XLIFF 1.2 test spec', () => {
             expect(translatedMessage.asNativeString()).toBe('New <x id="START_TAG_XY" ctype="x-xy" equiv-text="&lt;xy>"/><x id="CLOSE_TAG_XY" ctype="x-xy"/> was reported by <x id="START_TAG_XY_1" ctype="x-xy" equiv-text="&lt;xy>"/><x id="CLOSE_TAG_XY" ctype="x-xy"/>');
         });
 
+        it('should parse simple plural ICU message', () => {
+            let parsedMessage = parsedMessageFromXML('{VAR_PLURAL, plural, =0 {just now} =1 {one minute ago} other {a few minutes ago} }');
+            expect(parsedMessage.asDisplayString()).toBe('<ICU-Message/>');
+            expect(parsedMessage.getICUMessage()).toBeTruthy();
+            const icuMessage = parsedMessage.getICUMessage();
+            expect(icuMessage.getCategories().length).toBe(3);
+        });
+
+        it('should parse plural ICU message with placeholder', () => {
+            let parsedMessage = parsedMessageFromXML('{VAR_PLURAL, plural, =0 {just now} =1 {one minute ago} other {<x id="INTERPOLATION" equiv-text="{{minutes}}"/> minutes ago} }');
+            expect(parsedMessage.asDisplayString()).toBe('<ICU-Message/>');
+            expect(parsedMessage.getICUMessage()).toBeTruthy();
+            const icuMessage = parsedMessage.getICUMessage();
+            expect(icuMessage.getCategories().length).toBe(3);
+            expect(icuMessage.getCategories()[2].getMessageNormalized().asDisplayString()).toBe('{{0}} minutes ago');
+        });
+
     });
 
 });
