@@ -48,6 +48,14 @@ export class ParsedMessage implements INormalizedMessage {
     }
 
     /**
+     * Get the parser (for tests only, not part of API)
+     * @return {IMessageParser}
+     */
+    getParser(): IMessageParser {
+        return this._parser;
+    }
+
+    /**
      * Create a new normalized message as a translation of this one.
      * @param normalizedString the translation in normalized form.
      * If the message is an ICUMessage (getICUMessage returns a value), use translateICUMessage instead.
@@ -471,8 +479,8 @@ export class ParsedMessage implements INormalizedMessage {
         this._parts.push(new ParsedMessagePartPlaceholder(index, disp));
     }
 
-    addStartTag(tagname: string) {
-        this._parts.push(new ParsedMessagePartStartTag(tagname));
+    addStartTag(tagname: string, idcounter: number) {
+        this._parts.push(new ParsedMessagePartStartTag(tagname, idcounter));
     }
 
     addEndTag(tagname: string) {
@@ -485,8 +493,8 @@ export class ParsedMessage implements INormalizedMessage {
         this._parts.push(new ParsedMessagePartEndTag(tagname));
     }
 
-    addEmptyTag(tagname: string) {
-        this._parts.push(new ParsedMessagePartEmptyTag(tagname));
+    addEmptyTag(tagname: string, idcounter: number) {
+        this._parts.push(new ParsedMessagePartEmptyTag(tagname, idcounter));
     }
 
     addICUMessageRef(index: number, disp) {

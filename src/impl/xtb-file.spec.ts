@@ -275,8 +275,8 @@ describe('ngx-i18nsupport-lib xtb test spec', () => {
         it('should normalize empty html tag br', () => {
             const file: ITranslationMessagesFile = readFile(TRANSLATION_EN_XTB, MASTER_DE_XMB);
             const tu: ITransUnit = file.transUnitWithId(ID_WITH_BR_TAG);
-            expect(tu.sourceContentNormalized().asDisplayString()).toBe('Dieser Text enthält<br/>einen Zeilenumbruch per HTML-br-Element.');
-            let translation = tu.sourceContentNormalized().translate('This text contains<br/> a linebreak');
+            expect(tu.sourceContentNormalized().asDisplayString()).toBe('Dieser Text enthält<br>einen Zeilenumbruch per HTML-br-Element.');
+            let translation = tu.sourceContentNormalized().translate('This text contains<br> a linebreak');
             tu.translate(translation);
             expect(tu.targetContent()).toBe('This text contains<ph name="LINE_BREAK"><ex>&lt;br></ex></ph> a linebreak');
         });
@@ -284,8 +284,8 @@ describe('ngx-i18nsupport-lib xtb test spec', () => {
         it('should normalize empty html tag img', () => {
             const file: ITranslationMessagesFile = readFile(TRANSLATION_EN_XTB, MASTER_DE_XMB);
             const tu: ITransUnit = file.transUnitWithId(ID_WITH_IMG_TAG);
-            expect(tu.sourceContentNormalized().asDisplayString()).toBe('Dieser Text enthält ein Bild <img/> mitt en in der Nachricht');
-            let translation = tu.sourceContentNormalized().translate('This text contains an img <img/> in the message');
+            expect(tu.sourceContentNormalized().asDisplayString()).toBe('Dieser Text enthält ein Bild <img> mitt en in der Nachricht');
+            let translation = tu.sourceContentNormalized().translate('This text contains an img <img> in the message');
             tu.translate(translation);
             expect(tu.targetContent()).toBe('This text contains an img <ph name="TAG_IMG"><ex>&lt;img></ex></ph> in the message');
         });

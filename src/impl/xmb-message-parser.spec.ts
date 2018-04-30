@@ -148,8 +148,8 @@ describe('message parse XMB test spec', () => {
             expect(parsedMessage.asDisplayString()).toBe('first: <ICU-Message-Ref_0/>, second <ICU-Message-Ref_1/>');
         });
 
-        it('should parse empty tag like <br/>', () => {
-            let normalizedMessage = 'one line<br/>second line';
+        it('should parse empty tag like <br>', () => {
+            let normalizedMessage = 'one line<br>second line';
             let parsedMessage = parsedMessageFor(normalizedMessage);
             expect(parsedMessage.asDisplayString()).toBe(normalizedMessage);
             expect(parsedMessage.asNativeString()).toBe('one line<ph name="LINE_BREAK"><ex>&lt;br></ex></ph>second line');

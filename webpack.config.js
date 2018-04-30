@@ -14,6 +14,10 @@ const DefinePlugin = require('webpack/lib/DefinePlugin');
 const LoaderOptionsPlugin = require('webpack/lib/LoaderOptionsPlugin');
 
 module.exports = {
+    mode: 'production',
+    performance : {
+        hints : false
+    },
     devtool: 'inline-source-map',
 
     resolve: {

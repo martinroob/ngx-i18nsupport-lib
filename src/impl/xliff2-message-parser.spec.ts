@@ -61,7 +61,7 @@ describe('message parse XLIFF 2.0 test spec', () => {
             let normalizedMessage = '{{1}}: a placeholder: {{0}}';
             let parsedMessage = parsedMessageFor(normalizedMessage);
             expect(parsedMessage.asDisplayString()).toBe(normalizedMessage);
-            expect(parsedMessage.asNativeString()).toBe('<ph id="1" equiv="INTERPOLATION_1"/>: a placeholder: <ph id="0" equiv="INTERPOLATION"/>');
+            expect(parsedMessage.asNativeString()).toBe('<ph id="0" equiv="INTERPOLATION_1"/>: a placeholder: <ph id="1" equiv="INTERPOLATION"/>');
             checkToXmlAndBack(normalizedMessage);
         });
 
@@ -92,7 +92,7 @@ describe('message parse XLIFF 2.0 test spec', () => {
             let normalizedMessage = '<b><i><strange>Placeholder {{0}}</strange></i></b>';
             let parsedMessage = parsedMessageFor(normalizedMessage);
             expect(parsedMessage.asDisplayString()).toBe(normalizedMessage);
-            expect(parsedMessage.asNativeString()).toBe('<pc id="0" equivStart="START_BOLD_TEXT" equivEnd="CLOSE_BOLD_TEXT" type="fmt" dispStart="&lt;b>" dispEnd="&lt;/b>"><pc id="1" equivStart="START_ITALIC_TEXT" equivEnd="CLOSE_ITALIC_TEXT" type="fmt" dispStart="&lt;i>" dispEnd="&lt;/i>"><pc id="2" equivStart="START_TAG_STRANGE" equivEnd="CLOSE_TAG_STRANGE" type="other" dispStart="&lt;strange>" dispEnd="&lt;/strange>">Placeholder <ph id="0" equiv="INTERPOLATION"/></pc></pc></pc>');
+            expect(parsedMessage.asNativeString()).toBe('<pc id="0" equivStart="START_BOLD_TEXT" equivEnd="CLOSE_BOLD_TEXT" type="fmt" dispStart="&lt;b>" dispEnd="&lt;/b>"><pc id="1" equivStart="START_ITALIC_TEXT" equivEnd="CLOSE_ITALIC_TEXT" type="fmt" dispStart="&lt;i>" dispEnd="&lt;/i>"><pc id="2" equivStart="START_TAG_STRANGE" equivEnd="CLOSE_TAG_STRANGE" type="other" dispStart="&lt;strange>" dispEnd="&lt;/strange>">Placeholder <ph id="3" equiv="INTERPOLATION"/></pc></pc></pc>');
             checkToXmlAndBack(normalizedMessage);
         });
 
@@ -156,8 +156,8 @@ describe('message parse XLIFF 2.0 test spec', () => {
             expect(parsedMessage.asDisplayString()).toBe('first: <ICU-Message-Ref_0/>, second <ICU-Message-Ref_1/>');
         });
 
-        it('should parse empty tag like <br/>', () => {
-            let normalizedMessage = 'one line<br/>second line';
+        it('should parse empty tag like <br>', () => {
+            let normalizedMessage = 'one line<br>second line';
             let parsedMessage = parsedMessageFor(normalizedMessage);
             expect(parsedMessage.asDisplayString()).toBe(normalizedMessage);
             expect(parsedMessage.asNativeString()).toBe('one line<ph id="0" equiv="LINE_BREAK" type="fmt" disp="&lt;br/>"/>second line');

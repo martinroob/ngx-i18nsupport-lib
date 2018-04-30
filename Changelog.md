@@ -1,3 +1,23 @@
+<a name="1.9.0"></a>
+# [1.9.0](https://github.com/martinroob/ngx-i18nsupport-lib/compare/v1.9.0...v1.8.1) (2018-04-30)
+
+### Bug Fixes
+
+* **normalized format** Due to issues found with [xliffmerge #84 Placeholder index is invalid](https://github.com/martinroob/ngx-i18nsupport/issues/84))
+the syntax of normalized messages is slightly changed.
+Empty tag now is only allowed for a small list of special tags (br, hr, img, area, link, wbr) and closing tag / is removed, former syntax `<img/>`is now `<img>`.
+To destinguish muliple tags with same name now there is an id attribute included, former syntax `<mytag></mytag> <mytag></mytag>` is now `<mytag></mytag> <mytag id="1"></mytag>`
+
+* **ICU messages** fixed handling of ICU messages containing markup ([xliffmerge #83 xliffmerge fails when ICU message contains interpolation and/or tags](https://github.com/martinroob/ngx-i18nsupport/issues/83))
+
+### Features
+
+* **internal** updated out of date dependencies (typescript, webpack, tokenizr) to latest versions
+
+* **ICU messages** nested ICU messages can be parsed now.
+
+* **API** now you can use [pretty-data](https://github.com/vkiryukhin/pretty-data) to beautify the xml output. API method `editedContent()` has an additional optional parameter `beautifyOutput?: boolean` for this([xliffmerge #64 Could xlf output be better formatted](https://github.com/martinroob/ngx-i18nsupport/issues/64))
+
 <a name="1.8.1"></a>
 # [1.8.1](https://github.com/martinroob/ngx-i18nsupport-lib/compare/v1.8.1...v1.8.0) (2018-02-23)
 

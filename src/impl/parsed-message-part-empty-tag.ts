@@ -7,18 +7,27 @@ import {ParsedMessagePart, ParsedMessagePartType} from './parsed-message-part';
 export class ParsedMessagePartEmptyTag extends ParsedMessagePart {
 
     private _tagname: string;
+    private _idcounter: number;
 
-    constructor(tagname: string) {
+    constructor(tagname: string, idcounter: number) {
         super(ParsedMessagePartType.EMPTY_TAG);
         this._tagname = tagname;
+        this._idcounter = idcounter;
     }
 
     public asDisplayString(format?: string) {
-        return '<' + this._tagname + '/>';
+        if (this._idcounter === 0) {
+            return '<' + this._tagname + '>';
+        } else {
+            return '<' + this._tagname + ' id="' + this._idcounter.toString() + '">';
+        }
     }
 
     public tagName(): string {
         return this._tagname;
     }
 
+    public idCounter(): number {
+        return this._idcounter;
+    }
 }

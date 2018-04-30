@@ -4,7 +4,6 @@ import {
     END_TAG, ICU_MESSAGE, ICU_MESSAGE_REF, ParsedMesageTokenizer, PLACEHOLDER, START_TAG, TEXT,
     Token
 } from './parsed-message-tokenizer';
-import {ParsedMessagePart, ParsedMessagePartType} from './parsed-message-part';
 import {ParsedMessagePartText} from './parsed-message-part-text';
 import {DOMParser} from 'xmldom';
 import {ParsedMessagePartStartTag} from './parsed-message-part-start-tag';
@@ -15,6 +14,7 @@ import {format, isNullOrUndefined} from 'util';
 import {DOMUtilities} from './dom-utilities';
 import {ParsedMessagePartEmptyTag} from './parsed-message-part-empty-tag';
 import {ParsedMessagePartICUMessageRef} from './parsed-message-part-icu-message-ref';
+import {ParsedMessagePartICUMessage} from './parsed-message-part-icu-message';
 /**
  * Created by roobm on 10.05.2017.
  * A message parser can parse the xml content of a translatable message.
@@ -117,7 +117,8 @@ export abstract class AbstractMessageParser implements IMessageParser {
      * @param text
      */
     public isICUMessageStart(text: string): boolean {
-        return text.startsWith('{VAR_PLURAL') || text.startsWith('{VAR_SELECT');
+        return ParsedMessagePartICUMessage.looksLikeICUMessage(text);
+//        return text.startsWith('{VAR_PLURAL') || text.startsWith('{VAR_SELECT');
     }
 
     /**
@@ -157,30 +158,30 @@ export abstract class AbstractMessageParser implements IMessageParser {
             let disp: string = null;
             switch (token.type) {
                 case TEXT:
-                    message.addText(token.value);
+                    message.addText(token.value.text);
                     break;
                 case START_TAG:
-                    message.addStartTag(token.value);
-                    openTags.push(token.value);
+                    message.addStartTag(token.value.name, token.value.idcounter);
+                    openTags.push(token.value.name);
                     break;
                 case END_TAG:
-                    message.addEndTag(token.value);
-                    if (openTags.length === 0 || openTags[openTags.length - 1] !== token.value) {
+                    message.addEndTag(token.value.name);
+                    if (openTags.length === 0 || openTags[openTags.length - 1] !== token.value.name) {
                         // oops, not well formed
-                        throw new Error(format('unexpected close tag "%s" (parsed "%s")', token.value, normalizedString));
+                        throw new Error(format('unexpected close tag "%s" (parsed "%s")', token.value.name, normalizedString));
                     }
                     openTags.pop();
                     break;
                 case EMPTY_TAG:
-                    message.addEmptyTag(token.value);
+                    message.addEmptyTag(token.value.name, token.value.idcounter);
                     break;
                 case PLACEHOLDER:
-                    disp = (sourceMessage) ? sourceMessage.getPlaceholderDisp(token.value) : null;
-                    message.addPlaceholder(token.value, disp);
+                    disp = (sourceMessage) ? sourceMessage.getPlaceholderDisp(token.value.idcounter) : null;
+                    message.addPlaceholder(token.value.idcounter, disp);
                     break;
                 case ICU_MESSAGE_REF:
-                    disp = (sourceMessage) ? sourceMessage.getICUMessageRefDisp(token.value) : null;
-                    message.addICUMessageRef(token.value, disp);
+                    disp = (sourceMessage) ? sourceMessage.getICUMessageRefDisp(token.value.idcounter) : null;
+                    message.addICUMessageRef(token.value.idcounter, disp);
                     break;
                 case ICU_MESSAGE:
                     throw new Error(format('<ICUMessage/> not allowed here, use parseICUMessage instead (parsed "%")', normalizedString));
@@ -210,6 +211,25 @@ export abstract class AbstractMessageParser implements IMessageParser {
     }
 
     /**
+     * Helper function: Parse ID from a name.
+     * name optionally ends with _<number>. This is the idcount.
+     * E.g. name="TAG_IMG" returns 0
+     * name = "TAG_IMG_1" returns 1
+     * @param {string} name
+     * @return {number}
+     */
+    protected parseIdCountFromName(name: string): number {
+        const regex = /.*_([0-9]*)/;
+        const match = regex.exec(name);
+        if (isNullOrUndefined(match) || match[1] === '') {
+            return 0;
+        } else {
+            const num = match[1];
+            return parseInt(num, 10);
+        }
+    }
+
+    /**
      * Create the native xml for a message.
      * Parts are already set here.
      * @param message
@@ -221,33 +241,9 @@ export abstract class AbstractMessageParser implements IMessageParser {
         return rootElem;
     }
 
-    protected addXmlRepresentationToRoot(message: ParsedMessage, rootElem: Element) {
-        message.parts().forEach((part) => {
-            const child = this.createXmlRepresentationOfPart(part, rootElem);
-            if (child) {
-                rootElem.appendChild(child);
-            }
-        });
-    }
+    protected abstract addXmlRepresentationToRoot(message: ParsedMessage, rootElem: Element);
 
-    protected createXmlRepresentationOfPart(part: ParsedMessagePart, rootElem: Element): Node {
-        switch (part.type) {
-            case ParsedMessagePartType.TEXT:
-                return this.createXmlRepresentationOfTextPart(<ParsedMessagePartText> part, rootElem);
-            case ParsedMessagePartType.START_TAG:
-                return this.createXmlRepresentationOfStartTagPart((<ParsedMessagePartStartTag>part), rootElem);
-            case ParsedMessagePartType.END_TAG:
-                return this.createXmlRepresentationOfEndTagPart((<ParsedMessagePartEndTag>part), rootElem);
-            case ParsedMessagePartType.EMPTY_TAG:
-                return this.createXmlRepresentationOfEmptyTagPart((<ParsedMessagePartEmptyTag>part), rootElem);
-            case ParsedMessagePartType.PLACEHOLDER:
-                return this.createXmlRepresentationOfPlaceholderPart((<ParsedMessagePartPlaceholder>part), rootElem);
-            case ParsedMessagePartType.ICU_MESSAGE_REF:
-                return this.createXmlRepresentationOfICUMessageRefPart((<ParsedMessagePartICUMessageRef>part), rootElem);
-        }
-    }
-
-    protected createXmlRepresentationOfTextPart(part: ParsedMessagePartText, rootElem: Element, id?: number): Node {
+    protected createXmlRepresentationOfTextPart(part: ParsedMessagePartText, rootElem: Element): Node {
         return rootElem.ownerDocument.createTextNode(part.asDisplayString());
     }
 
@@ -255,8 +251,9 @@ export abstract class AbstractMessageParser implements IMessageParser {
      * the xml used for start tag in the message.
      * @param part
      * @param rootElem
+     * @param id id number in xliff2
      */
-    protected abstract createXmlRepresentationOfStartTagPart(part: ParsedMessagePartStartTag, rootElem: Element): Node;
+    protected abstract createXmlRepresentationOfStartTagPart(part: ParsedMessagePartStartTag, rootElem: Element, id?: number): Node;
 
     /**
      * the xml used for end tag in the message.
@@ -269,15 +266,17 @@ export abstract class AbstractMessageParser implements IMessageParser {
      * the xml used for empty tag in the message.
      * @param part
      * @param rootElem
+     * @param id id number in xliff2
      */
-    protected abstract createXmlRepresentationOfEmptyTagPart(part: ParsedMessagePartEmptyTag, rootElem: Element): Node;
+    protected abstract createXmlRepresentationOfEmptyTagPart(part: ParsedMessagePartEmptyTag, rootElem: Element, id?: number): Node;
 
     /**
      * the xml used for placeholder in the message.
      * @param part
      * @param rootElem
+     * @param id id number in xliff2
      */
-    protected abstract createXmlRepresentationOfPlaceholderPart(part: ParsedMessagePartPlaceholder, rootElem: Element): Node;
+    protected abstract createXmlRepresentationOfPlaceholderPart(part: ParsedMessagePartPlaceholder, rootElem: Element, id?: number): Node;
 
     /**
      * the xml used for icu message refs in the message.

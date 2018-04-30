@@ -159,8 +159,12 @@ export interface ITranslationMessagesFile {
 
     /**
      * The xml content to be saved after changes are made.
+     * @param beautifyOutput Flag whether to use pretty-data to format the output.
+     * XMLSerializer produces some correct but strangely formatted output, which pretty-data can correct.
+     * See issue #64 for details.
+     * Default is false.
      */
-    editedContent(): string;
+    editedContent(beautifyOutput?: boolean): string;
 
     /**
      * Create a new translation file for this file for a given language.

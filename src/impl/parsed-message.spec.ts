@@ -1,6 +1,9 @@
 import {Xliff2MessageParser} from './xliff2-message-parser';
 import {ParsedMessage} from './parsed-message';
 import {INormalizedMessage} from '../api/i-normalized-message';
+import {IMessageParser} from './i-message-parser';
+import {XliffMessageParser} from './xliff-message-parser';
+import {XmbMessageParser} from './xmb-message-parser';
 /**
  * Created by martin on 17.05.2017.
  * Testcases for parsed messages.
@@ -23,10 +26,30 @@ describe('normalized message test spec', () => {
      * Helperfunction to create an ICU Message.
      * @param icuMessageString
      * @param sourceMessage
-     * @return {ParsedMessage}
+     * @param parserType (optional) xlf or xlf2 or xmb, default xlf2
+     * @return {INormalizedMessage}
      */
-    function parsedICUMessage(icuMessageString: string, sourceMessage?: ParsedMessage): ParsedMessage {
-        let parser = new Xliff2MessageParser(); // parser does not matter here, every format should be the same.
+    function parsedICUMessage(icuMessageString: string, sourceMessage?: ParsedMessage, parserType?: string): INormalizedMessage {
+        let parser: IMessageParser;
+        if (sourceMessage) {
+            parser = sourceMessage.getParser();
+        } else {
+            if (parserType) {
+                switch (parserType) {
+                    case 'xlf':
+                        parser = new XliffMessageParser();
+                        break;
+                    case 'xlf':
+                        parser = new XmbMessageParser();
+                        break;
+                    case 'xlf2':
+                        parser = new Xliff2MessageParser();
+                        break;
+                }
+            } else {
+                parser = new Xliff2MessageParser(); // parser does not matter here, every format should be the same.
+            }
+        }
         return parser.parseICUMessage(icuMessageString, sourceMessage);
     }
 
@@ -124,7 +147,7 @@ describe('normalized message test spec', () => {
         });
 
         it('should warn if you remove an empty tag in the translation', () => {
-            let original = 'a text with <br/>line break and <img/>';
+            let original = 'a text with <br>line break and <img>';
             let translation = 'a text';
             let sourceMessage = parsedMessageFor(original);
             let translatedMessage = sourceMessage.translate(translation);
@@ -136,7 +159,7 @@ describe('normalized message test spec', () => {
 
         it('should warn if you add an empty tag in the translation', () => {
             let original = 'a normal text';
-            let translation = 'a normal text with <br/> line break';
+            let translation = 'a normal text with <br> line break';
             let sourceMessage = parsedMessageFor(original);
             let translatedMessage = sourceMessage.translate(translation);
             expect(translatedMessage.validate()).toBeFalsy();
@@ -147,7 +170,7 @@ describe('normalized message test spec', () => {
 
         it('should warn if you add 2 empty tags in the translation', () => {
             let original = 'a normal text';
-            let translation = 'a normal text with <br/> line break and <img/>';
+            let translation = 'a normal text with <br> line break and <img>';
             let sourceMessage = parsedMessageFor(original);
             let translatedMessage = sourceMessage.translate(translation);
             expect(translatedMessage.validate()).toBeFalsy();
@@ -348,6 +371,104 @@ describe('normalized message test spec', () => {
             } catch (error) {
                 expect(error.toString()).toBe('Error: adding a new category not allowed for select messages ("u" is not part of message)');
             }
+        });
+
+        it('should parse plural ICU message with placeholder in xlf format', () => {
+            let original = '{minutes, plural, =0 {just now} =1 {one minute ago} other {<x id="INTERPOLATION" equiv-text="{{minutes}}"/> minutes ago} }';
+            let parsedMessage: INormalizedMessage = parsedICUMessage(original, null, 'xlf');
+            expect(parsedMessage.asDisplayString()).toBe('<ICU-Message/>');
+            expect(parsedMessage.getICUMessage()).toBeTruthy();
+            const icuMessage = parsedMessage.getICUMessage();
+            expect(icuMessage.getCategories().length).toBe(3);
+            expect(icuMessage.getCategories()[2].getMessageNormalized().asDisplayString()).toBe('{{0}} minutes ago');
+        });
+
+        it('should parse plural ICU message with placeholder in xlf2 format', () => {
+            let original = '{minutes, plural, =0 {just now} =1 {one minute ago} other {<ph id="3" equiv="INTERPOLATION" disp="{{minutes}}"/> minutes ago} }';
+            let parsedMessage: INormalizedMessage = parsedICUMessage(original);
+            expect(parsedMessage.asDisplayString()).toBe('<ICU-Message/>');
+            expect(parsedMessage.getICUMessage()).toBeTruthy();
+            const icuMessage = parsedMessage.getICUMessage();
+            expect(icuMessage.getCategories().length).toBe(3);
+            expect(icuMessage.getCategories()[2].getMessageNormalized().asDisplayString()).toBe('{{0}} minutes ago');
+        });
+
+        it('should parse nested ICU messages', () => {
+            let original = `{gender_of_host, select, 
+  female {
+    {num_guests, plural, 
+      =0 {{host} does not give a party.}
+      =1 {{host} invites {guest} to her party.}
+      =2 {{host} invites {guest} and one other person to her party.}
+      other {{host} invites {guest} and # other people to her party.}}}
+  male {
+    {num_guests, plural, 
+      =0 {{host} does not give a party.}
+      =1 {{host} invites {guest} to his party.}
+      =2 {{host} invites {guest} and one other person to his party.}
+      other {{host} invites {guest} and # other people to his party.}}}
+  other {
+    {num_guests, plural, 
+      =0 {{host} does not give a party.}
+      =1 {{host} invites {guest} to their party.}
+      =2 {{host} invites {guest} and one other person to their party.}
+      other {{host} invites {guest} and # other people to their party.}}}}`;
+
+            let parsedMessage: INormalizedMessage = parsedICUMessage(original, null, 'xlf');
+            expect(parsedMessage.asDisplayString()).toBe('<ICU-Message/>');
+            expect(parsedMessage.getICUMessage()).toBeTruthy();
+            const outerIcuMessage = parsedMessage.getICUMessage();
+            expect(outerIcuMessage.getCategories().length).toBe(3);
+            expect(outerIcuMessage.getCategories()[0].getCategory()).toBe('female');
+            expect(outerIcuMessage.getCategories()[1].getCategory()).toBe('male');
+            expect(outerIcuMessage.getCategories()[2].getCategory()).toBe('other');
+            const innerMessage = outerIcuMessage.getCategories()[1].getMessageNormalized();
+            expect(innerMessage.asDisplayString()).toBe('<ICU-Message/>');
+            const innerIcuMessage = innerMessage.getICUMessage();
+            expect(innerIcuMessage).toBeTruthy();
+            expect(innerIcuMessage.getCategories().length).toBe(4);
+            expect(innerIcuMessage.getCategories()[0].getCategory()).toBe('=0');
+            expect(innerIcuMessage.getCategories()[1].getCategory()).toBe('=1');
+            expect(innerIcuMessage.getCategories()[2].getCategory()).toBe('=2');
+            expect(innerIcuMessage.getCategories()[3].getCategory()).toBe('other');
+        });
+
+        it('should parse nested ICU messages with placeholder', () => {
+            let original = `{gender_of_host, select, 
+  female {
+    {num_guests, plural, 
+      =0 {{host} does not give a party.}
+      =1 {{host} invites {guest} to her party.}
+      =2 {{host} invites {guest} and one other person to her party.}
+      other {{host} invites {guest} and # other people to her party.}}}
+  male {
+    {num_guests, plural, 
+      =0 {<x id="INTERPOLATION" equiv-text="{{host}}"/> does not give a party.}
+      =1 {<x id="INTERPOLATION" equiv-text="{{host}}"/> invites {guest} to his party.}
+      =2 {<x id="INTERPOLATION" equiv-text="{{host}}"/> invites {guest} and one other person to his party.}
+      other {<x id="INTERPOLATION" equiv-text="{{host}}"/> invites {guest} and # other people to his party.}}}
+  other {
+    {num_guests, plural, 
+      =0 {{host} does not give a party.}
+      =1 {{host} invites {guest} to their party.}
+      =2 {{host} invites {guest} and one other person to their party.}
+      other {{host} invites {guest} and # other people to their party.}}}}`;
+
+            let parsedMessage: INormalizedMessage = parsedICUMessage(original, null, 'xlf');
+            expect(parsedMessage.asDisplayString()).toBe('<ICU-Message/>');
+            expect(parsedMessage.getICUMessage()).toBeTruthy();
+            const outerIcuMessage = parsedMessage.getICUMessage();
+            expect(outerIcuMessage.getCategories().length).toBe(3);
+            expect(outerIcuMessage.getCategories()[0].getCategory()).toBe('female');
+            expect(outerIcuMessage.getCategories()[1].getCategory()).toBe('male');
+            expect(outerIcuMessage.getCategories()[2].getCategory()).toBe('other');
+            const innerMessage = outerIcuMessage.getCategories()[1].getMessageNormalized();
+            expect(innerMessage.asDisplayString()).toBe('<ICU-Message/>');
+            const innerIcuMessage = innerMessage.getICUMessage();
+            expect(innerIcuMessage).toBeTruthy();
+            expect(innerIcuMessage.getCategories().length).toBe(4);
+            expect(innerIcuMessage.getCategories()[0].getCategory()).toBe('=0');
+            expect(innerIcuMessage.getCategories()[0].getMessageNormalized().asDisplayString()).toBe('{{0}} does not give a party.');
         });
 
     });
