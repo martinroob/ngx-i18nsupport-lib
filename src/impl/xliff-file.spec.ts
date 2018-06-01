@@ -2,6 +2,7 @@ import {TranslationMessagesFileFactory, ITranslationMessagesFile, ITransUnit, IN
 import * as fs from "fs";
 import {AbstractTransUnit} from './abstract-trans-unit';
 import {DOMUtilities} from './dom-utilities';
+import {DOMParser} from 'xmldom';
 
 /**
  * Created by martin on 28.04.2017.
@@ -75,7 +76,7 @@ describe('ngx-i18nsupport-lib xliff 1.2 test spec', () => {
 
         it('should count units', () => {
             const file: ITranslationMessagesFile = readFile(MASTER1SRC);
-            expect(file.numberOfTransUnits()).toBe(27);
+            expect(file.numberOfTransUnits()).toBe(28);
             expect(file.numberOfTransUnitsWithMissingId()).toBe(1);
             expect(file.numberOfUntranslatedTransUnits()).toBe(file.numberOfTransUnits());
             expect(file.numberOfReviewedTransUnits()).toBe(0);
@@ -429,6 +430,29 @@ describe('ngx-i18nsupport-lib xliff 1.2 test spec', () => {
             const file2: ITranslationMessagesFile = file.createTranslationFileForLang('xy', null, isDefaultLang, copyContent);
             const tu2: ITransUnit = file2.transUnitWithId(ID_UNTRANSLATED_DESCRIPTION);
             expect(tu2.targetContent()).toBeFalsy();
+        });
+
+        it ('should put new target element directy behind source element, #50', () => {
+            const ID_NO_TARGET = 'a52ba049c16778bdb2e5a19a41acaadf87b10001';
+            const file: ITranslationMessagesFile = readFile(MASTER1SRC);
+            const tu: ITransUnit = file.transUnitWithId(ID_NO_TARGET);
+            expect(tu).toBeTruthy();
+            expect(tu.targetContent()).toBeFalsy();
+            let isDefaultLang: boolean = false;
+            let copyContent: boolean = true;
+            const file2: ITranslationMessagesFile = file.createTranslationFileForLang('xy', null, isDefaultLang, copyContent);
+            const tu2: ITransUnit = file2.transUnitWithId(ID_NO_TARGET);
+            expect(tu2.targetContent()).toBeTruthy();
+            // check the xml of file that target directly follows source
+            const document: Document = new DOMParser().parseFromString(file2.editedContent(), 'text/xml');
+            const targetList: NodeList = document.getElementsByTagName('target');
+            for (let i = 0; i < targetList.length; i++) {
+                const targetNode = targetList.item(i);
+                const sibling: Element = DOMUtilities.getPreviousElementSibling(targetNode);
+                const failText = 'found target element without sibling, id ' + targetNode.toString();
+                expect(sibling !== null).toBeTruthy(failText);
+                expect(sibling.localName).toBe('source');
+            }
         });
 
         it ('should copy a transunit from file a to file b', () => {

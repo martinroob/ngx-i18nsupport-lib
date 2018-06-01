@@ -332,7 +332,7 @@ export class XliffTransUnit extends AbstractTransUnit implements ITransUnit {
         let target = DOMUtilities.getFirstElementByTagName(this._element, 'target');
         if (!target) {
             let source = DOMUtilities.getFirstElementByTagName(this._element, 'source');
-            target = source.parentNode.appendChild(this._element.ownerDocument.createElement('target'));
+            target = DOMUtilities.createFollowingSibling('target', source);
         }
         DOMUtilities.replaceContentWithXMLContent(target, <string> translation);
         this.setTargetState(STATE_TRANSLATED);
@@ -359,7 +359,7 @@ export class XliffTransUnit extends AbstractTransUnit implements ITransUnit {
         let source = DOMUtilities.getFirstElementByTagName(this._element, 'source');
         let target = DOMUtilities.getFirstElementByTagName(this._element, 'target');
         if (!target) {
-            target = source.parentNode.appendChild(this._element.ownerDocument.createElement('target'));
+            target = DOMUtilities.createFollowingSibling('target', source);
         }
         if (isDefaultLang || copyContent) {
             const sourceString = DOMUtilities.getXMLContent(source);

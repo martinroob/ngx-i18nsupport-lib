@@ -176,6 +176,10 @@
           <context context-type="linenumber">11</context>
         </context-group>
       </trans-unit>
+      <trans-unit id="a52ba049c16778bdb2e5a19a41acaadf87b10001" datatype="html">
+        <source>Test no target element #50</source>
+        <note priority="1" from="description">data.edit.subtitles.description</note>
+      </trans-unit>
     </body>
   </file>
 </xliff>
