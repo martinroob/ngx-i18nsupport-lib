@@ -1,3 +1,11 @@
+<a name="1.9.2"></a>
+# [1.9.2](https://github.com/martinroob/ngx-i18nsupport-lib/compare/v1.9.2...v1.9.1) (2018-06-01)
+
+### Bug Fixes
+
+* **XLIFF 1.2** Invalid order of target element in xlf12 ([#50](https://github.com/martinroob/ngx-i18nsupport-lib/issues/50) and [xliffmerge #90 ](https://github.com/martinroob/ngx-i18nsupport/issues/90)).
+When the library creates a new `target` element in XLIFF 1.2 format, the element should follow directly the `source` element.
+
 <a name="1.9.1"></a>
 # [1.9.1](https://github.com/martinroob/ngx-i18nsupport-lib/compare/v1.9.1...v1.9.0) (2018-04-30)
 
