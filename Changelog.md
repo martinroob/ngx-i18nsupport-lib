@@ -1,3 +1,12 @@
+<a name="1.9.3"></a>
+# [1.9.3](https://github.com/martinroob/ngx-i18nsupport-lib/compare/v1.9.2...v1.9.3) (2018-08-03)
+
+### Bug Fixes
+
+* **beautifier** The pretty data beautifier caused some issues ([xliffmerge #97](https://github.com/martinroob/ngx-i18nsupport/issues/97)).
+It is now replaced by an own implementation based on the serializer that is part of [xmldom](https://www.npmjs.com/package/xmldom).
+This might result in slightly different formatted documents when using `beautifyOutput`
+
 <a name="1.9.2"></a>
 # [1.9.2](https://github.com/martinroob/ngx-i18nsupport-lib/compare/v1.9.2...v1.9.1) (2018-06-01)
 

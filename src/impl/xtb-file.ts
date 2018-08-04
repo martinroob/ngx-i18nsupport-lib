@@ -100,6 +100,15 @@ export class XtbFile extends AbstractTranslationMessagesFile implements ITransla
     }
 
     /**
+     * return tag names of all elements that have mixed content.
+     * These elements will not be beautified.
+     * Typical candidates are source and target.
+     */
+    protected elementsWithMixedContent(): string[] {
+        return ['translation'];
+    }
+
+    /**
      * Get source language.
      * Unsupported in xmb/xtb.
      * Try to guess it from master filename if any..

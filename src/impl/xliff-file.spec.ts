@@ -57,15 +57,21 @@ describe('ngx-i18nsupport-lib xliff 1.2 test spec', () => {
             expect(tu.sourceContent()).toBe('Schließen');
         });
 
-        it('should read xlf file and pretty print it with pretty-data', () => {
+        it('should read xlf file and pretty print it', () => {
             const file: ITranslationMessagesFile = readFile(MASTER1SRC);
             expect(file).toBeTruthy();
             expect(file.editedContent()).toContain('<source>Beschreibung zu <x id="INTERPOLATION"/> (<x id="INTERPOLATION_1"/>)</source>');
-            expect(file.editedContent(true)).toContain(`        <source>Beschreibung zu 
-          <x id="INTERPOLATION"/> (
-          <x id="INTERPOLATION_1"/>)
-        </source>
-`);
+            expect(file.editedContent(true)).toContain(`        <source>Beschreibung zu <x id="INTERPOLATION"/> (<x id="INTERPOLATION_1"/>)</source>`);
+        });
+
+        it('should not add empty lines when beautifying (issue ngx-i18nsupport #97)', () => {
+            const file: ITranslationMessagesFile = readFile(MASTER1SRC);
+            expect(file).toBeTruthy();
+            const editedContentBeautified = file.editedContent(true);
+            const file2: ITranslationMessagesFile = TranslationMessagesFileFactory.fromFileContent('xlf', editedContentBeautified, null, ENCODING);
+            const editedContentBeautifiedAgain = file2.editedContent(true);
+            expect(editedContentBeautifiedAgain).toMatch(/Beschreibung zu <x/);
+            expect(editedContentBeautifiedAgain).not.toMatch(/Beschreibung zu\s*\r\n?/);
         });
 
         it('should emit warnings', () => {

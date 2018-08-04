@@ -65,6 +65,15 @@ export class XmbFile extends AbstractTranslationMessagesFile implements ITransla
     }
 
     /**
+     * return tag names of all elements that have mixed content.
+     * These elements will not be beautified.
+     * Typical candidates are source and target.
+     */
+    protected elementsWithMixedContent(): string[] {
+        return ['message'];
+    }
+
+    /**
      * Guess language from filename.
      * If filename is foo.xy.xmb, than language is assumed to be xy.
      * @return {string} Language or null

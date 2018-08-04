@@ -63,6 +63,16 @@ describe('ngx-i18nsupport-lib XLIFF 2.0 test spec', () => {
             expect(rereadFile.numberOfTransUnits()).toBe(file.numberOfTransUnits());
         });
 
+        it('should not add empty lines when beautifying (issue ngx-i18nsupport #97)', () => {
+            const file: ITranslationMessagesFile = readFile(TRANSLATED_FILE_SRC);
+            expect(file).toBeTruthy();
+            const editedContentBeautified = file.editedContent(true);
+            const file2: ITranslationMessagesFile = TranslationMessagesFileFactory.fromUnknownFormatFileContent(editedContentBeautified, null, null);
+            const editedContentBeautifiedAgain = file2.editedContent(true);
+            expect(editedContentBeautifiedAgain).toMatch(/<source>Diese Nachricht ist <pc/);
+            expect(editedContentBeautifiedAgain).not.toMatch(/<source>Diese Nachricht ist\s*\r\n?/);
+        });
+
         it('should emit warnings', () => {
             const file: ITranslationMessagesFile = readFile(MASTER1SRC);
             expect(file.warnings().length).toBe(1);

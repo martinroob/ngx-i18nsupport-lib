@@ -62,6 +62,15 @@ export class Xliff2File extends AbstractTranslationMessagesFile implements ITran
         return FILETYPE_XLIFF20;
     }
 
+    /**
+     * return tag names of all elements that have mixed content.
+     * These elements will not be beautified.
+     * Typical candidates are source and target.
+     */
+    protected elementsWithMixedContent(): string[] {
+        return ['skeleton', 'note', 'data', 'source', 'target', 'pc', 'mrk'];
+    }
+
     protected initializeTransUnits() {
         this.transUnits = [];
         let transUnitsInFile = this._parsedDocument.getElementsByTagName('unit');

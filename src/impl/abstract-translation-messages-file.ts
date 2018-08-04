@@ -1,9 +1,7 @@
 import {ITranslationMessagesFile, ITransUnit, STATE_NEW, STATE_TRANSLATED} from '../api';
 import {isNullOrUndefined} from 'util';
-import {DOMParser, XMLSerializer} from 'xmldom';
-import * as prettyData from 'pretty-data';
-import {AbstractTransUnit} from './abstract-trans-unit';
-import {XtbFile} from './xtb-file';
+import {DOMParser} from 'xmldom';
+import {XmlSerializer, XmlSerializerOptions} from './xml-serializer';
 /**
  * Created by roobm on 09.05.2017.
  * Abstract superclass for all implementations of ITranslationMessagesFile.
@@ -57,6 +55,13 @@ export abstract class AbstractTranslationMessagesFile implements ITranslationMes
     abstract i18nFormat(): string;
 
     abstract fileType(): string;
+
+    /**
+     * return tag names of all elements that have mixed content.
+     * These elements will not be beautified.
+     * Typical candidates are source and target.
+     */
+    protected abstract elementsWithMixedContent(): string[];
 
     /**
      * Read all trans units from xml content.
@@ -272,10 +277,13 @@ export abstract class AbstractTranslationMessagesFile implements ITranslationMes
      * Default is false.
      */
     public editedContent(beautifyOutput?: boolean): string {
-        let result = new XMLSerializer().serializeToString(this._parsedDocument);
+        let options: XmlSerializerOptions = {};
         if (beautifyOutput === true) {
-            result = prettyData.pd.xml(result);
+           options.beautify = true;
+           options.indentString = '  ';
+           options.mixedContentElements = this.elementsWithMixedContent();
         }
+        let result = new XmlSerializer().serializeToString(this._parsedDocument, options);
         if (this._fileEndsWithEOL) {
             // add eol if there was eol in original source
             return result + '\n';
