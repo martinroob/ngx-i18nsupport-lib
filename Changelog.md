@@ -1,11 +1,18 @@
-<a name="1.9.3"></a>
-# [1.9.3](https://github.com/martinroob/ngx-i18nsupport-lib/compare/v1.9.2...v1.9.3) (2018-08-03)
+<a name="1.10.0"></a>
+# [1.10.0](https://github.com/martinroob/ngx-i18nsupport-lib/compare/v1.9.2...v1.10.0) (2018-08-05)
 
 ### Bug Fixes
 
-* **beautifier** The pretty data beautifier caused some issues ([xliffmerge #97](https://github.com/martinroob/ngx-i18nsupport/issues/97)).
+* **beautifier** [#52](https://github.com/martinroob/ngx-i18nsupport-lib/issues/52)
+The pretty data beautifier caused some issues ([xliffmerge #97](https://github.com/martinroob/ngx-i18nsupport/issues/97)).
 It is now replaced by an own implementation based on the serializer that is part of [xmldom](https://www.npmjs.com/package/xmldom).
 This might result in slightly different formatted documents when using `beautifyOutput`
+
+### Features
+
+* **API** [#53](https://github.com/martinroob/ngx-i18nsupport-lib/issues/53)
+`importNewTransunit` now allows to specify the ancestor of the newly imported unit. There is an optional new parameter for this, so the change is not breaking.
+If you do not use this parametes, the behaviour is the same as before (adding at the end).
 
 <a name="1.9.2"></a>
 # [1.9.2](https://github.com/martinroob/ngx-i18nsupport-lib/compare/v1.9.2...v1.9.1) (2018-06-01)
