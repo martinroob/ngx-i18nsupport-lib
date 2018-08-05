@@ -229,7 +229,7 @@ export abstract class AbstractTranslationMessagesFile implements ITranslationMes
      * depending on the values of isDefaultLang and copyContent.
      * So the source can be used as a dummy translation.
      * (used by xliffmerge)
-     * @param transUnit the trans unit to be imported.
+     * @param foreignTransUnit the trans unit to be imported.
      * @param isDefaultLang Flag, wether file contains the default language.
      * Then source and target are just equal.
      * The content will be copied.
@@ -237,9 +237,14 @@ export abstract class AbstractTranslationMessagesFile implements ITranslationMes
      * @param copyContent Flag, wether to copy content or leave it empty.
      * Wben true, content will be copied from source.
      * When false, content will be left empty (if it is not the default language).
+     * @param importAfterElement optional (since 1.10) other transunit (part of this file), that should be used as ancestor.
+     * Newly imported trans unit is then inserted directly after this element.
+     * If not set or not part of this file, new unit will be imported at the end.
+     * If explicity set to null, new unit will be imported at the start.
+     * @return the newly imported trans unit (since version 1.7.0)
      * @throws an error if trans-unit with same id already is in the file.
      */
-    abstract importNewTransUnit(transUnit: ITransUnit, isDefaultLang: boolean, copyContent: boolean);
+    abstract importNewTransUnit(foreignTransUnit: ITransUnit, isDefaultLang: boolean, copyContent: boolean, importAfterElement?: ITransUnit): ITransUnit;
 
     /**
      * Remove the trans-unit with the given id.

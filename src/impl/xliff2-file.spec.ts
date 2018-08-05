@@ -2,6 +2,7 @@ import {TranslationMessagesFileFactory, ITranslationMessagesFile, ITransUnit, IN
 import * as fs from "fs";
 import {AbstractTransUnit} from './abstract-trans-unit';
 import {DOMUtilities} from './dom-utilities';
+import {DOMParser} from 'xmldom';
 
 /**
  * Created by martin on 05.05.2017.
@@ -439,6 +440,46 @@ describe('ngx-i18nsupport-lib XLIFF 2.0 test spec', () => {
             const newTu = targetFile.importNewTransUnit(tu, false, true);
             expect(targetFile.transUnitWithId(ID_TO_MERGE)).toBeTruthy();
             expect(targetFile.transUnitWithId(ID_TO_MERGE)).toEqual(newTu);
+            let changedTargetFile = TranslationMessagesFileFactory.fromUnknownFormatFileContent(targetFile.editedContent(), null, null);
+            let targetTu = changedTargetFile.transUnitWithId(ID_TO_MERGE);
+            expect(targetTu.sourceContent()).toBe('Test for merging units');
+        });
+
+        it ('should copy a transunit to a specified position (#53)', () => {
+            const file: ITranslationMessagesFile = readFile(MASTER1SRC);
+            const tu: ITransUnit = file.transUnitWithId(ID_TO_MERGE);
+            expect(tu).toBeTruthy();
+            const targetFile: ITranslationMessagesFile = readFile(TRANSLATED_FILE_SRC);
+            expect(targetFile.transUnitWithId(ID_TO_MERGE)).toBeFalsy();
+            const ID_EXISTING = '7499557905529977371';
+            const existingTu = targetFile.transUnitWithId(ID_EXISTING);
+            expect(existingTu).toBeTruthy();
+            const newTu = targetFile.importNewTransUnit(tu, false, true, existingTu);
+            expect(targetFile.transUnitWithId(ID_TO_MERGE)).toBeTruthy();
+            expect(targetFile.transUnitWithId(ID_TO_MERGE)).toEqual(newTu);
+            const doc: Document = new DOMParser().parseFromString(targetFile.editedContent());
+            const existingElem = DOMUtilities.getElementByTagNameAndId(doc, 'unit', ID_EXISTING);
+            const newElem = DOMUtilities.getElementByTagNameAndId(doc, 'unit', ID_TO_MERGE);
+            expect(DOMUtilities.getElementFollowingSibling(existingElem)).toEqual(newElem);
+            let changedTargetFile = TranslationMessagesFileFactory.fromUnknownFormatFileContent(targetFile.editedContent(), null, null);
+            let targetTu = changedTargetFile.transUnitWithId(ID_TO_MERGE);
+            expect(targetTu.sourceContent()).toBe('Test for merging units');
+        });
+
+        it ('should copy a transunit to first position (#53)', () => {
+            const file: ITranslationMessagesFile = readFile(MASTER1SRC);
+            const tu: ITransUnit = file.transUnitWithId(ID_TO_MERGE);
+            expect(tu).toBeTruthy();
+            const targetFile: ITranslationMessagesFile = readFile(TRANSLATED_FILE_SRC);
+            expect(targetFile.transUnitWithId(ID_TO_MERGE)).toBeFalsy();
+            // when importNewTransUnit is called with null, new unit will be added at first position
+            const newTu = targetFile.importNewTransUnit(tu, false, true, null);
+            expect(targetFile.transUnitWithId(ID_TO_MERGE)).toBeTruthy();
+            expect(targetFile.transUnitWithId(ID_TO_MERGE)).toEqual(newTu);
+            const doc: Document = new DOMParser().parseFromString(targetFile.editedContent());
+            const newElem = DOMUtilities.getElementByTagNameAndId(doc, 'unit', ID_TO_MERGE);
+            expect(newElem).toBeTruthy();
+            expect(DOMUtilities.getElementPrecedingSibling(newElem)).toBeFalsy();
             let changedTargetFile = TranslationMessagesFileFactory.fromUnknownFormatFileContent(targetFile.editedContent(), null, null);
             let targetTu = changedTargetFile.transUnitWithId(ID_TO_MERGE);
             expect(targetTu.sourceContent()).toBe('Test for merging units');
