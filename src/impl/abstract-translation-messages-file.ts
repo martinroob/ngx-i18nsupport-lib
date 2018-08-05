@@ -1,9 +1,7 @@
 import {ITranslationMessagesFile, ITransUnit, STATE_NEW, STATE_TRANSLATED} from '../api';
 import {isNullOrUndefined} from 'util';
-import {DOMParser, XMLSerializer} from 'xmldom';
-import * as prettyData from 'pretty-data';
-import {AbstractTransUnit} from './abstract-trans-unit';
-import {XtbFile} from './xtb-file';
+import {DOMParser} from 'xmldom';
+import {XmlSerializer, XmlSerializerOptions} from './xml-serializer';
 /**
  * Created by roobm on 09.05.2017.
  * Abstract superclass for all implementations of ITranslationMessagesFile.
@@ -57,6 +55,13 @@ export abstract class AbstractTranslationMessagesFile implements ITranslationMes
     abstract i18nFormat(): string;
 
     abstract fileType(): string;
+
+    /**
+     * return tag names of all elements that have mixed content.
+     * These elements will not be beautified.
+     * Typical candidates are source and target.
+     */
+    protected abstract elementsWithMixedContent(): string[];
 
     /**
      * Read all trans units from xml content.
@@ -224,7 +229,7 @@ export abstract class AbstractTranslationMessagesFile implements ITranslationMes
      * depending on the values of isDefaultLang and copyContent.
      * So the source can be used as a dummy translation.
      * (used by xliffmerge)
-     * @param transUnit the trans unit to be imported.
+     * @param foreignTransUnit the trans unit to be imported.
      * @param isDefaultLang Flag, wether file contains the default language.
      * Then source and target are just equal.
      * The content will be copied.
@@ -232,9 +237,14 @@ export abstract class AbstractTranslationMessagesFile implements ITranslationMes
      * @param copyContent Flag, wether to copy content or leave it empty.
      * Wben true, content will be copied from source.
      * When false, content will be left empty (if it is not the default language).
+     * @param importAfterElement optional (since 1.10) other transunit (part of this file), that should be used as ancestor.
+     * Newly imported trans unit is then inserted directly after this element.
+     * If not set or not part of this file, new unit will be imported at the end.
+     * If explicity set to null, new unit will be imported at the start.
+     * @return the newly imported trans unit (since version 1.7.0)
      * @throws an error if trans-unit with same id already is in the file.
      */
-    abstract importNewTransUnit(transUnit: ITransUnit, isDefaultLang: boolean, copyContent: boolean);
+    abstract importNewTransUnit(foreignTransUnit: ITransUnit, isDefaultLang: boolean, copyContent: boolean, importAfterElement?: ITransUnit): ITransUnit;
 
     /**
      * Remove the trans-unit with the given id.
@@ -272,10 +282,13 @@ export abstract class AbstractTranslationMessagesFile implements ITranslationMes
      * Default is false.
      */
     public editedContent(beautifyOutput?: boolean): string {
-        let result = new XMLSerializer().serializeToString(this._parsedDocument);
+        let options: XmlSerializerOptions = {};
         if (beautifyOutput === true) {
-            result = prettyData.pd.xml(result);
+           options.beautify = true;
+           options.indentString = '  ';
+           options.mixedContentElements = this.elementsWithMixedContent();
         }
+        let result = new XmlSerializer().serializeToString(this._parsedDocument, options);
         if (this._fileEndsWithEOL) {
             // add eol if there was eol in original source
             return result + '\n';

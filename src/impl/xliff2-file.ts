@@ -1,4 +1,3 @@
-import {DOMParser} from "xmldom";
 import {format} from 'util';
 import {ITranslationMessagesFile, ITransUnit, FORMAT_XLIFF20, FILETYPE_XLIFF20} from '../api';
 import {DOMUtilities} from './dom-utilities';
@@ -60,6 +59,15 @@ export class Xliff2File extends AbstractTranslationMessagesFile implements ITran
      */
     public fileType(): string {
         return FILETYPE_XLIFF20;
+    }
+
+    /**
+     * return tag names of all elements that have mixed content.
+     * These elements will not be beautified.
+     * Typical candidates are source and target.
+     */
+    protected elementsWithMixedContent(): string[] {
+        return ['skeleton', 'note', 'data', 'source', 'target', 'pc', 'mrk'];
     }
 
     protected initializeTransUnits() {
@@ -130,7 +138,7 @@ export class Xliff2File extends AbstractTranslationMessagesFile implements ITran
      * depending on the values of isDefaultLang and copyContent.
      * So the source can be used as a dummy translation.
      * (used by xliffmerge)
-     * @param transUnit the trans unit to be imported.
+     * @param foreignTransUnit the trans unit to be imported.
      * @param isDefaultLang Flag, wether file contains the default language.
      * Then source and target are just equal.
      * The content will be copied.
@@ -138,24 +146,58 @@ export class Xliff2File extends AbstractTranslationMessagesFile implements ITran
      * @param copyContent Flag, wether to copy content or leave it empty.
      * Wben true, content will be copied from source.
      * When false, content will be left empty (if it is not the default language).
+     * @param importAfterElement optional (since 1.10) other transunit (part of this file), that should be used as ancestor.
+     * Newly imported trans unit is then inserted directly after this element.
+     * If not set or not part of this file, new unit will be imported at the end.
+     * If explicity set to null, new unit will be imported at the start.
      * @return the newly imported trans unit (since version 1.7.0)
      * @throws an error if trans-unit with same id already is in the file.
      */
-    public importNewTransUnit(transUnit: ITransUnit, isDefaultLang: boolean, copyContent: boolean): ITransUnit {
-        if (this.transUnitWithId(transUnit.id)) {
-            throw new Error(format('tu with id %s already exists in file, cannot import it', transUnit.id));
+    importNewTransUnit(foreignTransUnit: ITransUnit, isDefaultLang: boolean, copyContent: boolean, importAfterElement?: ITransUnit): ITransUnit {
+        if (this.transUnitWithId(foreignTransUnit.id)) {
+            throw new Error(format('tu with id %s already exists in file, cannot import it', foreignTransUnit.id));
         }
-        let newTu = (<AbstractTransUnit> transUnit).cloneWithSourceAsTarget(isDefaultLang, copyContent, this);
+        let newTu = (<AbstractTransUnit> foreignTransUnit).cloneWithSourceAsTarget(isDefaultLang, copyContent, this);
         let fileElement = DOMUtilities.getFirstElementByTagName(this._parsedDocument, 'file');
-        if (fileElement) {
+        if (!fileElement) {
+            throw new Error(format('File "%s" seems to be no xliff 2.0 file (should contain a file element)', this._filename));
+        }
+        let inserted = false;
+        let isAfterElementPartOfFile = false;
+        if (!!importAfterElement) {
+            let insertionPoint = this.transUnitWithId(importAfterElement.id);
+            if (!!insertionPoint) {
+                isAfterElementPartOfFile = true;
+            }
+        }
+        if (importAfterElement === undefined || (importAfterElement && !isAfterElementPartOfFile)) {
             fileElement.appendChild(newTu.asXmlElement());
+            inserted = true;
+        } else if (importAfterElement === null) {
+            let firstUnitElement = DOMUtilities.getFirstElementByTagName(this._parsedDocument, 'unit');
+            if (firstUnitElement) {
+                DOMUtilities.insertBefore(newTu.asXmlElement(), firstUnitElement);
+                inserted = true;
+            } else {
+                // no trans-unit, empty file, so add to first file element
+                fileElement.appendChild(newTu.asXmlElement());
+                inserted = true;
+            }
+        } else {
+            let refUnitElement = DOMUtilities.getElementByTagNameAndId(this._parsedDocument, 'unit', importAfterElement.id);
+            if (refUnitElement) {
+                DOMUtilities.insertAfter(newTu.asXmlElement(), refUnitElement);
+                inserted = true;
+            }
+        }
+        if (inserted) {
             this.lazyInitializeTransUnits();
             this.transUnits.push(newTu);
             this.countNumbers();
+            return newTu;
         } else {
-            throw new Error(format('File "%s" seems to be no xliff 2.0 file (should contain a file element)', this._filename));
+            return null;
         }
-        return newTu;
     }
 
     /**
