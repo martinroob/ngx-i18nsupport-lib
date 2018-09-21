@@ -93,7 +93,7 @@ export class XtbTransUnit extends AbstractTransUnit implements ITransUnit {
     public nativeTargetState(): string {
         if (this._sourceTransUnitFromMaster) {
             let sourceContent = this._sourceTransUnitFromMaster.sourceContent();
-            if (!sourceContent || sourceContent === this.targetContent()) {
+            if (!sourceContent || sourceContent === this.targetContent() || !this.targetContent()) {
                 return 'new';
             } else {
                 return 'final';

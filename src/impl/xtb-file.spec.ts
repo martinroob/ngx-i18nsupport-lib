@@ -215,11 +215,11 @@ describe('ngx-i18nsupport-lib xtb test spec', () => {
             const tu: ITransUnit = file.transUnitWithId(ID_MY_FIRST);
             expect(tu).toBeTruthy();
             expect(tu.targetState()).toBe(STATE_FINAL);
-            tu.translate('a translation');
             // TODO state handling xmb to be improved
-            // expect(tu.targetState()).toBe(STATE_TRANSLATED);
-            // tu.setTargetState(STATE_FINAL);
-            // expect(tu.targetState()).toBe(STATE_FINAL);
+            tu.translate('');
+            expect(tu.targetState()).toBe(STATE_NEW);
+            tu.translate('a translation');
+            expect(tu.targetState()).toBe(STATE_FINAL);
         });
 
         it('should not change source reference, because it is not supported in xtb', () => {

@@ -1,3 +1,10 @@
+<a name="1.10.2"></a>
+# [1.10.2](https://github.com/martinroob/ngx-i18nsupport-lib/compare/v1.10.1...v1.10.2) (2018-09-21)
+
+### Bug Fixes
+
+* **XMB** When setting translation to empty string, state should be "new"
+
 <a name="1.10.1"></a>
 # [1.10.1](https://github.com/martinroob/ngx-i18nsupport-lib/compare/v1.10.0...v1.10.1) (2018-09-21)
 
