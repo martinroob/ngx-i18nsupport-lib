@@ -443,6 +443,23 @@ describe('ngx-i18nsupport-lib XLIFF 2.0 test spec', () => {
             let changedTargetFile = TranslationMessagesFileFactory.fromUnknownFormatFileContent(targetFile.editedContent(), null, null);
             let targetTu = changedTargetFile.transUnitWithId(ID_TO_MERGE);
             expect(targetTu.sourceContent()).toBe('Test for merging units');
+            expect(targetTu.targetContent()).toBe('Test for merging units');
+        });
+
+        it ('should copy a transunit from file a to file b and leave content blank (xliffmerge #103)', () => {
+            const file: ITranslationMessagesFile = readFile(MASTER1SRC);
+            const tu: ITransUnit = file.transUnitWithId(ID_TO_MERGE);
+            expect(tu).toBeTruthy();
+            const targetFile: ITranslationMessagesFile = readFile(TRANSLATED_FILE_SRC);
+            expect(targetFile.transUnitWithId(ID_TO_MERGE)).toBeFalsy();
+            // flag copyContent set to false here...
+            const newTu = targetFile.importNewTransUnit(tu, false, false);
+            expect(targetFile.transUnitWithId(ID_TO_MERGE)).toBeTruthy();
+            expect(targetFile.transUnitWithId(ID_TO_MERGE)).toEqual(newTu);
+            let changedTargetFile = TranslationMessagesFileFactory.fromUnknownFormatFileContent(targetFile.editedContent(), null, null);
+            let targetTu = changedTargetFile.transUnitWithId(ID_TO_MERGE);
+            expect(targetTu.sourceContent()).toBe('Test for merging units');
+            expect(targetTu.targetContent()).toBe('');
         });
 
         it ('should copy a transunit to a specified position (#53)', () => {

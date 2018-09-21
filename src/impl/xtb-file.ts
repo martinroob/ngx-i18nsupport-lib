@@ -187,7 +187,7 @@ export class XtbFile extends AbstractTranslationMessagesFile implements ITransla
         }
         let translationElement = translationbundleElem.ownerDocument.createElement('translation');
         translationElement.setAttribute('id', foreignTransUnit.id);
-        let newContent = foreignTransUnit.sourceContent();
+        let newContent = (copyContent || isDefaultLang) ? foreignTransUnit.sourceContent() : '';
         if (!(<AbstractTransUnit> foreignTransUnit).isICUMessage(newContent)) {
             newContent = this.getNewTransUnitTargetPraefix() + newContent + this.getNewTransUnitTargetSuffix();
         }

@@ -66,6 +66,7 @@ describe('ngx-i18nsupport-lib xtb test spec', () => {
         let ID_CONTAINS_TWO_ICU = 'complextags.icuTwoICU';
         let ID_WITH_BR_TAG = '3944017551463298929';
         let ID_WITH_IMG_TAG = '705837031073461246';
+        let ID_UNTRANSLATED_DESCRIPTION = '7499557905529977372';
 
         it('should read xtb file', () => {
             const file: ITranslationMessagesFile = readFile(TRANSLATION_EN_XTB);
@@ -314,6 +315,35 @@ describe('ngx-i18nsupport-lib xtb test spec', () => {
             let changedTargetFile = TranslationMessagesFileFactory.fromUnknownFormatFileContent(targetFile.editedContent(), null, null);
             let targetTu = changedTargetFile.transUnitWithId(ID_TO_MERGE);
             expect(targetTu.targetContent()).toBe('Test for merging units');
+        });
+
+        it ('should not copy source to target for non default lang if not wanted', () => {
+            const file: ITranslationMessagesFile = readUnknownFormatFile(MASTER_1_XMB);
+            const tu: ITransUnit = file.transUnitWithId(ID_UNTRANSLATED_DESCRIPTION);
+            expect(tu).toBeTruthy();
+            let isDefaultLang: boolean = false;
+            let copyContent: boolean = false;
+            const file2: ITranslationMessagesFile = file.createTranslationFileForLang('xy', null, isDefaultLang, copyContent);
+            let changedTargetFile = TranslationMessagesFileFactory.fromUnknownFormatFileContent(file2.editedContent(), null, null);
+            const tu2a: ITransUnit = changedTargetFile.transUnitWithId(ID_UNTRANSLATED_DESCRIPTION);
+            expect(tu2a.targetContent()).toBeFalsy();
+            const tu2: ITransUnit = file2.transUnitWithId(ID_UNTRANSLATED_DESCRIPTION);
+            expect(tu2.targetContent()).toBeFalsy();
+        });
+
+        it ('should copy a transunit from file a to file b and leave content blank (xliffmerge #103)', () => {
+            const file: ITranslationMessagesFile = readUnknownFormatFile(MASTER_1_XMB);
+            const tu: ITransUnit = file.transUnitWithId(ID_TO_MERGE);
+            expect(tu).toBeTruthy();
+            const targetFile: ITranslationMessagesFile = readFile(TRANSLATION_EN_XTB, MASTER_1_XMB);
+            expect(targetFile.transUnitWithId(ID_TO_MERGE)).toBeFalsy();
+            // flag copyContent set to false here...
+            const newTu = targetFile.importNewTransUnit(tu, false, false);
+            expect(targetFile.transUnitWithId(ID_TO_MERGE)).toBeTruthy();
+            expect(targetFile.transUnitWithId(ID_TO_MERGE)).toEqual(newTu);
+            let changedTargetFile = TranslationMessagesFileFactory.fromUnknownFormatFileContent(targetFile.editedContent(), null, null);
+            let targetTu = changedTargetFile.transUnitWithId(ID_TO_MERGE);
+            expect(targetTu.targetContent()).toBe('');
         });
 
         it ('should copy a transunit to a specified position (#53)', () => {
