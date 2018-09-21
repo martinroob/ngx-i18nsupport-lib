@@ -1,3 +1,11 @@
+<a name="1.10.1"></a>
+# [1.10.1](https://github.com/martinroob/ngx-i18nsupport-lib/compare/v1.10.0...v1.10.1) (2018-09-21)
+
+### Bug Fixes
+
+* **XMB** [xliffmerge #103](https://github.com/martinroob/ngx-i18nsupport/issues/103)
+`xliffmerge` option `useSourceAsTarget` did not work correctly when using format XMB/XTB. The flag was not used in this case.
+
 <a name="1.10.0"></a>
 # [1.10.0](https://github.com/martinroob/ngx-i18nsupport-lib/compare/v1.9.2...v1.10.0) (2018-08-05)
 
